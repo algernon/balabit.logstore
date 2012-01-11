@@ -21,6 +21,31 @@
     (nth type-map int-type)
     :unknown))
 
+(def record-flag-bitmap #^{:private true}
+  [:compressed
+   :encrypted
+   :broken
+   :serialized])
+
+(defn- bitmap-find
+  "Find out whether a bit is set in a Number, if so, add the same
+  index entry from a bitmap to the accumulator, otherwise don't touch
+  it. Returns the accumulator."
+  [acc bitmap x n]
+  (if (bit-test x n)
+    (conj acc (nth bitmap n))
+    acc))
+
+(defn- resolve-record-flags
+  "Expand the record flag into symbolic names"
+  [int-flags]
+
+  (loop [index 0
+         acc []]
+    (if (< index (count record-flag-bitmap))
+      (recur (inc index) (bitmap-find acc record-flag-bitmap int-flags index))
+      acc)))
+
 (defn read-header
   "Read the header of a LogStore record. Returns an LSTRecordHeader."
   [lst]
@@ -29,7 +54,7 @@
     (LSTRecordHeader. (.position handle)
                       (.getInt handle) ; size
                       (resolve-type (.get handle)) ; type
-                      (.get handle) ; flags
+                      (resolve-record-flags (.get handle)) ; flags
                     )))
 
 (defn read

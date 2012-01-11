@@ -44,4 +44,5 @@
        (:offset (:header loggen-store-record)) => 13878
        (:size (:header loggen-store-record)) => 14079
        (:type (:header loggen-store-record)) => :chunk
+       (:flags (:header loggen-store-record)) => [:compressed]
        (.limit (:data loggen-store-record)) => 14073)
