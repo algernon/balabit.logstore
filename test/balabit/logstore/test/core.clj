@@ -34,3 +34,14 @@
 
 (fact "about the number of records in the LogStore"
       (lst/count loggen-store) => 9)
+
+(fact "about a record read from a LogStore"
+       (lst/nth loggen-store 1) =not=> nil)
+
+(def loggen-store-record (lst/nth loggen-store 1))
+
+(facts "about a record read from a LogStore"
+       (:offset (:header loggen-store-record)) => 13878
+       (:size (:header loggen-store-record)) => 14079
+       (:type (:header loggen-store-record)) => 2
+       (.limit (:data loggen-store-record)) => 14073)

@@ -4,7 +4,7 @@
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
   (:use balabit.logstore.utils)
-  (:refer-clojure :exclude [open count])
+  (:refer-clojure :exclude [open count nth])
   (:require [balabit.logstore.errors :as errors]
             [balabit.logstore.record :as lst-record]))
 
@@ -87,3 +87,11 @@ Returns an LSTFileHeader instance."
   "Count the elements in a LogStore file."
   [lst]
   (clojure.core/count (:record-map lst)))
+
+(defn nth
+  "Get the nth record from a LogStore."
+  [lst index]
+
+  (let [record-header (clojure.core/nth (:record-map lst) index)]
+    (.position (:handle lst) (:offset record-header))
+    (lst-record/read lst)))
