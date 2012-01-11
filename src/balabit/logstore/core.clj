@@ -3,6 +3,7 @@
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
+  (:use balabit.logstore.utils)
   (:refer-clojure :exclude [open count])
   (:require [balabit.logstore.errors :as errors]
             [balabit.logstore.record :as lst-record]))
@@ -16,21 +17,13 @@
 
 (defrecord LSTFile [header handle record-map])
 
-(defn- lst-read-bytes
-  "Read a given amount of bytes from a ByteBuffer, and return them
-as a byte array."
-  [handle length]
-  (let [buffer (make-array (. Byte TYPE) length)]
-    (.get handle buffer 0 length)
-    buffer))
-
 (defn- lst-read-block
   "Read a length-prefixed block from a LogStore ByteBuffer, and
 return the result as a byte array."
   [handle]
 
   (let [length (.getInt handle)]
-    (lst-read-bytes handle length)))
+    (bb-read-bytes handle length)))
 
 (defn- lst-crypto-header-read
   "Read the crypto header part of a LogStore file header, and return
@@ -48,7 +41,7 @@ an LSTCryptoHeader record."
 Returns an LSTFileHeader instance."
   [handle]
 
-  (let [magic (String. (lst-read-bytes handle 4))]
+  (let [magic (String. (bb-read-bytes handle 4))]
     (if (not (or
               (= magic "LST3")
               (= magic "LST4")))
