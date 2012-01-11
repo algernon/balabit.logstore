@@ -2,7 +2,7 @@
   (:require [balabit.logstore.core :as lgs]))
 
 (defn main [& args]
-  (let [file (or (first args) "t/messages.store")
+  (let [file (or (first args) "resources/loggen.store")
         store (lgs/lst-open file)
         header (:header store)]
     (println "File:" file)
