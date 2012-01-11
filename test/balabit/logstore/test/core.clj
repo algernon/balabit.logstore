@@ -43,5 +43,5 @@
 (facts "about a record read from a LogStore"
        (:offset (:header loggen-store-record)) => 13878
        (:size (:header loggen-store-record)) => 14079
-       (:type (:header loggen-store-record)) => 2
+       (:type (:header loggen-store-record)) => :chunk
        (.limit (:data loggen-store-record)) => 14073)

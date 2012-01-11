@@ -6,6 +6,21 @@
 (defrecord LSTRecordHeader [offset size type flags])
 (defrecord LSTRecord [header data])
 
+(def type-map #^{:private true}
+  [:unknown
+   :xfrm-info
+   :chunk
+   :timestamp])
+
+(defn- resolve-type
+  "Resolve the type of a LogStore record."
+  [int-type]
+
+  (if (and (> (count type-map) int-type)
+           (> int-type 0))
+    (nth type-map int-type)
+    :unknown))
+
 (defn read-header
   "Read the header of a LogStore record. Returns an LSTRecordHeader."
   [lst]
@@ -13,7 +28,7 @@
   (let [handle (:handle lst)]
     (LSTRecordHeader. (.position handle)
                       (.getInt handle) ; size
-                      (.get handle) ; type
+                      (resolve-type (.get handle)) ; type
                       (.get handle) ; flags
                     )))
 
