@@ -33,4 +33,4 @@
        (:algo_crypt (:crypto (:header loggen-store))) => "AES-128-CBC")
 
 (fact "about the number of records in the LogStore"
-      (count (:record-map loggen-store)) => 9)
+      (lst/count loggen-store) => 9)

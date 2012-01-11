@@ -3,7 +3,7 @@
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
-  (:refer-clojure :exclude [open])
+  (:refer-clojure :exclude [open count])
   (:require [balabit.logstore.errors :as errors]
             [balabit.logstore.record :as lst-record]))
 
@@ -90,7 +90,7 @@ Returns an LSTFileHeader instance."
         header (lst-file-header-read handle)]
     (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))
 
-(defn lst-nth-record
-  "Get the nth record from a LogStore ByteBuffer."
-  [handle record-index]
-  nil)
+(defn count
+  "Count the elements in a LogStore file."
+  [lst]
+  (clojure.core/count (:record-map lst)))
