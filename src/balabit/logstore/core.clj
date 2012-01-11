@@ -3,7 +3,8 @@
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
-  (:require [balabit.logstore.errors :as errors]))
+  (:require [balabit.logstore.errors :as errors]
+            [balabit.logstore.record :as lst-record]))
 
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))
@@ -12,7 +13,7 @@
 (defrecord LSTFileHeader [magic, length, flags, last_chunk, last_rec, last_chunk_end,
                           crypto])
 
-(defrecord LSTFile [header handle])
+(defrecord LSTFile [header handle record-map])
 
 (defn- lst-read-bytes
   "Read a given amount of bytes from a ByteBuffer, and return them
@@ -59,6 +60,26 @@ Returns an LSTFileHeader instance."
                     (.getLong handle) ; last_chunk_end
                     (do (.position handle 136) (lst-crypto-header-read handle)))))
 
+(defn- lst-file-map-record
+  "Read a record from a LogStore ByteBuffer, and seek to its end."
+  [lst]
+
+  (let [handle (:handle lst)
+        record-header (lst-record/read-header lst)]
+    (.position handle (+ (:offset record-header) (:size record-header)))
+    record-header))
+
+(defn- lst-file-map
+  "Map all records from a LogStore ByteBuffer."
+  [lst]
+
+  (loop [counter (:last_chunk (:header lst))
+         result []]
+    (if (> counter 0)
+      (let [rec (lst-file-map-record lst)]
+        (recur (dec counter) (conj result rec)))
+      result)))
+
 (defn lst-open
   "Open a LogStore file. Returns an LSTFile, or throws an exception on error."
   [filename]
@@ -66,15 +87,9 @@ Returns an LSTFileHeader instance."
   (let [channel (.getChannel (FileInputStream. filename))
         handle (.map channel READ_ONLY 0 (.size channel))
         header (lst-file-header-read handle)]
-    (LSTFile. header handle)))
+    (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))
 
-(defn lst-file-map
-  "Map the records within a LogStore file, for optionally faster record retrieval."
-  [handle]
-
-  nil)
-
-(defn lst-get-record
+(defn lst-nth-record
   "Get the nth record from a LogStore ByteBuffer."
-  [handle record-index & map]
+  [handle record-index]
   nil)

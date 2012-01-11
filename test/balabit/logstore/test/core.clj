@@ -31,3 +31,6 @@
        (:length (:header loggen-store)) => 183
        (:algo_hash (:crypto (:header loggen-store))) => "SHA1"
        (:algo_crypt (:crypto (:header loggen-store))) => "AES-128-CBC")
+
+(fact "about the number of records in the LogStore"
+      (count (:record-map loggen-store)) => 9)
