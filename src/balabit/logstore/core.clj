@@ -2,7 +2,8 @@
   "Core functions to read syslog-ng PE's LogStore files."
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
-  (:use [slingshot.slingshot :only [throw+]]))
+  (:use [slingshot.slingshot :only [throw+]])
+  (:require [balabit.logstore.errors :as errors]))
 
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))
@@ -45,13 +46,18 @@ an LSTCryptoHeader record."
 Returns an LSTFileHeader instance."
   [handle]
 
-  (LSTFileHeader. (String. (lst-read-bytes handle 4))  ; magic
-                  (.getInt handle)  ; length
-                  (.getInt handle)  ; flags
-                  (.getInt handle)  ; last_chunk
-                  (.getInt handle)  ; last_rec
-                  (.getLong handle) ; last_chunk_end
-                  (do (.position handle 136) (lst-crypto-header-read handle))))
+  (let [magic (String. (lst-read-bytes handle 4))]
+    (if (not (or
+              (= magic "LST3")
+              (= magic "LST4")))
+      (throw+ (errors/invalid-file :magic "File is not valid LST3/LST4")))
+    (LSTFileHeader. magic  ; magic
+                    (.getInt handle)  ; length
+                    (.getInt handle)  ; flags
+                    (.getInt handle)  ; last_chunk
+                    (.getInt handle)  ; last_rec
+                    (.getLong handle) ; last_chunk_end
+                    (do (.position handle 136) (lst-crypto-header-read handle)))))
 
 (defn lst-open
   "Open a LogStore file. Returns an LSTFile, or throws an exception on error."
@@ -60,11 +66,7 @@ Returns an LSTFileHeader instance."
   (let [channel (.getChannel (FileInputStream. filename))
         handle (.map channel READ_ONLY 0 (.size channel))
         header (lst-file-header-read handle)]
-    (if (or
-         (= (:magic header) "LST3")
-         (= (:magic header) "LST4"))
-      (LSTFile. header handle)
-      (throw (Exception. (str "File is not valid LST3/LST4!"))))))
+    (LSTFile. header handle)))
 
 (defn lst-file-map
   "Map the records within a LogStore file, for optionally faster record retrieval."
