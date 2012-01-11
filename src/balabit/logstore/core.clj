@@ -3,6 +3,7 @@
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
+  (:refer-clojure :exclude [open])
   (:require [balabit.logstore.errors :as errors]
             [balabit.logstore.record :as lst-record]))
 
@@ -80,7 +81,7 @@ Returns an LSTFileHeader instance."
         (recur (dec counter) (conj result rec)))
       result)))
 
-(defn lst-open
+(defn open
   "Open a LogStore file. Returns an LSTFile, or throws an exception on error."
   [filename]
 

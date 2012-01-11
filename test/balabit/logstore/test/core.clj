@@ -4,17 +4,17 @@
   (:use [slingshot.slingshot :only [throw+ try+]]))
 
 (fact "about valid logstores being openable"
-      (lst/lst-open "resources/loggen.store") =not=> nil)
+      (lst/open "resources/loggen.store") =not=> nil)
 
 (defn open-invalid []
   (try+
-   (lst/lst-open "project.clj")
+   (lst/open "project.clj")
    (catch [:type :balabit.logstore.errors/invalid-file] {:keys [message]}
      true)))
 
 (defn open-non-existant []
   (try+
-   (lst/lst-open "does-not-exist.store")
+   (lst/open "does-not-exist.store")
    (catch java.lang.RuntimeException e
      (= (class (.getCause e)) java.io.FileNotFoundException))))
 
@@ -24,7 +24,7 @@
 (fact "about a non-existing logstore throwing an exception"
       (open-non-existant) => true)
 
-(def loggen-store (lst/lst-open "resources/loggen.store"))
+(def loggen-store (lst/open "resources/loggen.store"))
 
 (facts "about logstore meta-data"
        (:magic (:header loggen-store)) => "LST4"
