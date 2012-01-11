@@ -11,7 +11,4 @@
                      [midje "1.3.1"]
                      [lein-midje "1.0.7"]
                      ]
-  :run-aliases {
-                :test1 balabit.logstore.scripts.test1/main
-                }
   )
