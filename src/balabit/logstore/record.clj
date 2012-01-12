@@ -19,8 +19,7 @@ record, or a descendant of it, must implement this."
   (flag-set? [this flag] (flag-set? (:header this) flag)))
 
 (def type-map #^{:private true}
-  [:unknown
-   :xfrm-info
+  [:xfrm-info
    :chunk
    :timestamp])
 
@@ -30,7 +29,7 @@ record, or a descendant of it, must implement this."
 
   (if (and (> (count type-map) int-type)
            (> int-type 0))
-    (nth type-map int-type)
+    (nth type-map (dec int-type))
     :unknown))
 
 (def record-flag-bitmap #^{:private true}
