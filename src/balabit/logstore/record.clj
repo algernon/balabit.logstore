@@ -66,3 +66,8 @@
         record (.slice handle)]
     (.limit record (- (:size header) 6))
     (LSTRecord. header record)))
+
+(defn flag-set?
+  "Determines whether a given flag is set on a LogStore record"
+  [record flag]
+  (or (some #(= flag %) (:flags (:header record))) false))

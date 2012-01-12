@@ -1,12 +1,17 @@
 (ns balabit.logstore
   "A convenient API for reading syslog-ng PE LogStore files."
 
-  (:require [balabit.logstore.core :as lgs])
+  (:require [balabit.logstore.core :as lgs]
+            [balabit.logstore.record :as lgs-record])
   (:import balabit.logstore.core.LSTFile)
   (:import balabit.logstore.record.LSTRecord))
 
 (declare ^:dynamic ^LSTFile *logstore*)
 (declare ^:dynamic ^LSTRecord *logstore-record*)
+
+;;
+;; LogStore convenience macros
+;;
 
 (defmacro with-logstore
   "Do stuff with a LogStore. The macro keeps the LogStore file opened,
@@ -30,6 +35,10 @@
   [index]
   `(lgs/nth *logstore* ~index))
 
+;;
+;; LogStore record convenience macros
+;;
+
 (defmacro with-logstore-record
   "Do stuff with a specific LogStore record"
   [index & body]
@@ -41,3 +50,23 @@
   it."
   [& fields]
   `(reduce get *logstore-record* [~@fields]))
+
+;;
+;; Internal functions
+;;
+
+(defmacro defrecflagq
+  "Define a record flag query macro. Takes a name, and a flag to
+  query, returns a macro that does just that."
+  [flag]
+  (let [name (symbol (str "logstore-record." flag "?"))
+        keyflag (keyword flag)]
+    `(defmacro ~name [& ~'record]
+       `(lgs-record/flag-set? (or ~@~'record *logstore-record*) ~~keyflag))))
+
+(defmacro make-record-flag-accessors
+  [& flags]
+  `(do ~@(map (fn [q] `(defrecflagq ~q)) flags)))
+
+(make-record-flag-accessors compressed encrypted broken serialized)
+

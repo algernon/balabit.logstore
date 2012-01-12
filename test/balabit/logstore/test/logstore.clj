@@ -18,4 +18,17 @@
            (logstore-record :header :size) => 14079
            (logstore-record :header :type) => :chunk
            (logstore-record :header :flags) => [:compressed]
-           (.limit (logstore-record :data)) => 14073)))
+           (.limit (logstore-record :data)) => 14073)
+
+    (facts "about record flag access"
+           (logstore-record.compressed?) => true
+           (logstore-record.encrypted?) => false
+           (logstore-record.broken?) => false
+           (logstore-record.serialized?) => false))
+
+  (let [rec (logstore-nth 1)]
+    (facts "about record flag access, with an explicit record"
+           (logstore-record.compressed? rec) => true
+           (logstore-record.encrypted? rec) => false
+           (logstore-record.broken? rec) => false
+           (logstore-record.serialized?) => false)))
