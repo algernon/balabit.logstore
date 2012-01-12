@@ -49,4 +49,5 @@
        (:first_msgid loggen-store-record) => 4162
        (:last_msgid loggen-store-record) => 8322
        (:chunk_id loggen-store-record) => 1
-       (:xfrm_offset loggen-store-record) => 0)
+       (:xfrm_offset loggen-store-record) => 0
+       (:flags loggen-store-record) => [:hash])

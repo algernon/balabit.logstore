@@ -114,6 +114,10 @@ behind the handle is positioned right after the record header."
         usec (.getInt handle)]
     (+ sec (quot usec 1000))))
 
+(def chunk-flag-bitmap #^{:private true}
+  [:hmac
+   :hash])
+
 (defmethod read-record-data :chunk
   [header handle]
 
@@ -135,7 +139,7 @@ behind the handle is positioned right after the record header."
                      chunk_id
                      xfrm_offset
                      data
-                     flags
+                     (resolve-flags flags chunk-flag-bitmap)
                      (bb-read-block handle) ;file_mac
                      (bb-read-block handle) ;chunk_mac
                      )))

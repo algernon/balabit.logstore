@@ -22,7 +22,8 @@
            (logstore-record :first_msgid) => 4162
            (logstore-record :last_msgid) => 8322
            (logstore-record :chunk_id) => 1
-           (logstore-record :xfrm_offset) => 0)
+           (logstore-record :xfrm_offset) => 0
+           (logstore-record :flags) => [:hash])
 
     (facts "about record flag access"
            (logstore-record.compressed?) => true
