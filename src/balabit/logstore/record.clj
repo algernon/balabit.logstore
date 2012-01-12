@@ -3,8 +3,20 @@
 
   (:refer-clojure :exclude [read]))
 
-(defrecord LSTRecordHeader [offset size type flags])
-(defrecord LSTRecord [header data])
+(defprotocol IRecordHeader
+  "LogStore record header protocol. Everything that is a LogStore
+record, or a descendant of it, must implement this."
+  (flag-set? [this flag]
+    "Determines whether a given flag is set on a LogStore record header"))
+
+(defrecord LSTRecordHeader [offset size type flags]
+  IRecordHeader
+  (flag-set? [this flag]
+    (or (some #(= flag %) (:flags this)) false)))
+
+(defrecord LSTRecord [header data]
+  IRecordHeader
+  (flag-set? [this flag] (flag-set? (:header this) flag)))
 
 (def type-map #^{:private true}
   [:unknown
@@ -66,8 +78,3 @@
         record (.slice handle)]
     (.limit record (- (:size header) 6))
     (LSTRecord. header record)))
-
-(defn flag-set?
-  "Determines whether a given flag is set on a LogStore record"
-  [record flag]
-  (or (some #(= flag %) (:flags (:header record))) false))
