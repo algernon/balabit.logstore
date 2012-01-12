@@ -14,9 +14,18 @@ record, or a descendant of it, must implement this."
   (flag-set? [this flag]
     (or (some #(= flag %) (:flags this)) false)))
 
-(defrecord LSTRecord [header data]
-  IRecordHeader
-  (flag-set? [this flag] (flag-set? (:header this) flag)))
+(defmacro defrecheader
+  "Crete a record, descending from IRecordHeader, that has a default
+  flag-set? implementation."
+  [name fields]
+
+  `(do
+     (defrecord ~name ~fields
+       IRecordHeader
+       (flag-set? [~'this ~'flag]
+         (flag-set? (:header ~'this) ~'flag)))))
+
+(defrecheader LSTRecord [header data])
 
 (def type-map #^{:private true}
   [:xfrm-info
