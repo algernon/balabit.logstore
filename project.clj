@@ -1,4 +1,4 @@
-(defproject clj-logstore "0.1.0-SNAPSHOT"
+(defproject balabit.logstore "0.1.0-SNAPSHOT"
   :description "syslog-ng PE logstore reader"
   :aot :all
   :dependencies [
@@ -11,5 +11,6 @@
                      [lein-marginalia "0.6.1"]
                      [midje "1.3.1"]
                      [lein-midje "1.0.7"]
+                     [codox "0.3.1"]
                      ]
   )
