@@ -72,14 +72,15 @@ record, or a descendant of it, must implement this."
     (conj acc (nth bitmap n))
     acc))
 
-(defn- resolve-record-flags
-  "Expand the record flag into symbolic names"
-  [int-flags]
+(defn- resolve-flags
+  "Expand flags bitwise-OR'd together into symbolic names, using a
+  bitmap table."
+  [int-flags bitmap]
 
   (loop [index 0
          acc []]
-    (if (< index (count record-flag-bitmap))
-      (recur (inc index) (bitmap-find acc record-flag-bitmap int-flags index))
+    (if (< index (count bitmap))
+      (recur (inc index) (bitmap-find acc bitmap int-flags index))
       acc)))
 
 (defn read-header
@@ -90,7 +91,7 @@ record, or a descendant of it, must implement this."
     (LSTRecordHeader. (.position handle)
                       (.getInt handle) ; size
                       (resolve-type (.get handle)) ; type
-                      (resolve-record-flags (.get handle)) ; flags
+                      (resolve-flags (.get handle) record-flag-bitmap) ; flags
                     )))
 
 (defmulti read-record-data
