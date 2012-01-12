@@ -45,4 +45,8 @@
        (:size (:header loggen-store-record)) => 14079
        (:type (:header loggen-store-record)) => :chunk
        (:flags (:header loggen-store-record)) => [:compressed]
-       (.limit (:data loggen-store-record)) => 14073)
+       (.limit (:data loggen-store-record)) => 13979
+       (:first_msgid loggen-store-record) => 4162
+       (:last_msgid loggen-store-record) => 8322
+       (:chunk_id loggen-store-record) => 1
+       (:xfrm_offset loggen-store-record) => 0)

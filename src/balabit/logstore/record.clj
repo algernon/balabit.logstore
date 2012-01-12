@@ -1,7 +1,10 @@
 (ns balabit.logstore.record
   "LogStore record functions."
 
-  (:refer-clojure :exclude [read]))
+  (:refer-clojure :exclude [read])
+  (:use balabit.logstore.utils)
+  (:import (org.joda.time DateTime DateTimeZone))
+)
 
 (defprotocol IRecordHeader
   "LogStore record header protocol. Everything that is a LogStore
@@ -26,6 +29,19 @@ record, or a descendant of it, must implement this."
          (flag-set? (:header ~'this) ~'flag)))))
 
 (defrecheader LSTRecord [header data])
+(defrecheader LSTRecordChunk [header
+                              start_time end_time
+                              first_msgid last_msgid
+                              chunk_id
+                              xfrm_offset
+                              
+                              ;chunk_tail_end
+
+                              data
+                              flags
+                              file_mac
+                              chunk_mac
+                              ])
 
 (def type-map #^{:private true}
   [:xfrm-info
@@ -88,6 +104,40 @@ behind the handle is positioned right after the record header."
 (defmethod read-record-data :default
   [header handle]
   (LSTRecord. header (.limit (.slice handle) (- (:size header) 6))))
+
+(defn- read-timestamp
+  "Read a timestamp from a ByteBuffer"
+  [handle]
+
+  (let [sec (* (.getLong handle) 1000)
+        usec (.getInt handle)]
+    (+ sec (quot usec 1000))))
+
+(defmethod read-record-data :chunk
+  [header handle]
+
+  (let [original_pos (.position handle)
+        buffer (.limit (.slice handle) (- (:size header) 6))
+        start_time (DateTime. (read-timestamp handle))
+        end_time (DateTime. (read-timestamp handle))
+        first_msgid (.getInt handle)
+        last_msgid (.getInt handle)
+        chunk_id (.getInt handle)
+        xfrm_offset (.getLong handle)
+        tail_offset (.getInt handle)
+        data (.limit (.slice handle) (- tail_offset 48))
+        flags (do (.position handle (+ original_pos tail_offset -6)) (.getInt handle))
+        ]
+    (LSTRecordChunk. header
+                     start_time end_time
+                     first_msgid last_msgid
+                     chunk_id
+                     xfrm_offset
+                     data
+                     flags
+                     (bb-read-block handle) ;file_mac
+                     (bb-read-block handle) ;chunk_mac
+                     )))
 
 (defn read
   "Read a record from a LogStore. Returns an LSTRecord."

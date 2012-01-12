@@ -18,7 +18,11 @@
            (logstore-record :header :size) => 14079
            (logstore-record :header :type) => :chunk
            (logstore-record :header :flags) => [:compressed]
-           (.limit (logstore-record :data)) => 14073)
+           (.limit (logstore-record :data)) => 13979
+           (logstore-record :first_msgid) => 4162
+           (logstore-record :last_msgid) => 8322
+           (logstore-record :chunk_id) => 1
+           (logstore-record :xfrm_offset) => 0)
 
     (facts "about record flag access"
            (logstore-record.compressed?) => true
