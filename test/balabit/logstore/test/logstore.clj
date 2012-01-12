@@ -31,4 +31,4 @@
            (logstore-record.compressed? rec) => true
            (logstore-record.encrypted? rec) => false
            (logstore-record.broken? rec) => false
-           (logstore-record.serialized?) => false)))
+           (logstore-record.serialized? rec) => false)))
