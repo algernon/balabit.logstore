@@ -77,12 +77,20 @@ record, or a descendant of it, must implement this."
                       (resolve-record-flags (.get handle)) ; flags
                     )))
 
+(defmulti read-record-data
+  "Read a given type of record from a LogStore ByteBuffer. The record
+header is already parsed, and available as record-header, the buffer
+behind the handle is positioned right after the record header."
+  (fn [record-header handle] (:type record-header)))
+
+;; Default implementation of the record data reader. It just reads the
+;; whole record, and returns a generic LSTRecord.
+(defmethod read-record-data :default
+  [header handle]
+  (LSTRecord. header (.limit (.slice handle) (- (:size header) 6))))
+
 (defn read
   "Read a record from a LogStore. Returns an LSTRecord."
   [lst]
 
-  (let [header (read-header lst)
-        handle (:handle lst)
-        record (.slice handle)]
-    (.limit record (- (:size header) 6))
-    (LSTRecord. header record)))
+  (read-record-data (read-header lst) (:handle lst)))
