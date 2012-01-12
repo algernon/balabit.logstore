@@ -3,6 +3,7 @@
 
   (:require [balabit.logstore.core :as lgs]
             [balabit.logstore.record :as lgs-record])
+  (:use balabit.logstore.internal.logstore)
   (:import balabit.logstore.core.LSTFile)
   (:import balabit.logstore.record.LSTRecord))
 
@@ -51,22 +52,4 @@
   [& fields]
   `(reduce get *logstore-record* [~@fields]))
 
-;;
-;; Internal functions
-;;
-
-(defmacro defrecflagq
-  "Define a record flag query macro. Takes a name, and a flag to
-  query, returns a macro that does just that."
-  [flag]
-  (let [name (symbol (str "logstore-record." flag "?"))
-        keyflag (keyword flag)]
-    `(defmacro ~name [& ~'record]
-       `(lgs-record/flag-set? (or ~@~'record *logstore-record*) ~~keyflag))))
-
-(defmacro make-record-flag-accessors
-  [& flags]
-  `(do ~@(map (fn [q] `(defrecflagq ~q)) flags)))
-
 (make-record-flag-accessors compressed encrypted broken serialized)
-
