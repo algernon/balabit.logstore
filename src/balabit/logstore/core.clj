@@ -17,23 +17,15 @@
 
 (defrecord LSTFile [header handle record-map])
 
-(defn- lst-read-block
-  "Read a length-prefixed block from a LogStore ByteBuffer, and
-return the result as a byte array."
-  [handle]
-
-  (let [length (.getInt handle)]
-    (bb-read-bytes handle length)))
-
 (defn- lst-crypto-header-read
   "Read the crypto header part of a LogStore file header, and return
 an LSTCryptoHeader record."
   [handle]
 
-  (LSTCryptoHeader. (String. (lst-read-block handle)) ; algo.hash
-                    (String. (lst-read-block handle)) ; algo.crypt
-                    (lst-read-block handle) ; file_mac
-                    (lst-read-block handle) ; der
+  (LSTCryptoHeader. (String. (bb-read-block handle)) ; algo.hash
+                    (String. (bb-read-block handle)) ; algo.crypt
+                    (bb-read-block handle) ; file_mac
+                    (bb-read-block handle) ; der
                     ))
 
 (defn- lst-file-header-read
