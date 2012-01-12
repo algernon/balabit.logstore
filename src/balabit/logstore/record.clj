@@ -118,6 +118,8 @@ behind the handle is positioned right after the record header."
   [:hmac
    :hash])
 
+;; Reads :chunk type LogStore records, and parses the sub-header, and
+;; will handle data demungling too, at a later time.
 (defmethod read-record-data :chunk
   [header handle]
 
