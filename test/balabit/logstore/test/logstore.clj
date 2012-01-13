@@ -2,6 +2,7 @@
   (:use [midje.sweet]
         [balabit.logstore]))
 
+(comment
 (with-logstore "resources/loggen.store"
   (facts "about logstore meta-data"
          (logstore-header :magic) => "LST4"
@@ -18,7 +19,7 @@
            (logstore-record :header :size) => 14079
            (logstore-record :header :type) => :chunk
            (logstore-record :header :flags) => [:compressed]
-           (.limit (logstore-record :data)) => 13979
+           (count (logstore-record :messages)) => 4160
            (logstore-record :first_msgid) => 4162
            (logstore-record :last_msgid) => 8322
            (logstore-record :chunk_id) => 1
@@ -36,4 +37,18 @@
            (logstore-record.compressed? rec) => true
            (logstore-record.encrypted? rec) => false
            (logstore-record.broken? rec) => false
-           (logstore-record.serialized? rec) => false)))
+           (logstore-record.serialized? rec) => false))))
+
+(with-logstore "resources/short-compressed.store"
+  (facts "about a short, compressed logstore's meta-data"
+         (logstore-header :magic) => "LST4"
+         (logstore-header :length) => 183
+         (count (logstore-records)) => 1)
+
+  (with-logstore-record 0
+    (facts "about the single record in the logstore"
+           (logstore-record :header :offset) => 187
+           (logstore-record :header :type) => :chunk
+           (logstore-record.compressed?) => true
+
+           (count (logstore-record :messages)) => 4)))

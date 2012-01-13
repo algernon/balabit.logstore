@@ -5,6 +5,7 @@
   (:use balabit.logstore.core.utils)
   (:use [slingshot.slingshot :only [throw+]])
   (:import (org.joda.time DateTime DateTimeZone)
+           (java.io DataInputStream)
            (java.util.zip InflaterInputStream)))
 
 (defprotocol IRecordHeader
@@ -36,7 +37,7 @@ record, or a descendant of it, must implement this."
                               chunk_id
                               xfrm_offset
                               
-                              data
+                              messages
                               flags
                               file_mac
                               chunk_mac
@@ -132,9 +133,41 @@ behind the handle is positioned right after the record header."
   [record-header data]
   (InflaterInputStream. data))
 
+(defmulti chunk-data-split
+  "Split unserialized data into chunks"
+  (fn [record-header msgcnt data] (flag-set? record-header :serialized)))
+
+(defmethod chunk-data-split :serialized
+  [record-header msgcnt data] data)
+
+(defn- chunk-data-read-line
+  "Read a length-prefixed log line from a DataInputStream."
+  [stream]
+
+  (try
+    (let [len (.readInt stream)]
+      (let [buffer (byte-array len)]
+        (.read stream buffer)
+        buffer))
+    (catch Exception _
+      nil)))
+
+(defmethod chunk-data-split :default
+  [record-header msgcnt data]
+
+  (let [stream (DataInputStream. data)]
+    (loop [messages []
+           remaining msgcnt]
+      (let [line (chunk-data-read-line stream)]
+        (if (< remaining 0)
+          messages
+          (recur (conj messages line) (dec remaining)))))))
+
 (defn- chunk-decode
-  [header data]
-  ((comp (partial chunk-decompress header) bb-buffer-stream) data))
+  [header msgcnt data]
+  ((comp (partial chunk-data-split header msgcnt)
+         (partial chunk-decompress header)
+         bb-buffer-stream) data))
 
 ;; Reads :chunk type LogStore records, and parses the sub-header, and
 ;; will handle data demungling too, at a later time.
@@ -150,7 +183,8 @@ behind the handle is positioned right after the record header."
         chunk_id (.getInt handle)
         xfrm_offset (.getLong handle)
         tail_offset (.getInt handle)
-        data (chunk-decode header (.limit (.slice handle) (- tail_offset 48)))
+        data (chunk-decode header (- last_msgid first_msgid)
+                           (.limit (.slice handle) (- tail_offset 48)))
         flags (do (.position handle (+ original_pos tail_offset -6)) (.getInt handle))
         ]
     (LSTRecordChunk. header
