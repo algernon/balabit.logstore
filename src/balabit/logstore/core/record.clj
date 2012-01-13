@@ -3,8 +3,9 @@
 
   (:refer-clojure :exclude [read])
   (:use balabit.logstore.core.utils)
-  (:import (org.joda.time DateTime DateTimeZone))
-)
+  (:use [slingshot.slingshot :only [throw+]])
+  (:import (org.joda.time DateTime DateTimeZone)
+           (java.util.zip InflaterInputStream)))
 
 (defprotocol IRecordHeader
   "LogStore record header protocol. Everything that is a LogStore
@@ -112,9 +113,28 @@ behind the handle is positioned right after the record header."
         usec (.getInt handle)]
     (+ sec (quot usec 1000))))
 
+;;
+;; # Chunk format handling
+;;
+
 (def chunk-flag-bitmap #^{:private true}
   [:hmac
    :hash])
+
+(defmulti chunk-decompress
+  "Decompress a chunk, if so need be."
+  (fn [record-header data] (flag-set? record-header :compressed)))
+
+(defmethod chunk-decompress :default
+  [record-header data] data)
+
+(defmethod chunk-decompress true
+  [record-header data]
+  (InflaterInputStream. data))
+
+(defn- chunk-decode
+  [header data]
+  ((comp (partial chunk-decompress header) bb-buffer-stream) data))
 
 ;; Reads :chunk type LogStore records, and parses the sub-header, and
 ;; will handle data demungling too, at a later time.
@@ -130,7 +150,7 @@ behind the handle is positioned right after the record header."
         chunk_id (.getInt handle)
         xfrm_offset (.getLong handle)
         tail_offset (.getInt handle)
-        data (.limit (.slice handle) (- tail_offset 48))
+        data (chunk-decode header (.limit (.slice handle) (- tail_offset 48)))
         flags (do (.position handle (+ original_pos tail_offset -6)) (.getInt handle))
         ]
     (LSTRecordChunk. header

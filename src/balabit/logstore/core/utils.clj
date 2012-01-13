@@ -1,5 +1,8 @@
 (ns balabit.logstore.core.utils
-  "Miscellaneous utility functions.")
+  "Miscellaneous utility functions."
+
+  (:import (java.io InputStream)
+           (java.nio ByteBuffer)))
 
 (defn bb-read-bytes
   "Read a given amount of bytes from a ByteBuffer, and return them
@@ -16,3 +19,14 @@ result as a byte array."
 
   (let [length (.getInt handle)]
     (bb-read-bytes handle length)))
+
+(defn bb-buffer-stream
+  "Returns an InputStream for a ByteBuffer, such as returned by mmap."
+  [#^ByteBuffer buf]
+  (proxy [InputStream] []
+    (available [] (.remaining buf))
+    (read
+      ([] (if (.hasRemaining buf) (.get buf) -1))
+      ([dst offset len] (let [actlen (min (.remaining buf) len)]
+                          (.get buf dst offset actlen)
+                          (if (< actlen 1) -1 actlen))))))
