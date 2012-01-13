@@ -8,7 +8,7 @@
                  [joda-time/joda-time "2.0"]
                  ]
   :dev-dependencies [
-                     [lein-marginalia "0.6.1"]
+                     [lein-marginalia "0.7.0-SNAPSHOT"]
                      [midje "1.3.1"]
                      [lein-midje "1.0.7"]
                      ]
