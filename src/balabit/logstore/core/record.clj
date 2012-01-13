@@ -35,8 +35,6 @@ record, or a descendant of it, must implement this."
                               chunk_id
                               xfrm_offset
                               
-                              ;chunk_tail_end
-
                               data
                               flags
                               file_mac
