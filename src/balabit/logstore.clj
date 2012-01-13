@@ -46,6 +46,12 @@
 ;; * The library is not thread-safe. The LogStore file object does
 ;;   store state, using the same one from different threads will
 ;;   produce unpredictable results.
+;;
+;; # Known Bugs
+;;
+;; * Decompression is faulty: if there's more data to be read than
+;;   what fits in the default buffer (512 bytes), decompression will
+;;   go astray.
 
 (ns balabit.logstore
   "Public syslog-ng LogStore reader API"
