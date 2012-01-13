@@ -1,5 +1,5 @@
 (ns balabit.logstore.test.core
-  (:require [balabit.logstore.core :as lst])
+  (:require [balabit.logstore.core.file :as lst])
   (:use [midje.sweet])
   (:use [slingshot.slingshot :only [throw+ try+]]))
 
@@ -9,7 +9,7 @@
 (defn open-invalid []
   (try+
    (lst/open "project.clj")
-   (catch [:type :balabit.logstore.errors/invalid-file] {:keys [message]}
+   (catch [:type :balabit.logstore.core.errors/invalid-file] {:keys [message]}
      true)))
 
 (defn open-non-existant []

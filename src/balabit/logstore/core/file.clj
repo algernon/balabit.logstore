@@ -1,12 +1,12 @@
-(ns balabit.logstore.core
+(ns balabit.logstore.core.file
   "Core functions to read syslog-ng PE's LogStore files."
   (:import (java.nio ByteBuffer)
            (java.io FileInputStream InputStream))
   (:use [slingshot.slingshot :only [throw+]])
-  (:use balabit.logstore.utils)
+  (:use balabit.logstore.core.utils)
   (:refer-clojure :exclude [open count nth])
-  (:require [balabit.logstore.errors :as errors]
-            [balabit.logstore.record :as lst-record]))
+  (:require [balabit.logstore.core.errors :as errors]
+            [balabit.logstore.core.record :as lst-record]))
 
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))

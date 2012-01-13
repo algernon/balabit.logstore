@@ -1,7 +1,7 @@
-(ns balabit.logstore.internal.logstore
+(ns balabit.logstore.impl.logstore
   "Internal functions, to be used by the balabit.logstore namespace"
 
-  (:require [balabit.logstore.record :as lgs-record]))
+  (:require [balabit.logstore.core.record :as lgs-record]))
 
 (defmacro defrecflagq
   "Define a record flag query macro. Takes a name, and a flag to

@@ -1,4 +1,4 @@
-(ns balabit.logstore.utils
+(ns balabit.logstore.core.utils
   "Miscellaneous utility functions.")
 
 (defn bb-read-bytes

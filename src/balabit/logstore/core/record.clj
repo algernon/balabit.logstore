@@ -1,8 +1,8 @@
-(ns balabit.logstore.record
+(ns balabit.logstore.core.record
   "LogStore record functions."
 
   (:refer-clojure :exclude [read])
-  (:use balabit.logstore.utils)
+  (:use balabit.logstore.core.utils)
   (:import (org.joda.time DateTime DateTimeZone))
 )
 

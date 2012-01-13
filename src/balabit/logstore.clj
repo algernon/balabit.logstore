@@ -1,11 +1,11 @@
-(ns balabit.logstore
-  "A convenient API for reading syslog-ng PE LogStore files."
+;; ## syslog-ng PE LogStore reader
 
-  (:require [balabit.logstore.core :as lgs]
-            [balabit.logstore.record :as lgs-record])
-  (:use balabit.logstore.internal.logstore)
-  (:import balabit.logstore.core.LSTFile)
-  (:import balabit.logstore.record.LSTRecord))
+(ns balabit.logstore
+  (:require [balabit.logstore.core.file :as lgs]
+            [balabit.logstore.core.record :as lgs-record])
+  (:use balabit.logstore.impl.logstore)
+  (:import balabit.logstore.core.file.LSTFile)
+  (:import balabit.logstore.core.record.LSTRecord))
 
 (declare ^:dynamic ^LSTFile *logstore*)
 (declare ^:dynamic ^LSTRecord *logstore-record*)
