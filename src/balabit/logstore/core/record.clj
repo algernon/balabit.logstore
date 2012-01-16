@@ -124,7 +124,7 @@ behind the handle is positioned right after the record header."
 
 (defmulti chunk-decompress
   "Decompress a chunk, if so need be."
-  (fn [record-header data data-size] (flag-set? record-header :compressed)))
+  (fn [record-header data-size data] (flag-set? record-header :compressed)))
 
 (defmethod chunk-decompress :default
   [record-header data-size data] data)
