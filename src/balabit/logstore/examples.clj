@@ -18,12 +18,12 @@
 prints out some metadata, then loops over all the records, and
 prints out some metadata about those, too!"
   []
-  (with-logstore "resources/loggen.store"
+  (with-logstore "resources/logstores/loggen.compressed.store"
     (println "Logstore meta-data")
     (println " - Magic  :" (logstore-header :magic))
     (println " - Crypto")
-    (println "   + Hash :" (logstore-header :crypto :algo_hash))
-    (println "   + Crypt:" (logstore-header :crypto :algo_crypt))
+    (println "   + Hash :" (logstore-header :crypto :algo-hash))
+    (println "   + Crypt:" (logstore-header :crypto :algo-crypt))
     (println " - Records:" (count (logstore-records)))
     (println)
 
@@ -31,11 +31,11 @@ prints out some metadata about those, too!"
       (when (< index (count (logstore-records)))
         (do
           (with-logstore-record index
-            (println (str "Chunk #" (logstore-record :chunk_id)))
+            (println (str "Chunk #" (logstore-record :chunk-id)))
             (println " - Type :" (logstore-record :header :type))
             (println " - Flags:" (logstore-record :header :flags))
             (println " - Zip'd:" (logstore-record.compressed?))
             (println " - Msgs :"
-                     (logstore-record :first_msgid) " - "
-                     (logstore-record :last_msgid)))
+                     (logstore-record :first-msgid) " - "
+                     (logstore-record :last-msgid)))
           (recur (inc index)))))))
