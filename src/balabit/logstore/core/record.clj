@@ -163,9 +163,16 @@ behind the handle is positioned right after the record header."
           messages
           (recur (conj messages line) (dec remaining)))))))
 
+(defn- chunk-data-stringify
+  "Cast all members of data to Strings."
+  [data]
+
+  (map #(String. %) data))
+
 (defn- chunk-decode
   [header msgcnt data data-size]
-  ((comp (partial chunk-data-split header msgcnt)
+  ((comp chunk-data-stringify
+         (partial chunk-data-split header msgcnt)
          (partial chunk-decompress header data-size)
          bb-buffer-stream) data))
 

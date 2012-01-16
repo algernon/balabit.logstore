@@ -24,7 +24,8 @@
            (logstore-record :last_msgid) => 8322
            (logstore-record :chunk_id) => 1
            (logstore-record :xfrm_offset) => 0
-           (logstore-record :flags) => [:hash])
+           (logstore-record :flags) => [:hash]
+           (nth (logstore-record :messages) 0) => (contains "PADDPADDPADD"))
 
     (facts "about record flag access"
            (logstore-record.compressed?) => true
@@ -52,6 +53,7 @@
            (logstore-record :header :type) => :chunk
            (logstore-record.compressed?) => true
 
+           (nth (logstore-record :messages) 0) => (contains "test message")
            (count (logstore-record :messages)) => 4)))
 
 ; Uncompressed, unserialized, unencrypted logstore
@@ -65,4 +67,5 @@
            (logstore-record :header :type) => :chunk
            (logstore-record.compressed?) => false
 
+           (nth (logstore-record :messages) 0) => (contains "localhost 1")
            (count (logstore-record :messages)) => 1810)))
