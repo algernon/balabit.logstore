@@ -84,7 +84,7 @@ and bound to `*logstore*`."
 `chain` is specified, then retrieves each key in the chain, using the
 result of the previous iteration as input."
   [& chain]
-  `(reduce get (:header *logstore*) [~@chain]))
+  `(-> *logstore* :header ~@chain))
 
 (defmacro logstore-records
   "Returns the record headers in an opened LogStore file."
@@ -123,7 +123,7 @@ result of the previous iteration as input."
 `chain` is specified, then retrieves each key in the chain, using the
 result of the previous iteration as input."
   [& chain]
-  `(reduce get *logstore-record* [~@chain]))
+  `(-> *logstore-record* ~@chain))
 
 ;; Create a set of flag accessors, that return true or false,
 ;; depending on whether a given flag was set on a LogStore record, or
