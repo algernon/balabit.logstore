@@ -4,7 +4,7 @@
   (:use [slingshot.slingshot :only [throw+ try+]]))
 
 (fact "about valid logstores being openable"
-      (lst/open "resources/loggen.store") =not=> nil)
+      (lst/open "resources/logstores/loggen/loggen.compressed.store") =not=> nil)
 
 (defn open-invalid []
   (try+

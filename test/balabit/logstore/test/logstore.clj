@@ -2,7 +2,8 @@
   (:use [midje.sweet]
         [balabit.logstore]))
 
-(with-logstore "resources/loggen.store"
+; Compressed, unserialized, unencrypted logstore, with uniform message length.
+(with-logstore "resources/logstores/loggen.compressed.store"
   (facts "about logstore meta-data"
          (logstore-header :magic) => "LST4"
          (logstore-header :length) => 183
@@ -38,7 +39,8 @@
            (logstore-record.broken? rec) => false
            (logstore-record.serialized? rec) => false)))
 
-(with-logstore "resources/short-compressed.store"
+; Short, compressed, unserialized and unencrypted logstore, with hand-made data.
+(with-logstore "resources/logstores/short.compressed.store"
   (facts "about a short, compressed logstore's meta-data"
          (logstore-header :magic) => "LST4"
          (logstore-header :length) => 183
@@ -51,3 +53,16 @@
            (logstore-record.compressed?) => true
 
            (count (logstore-record :messages)) => 4)))
+
+; Uncompressed, unserialized, unencrypted logstore
+(with-logstore "resources/logstores/abc.uncompressed.store"
+  (facts "about an uncompressed logstore"
+         (logstore-header :magic) => "LST4"
+         (count (logstore-records)) => 1)
+
+  (with-logstore-record 0
+    (facts "about a single record in the logstore"
+           (logstore-record :header :type) => :chunk
+           (logstore-record.compressed?) => false
+
+           (count (logstore-record :messages)) => 1810)))
