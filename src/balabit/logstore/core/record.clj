@@ -6,7 +6,7 @@
   (:use [slingshot.slingshot :only [throw+]])
   (:import (org.joda.time DateTime DateTimeZone)
            (java.io DataInputStream)
-           (java.util.zip InflaterInputStream)))
+           (java.util.zip InflaterInputStream Inflater)))
 
 (defprotocol IRecordHeader
   "LogStore record header protocol. Everything that is a LogStore
@@ -124,14 +124,14 @@ behind the handle is positioned right after the record header."
 
 (defmulti chunk-decompress
   "Decompress a chunk, if so need be."
-  (fn [record-header data] (flag-set? record-header :compressed)))
+  (fn [record-header data data-size] (flag-set? record-header :compressed)))
 
 (defmethod chunk-decompress :default
-  [record-header data] data)
+  [record-header data-size data] data)
 
 (defmethod chunk-decompress true
-  [record-header data]
-  (InflaterInputStream. data))
+  [record-header data-size data]
+  (InflaterInputStream. data (Inflater.) data-size))
 
 (defmulti chunk-data-split
   "Split unserialized data into chunks"
@@ -164,9 +164,9 @@ behind the handle is positioned right after the record header."
           (recur (conj messages line) (dec remaining)))))))
 
 (defn- chunk-decode
-  [header msgcnt data]
+  [header msgcnt data data-size]
   ((comp (partial chunk-data-split header msgcnt)
-         (partial chunk-decompress header)
+         (partial chunk-decompress header data-size)
          bb-buffer-stream) data))
 
 ;; Reads :chunk type LogStore records, and parses the sub-header, and
@@ -183,8 +183,9 @@ behind the handle is positioned right after the record header."
         chunk_id (.getInt handle)
         xfrm_offset (.getLong handle)
         tail_offset (.getInt handle)
+        raw-data (.limit (.slice handle) (- tail_offset 48))
         data (chunk-decode header (- last_msgid first_msgid)
-                           (.limit (.slice handle) (- tail_offset 48)))
+                           raw-data (.limit raw-data))
         flags (do (.position handle (+ original_pos tail_offset -6)) (.getInt handle))
         ]
     (LSTRecordChunk. header
