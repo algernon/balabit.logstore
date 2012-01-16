@@ -6,6 +6,7 @@
                  [org.clojure/tools.logging "0.2.3"]
                  [slingshot "0.10.1"]
                  [joda-time/joda-time "2.0"]
+                 [gloss "0.2.1-SNAPSHOT"]
                  ]
   :dev-dependencies [
                      [lein-marginalia "0.7.0-SNAPSHOT"]

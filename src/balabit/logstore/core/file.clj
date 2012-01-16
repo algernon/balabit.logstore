@@ -1,50 +1,71 @@
 (ns balabit.logstore.core.file
   "Core functions to read syslog-ng PE's LogStore files."
-  (:import (java.nio ByteBuffer)
-           (java.io FileInputStream InputStream))
+  (:import (java.io FileInputStream))
   (:use [slingshot.slingshot :only [throw+]])
-  (:use balabit.logstore.core.utils)
   (:refer-clojure :exclude [open count nth])
   (:require [balabit.logstore.core.errors :as errors]
-            [balabit.logstore.core.record :as lst-record]))
+            [balabit.logstore.core.record :as lst-record]
+            [gloss.core]
+            [gloss.io]))
 
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))
 
-(defrecord LSTCryptoHeader [algo_hash, algo_crypt, file_mac, der])
+(defrecord LSTCryptoHeader [algo_hash, algo_crypt, file-mac, der])
 (defrecord LSTFileHeader [magic, length, flags, last_chunk, last_rec, last_chunk_end,
                           crypto])
 
 (defrecord LSTFile [header handle record-map])
 
-(defn- lst-crypto-header-read
-  "Read the crypto header part of a LogStore file header, and return
-an LSTCryptoHeader record."
-  [handle]
+(gloss.core/defcodec- file-magic-codec
+  (gloss.core/ordered-map
+   :magic (gloss.core/string :utf-8 :length 4),
+   :length :uint32))
 
-  (LSTCryptoHeader. (String. (bb-read-block handle)) ; algo.hash
-                    (String. (bb-read-block handle)) ; algo.crypt
-                    (bb-read-block handle) ; file_mac
-                    (bb-read-block handle) ; der
-                    ))
+(gloss.core/defcodec- file-header-codec
+  (gloss.core/ordered-map
+   :flags :uint32,
+   :last-chunk-id :uint32,
+   :last-rec-id :uint32,
+   :last-chunk-end-offset :uint64,
+   :padding (gloss.core/finite-block 108),
+
+   :algo-hash (gloss.core/finite-frame :uint32 (gloss.core/string :utf-8)),
+   :algo-crypt (gloss.core/finite-frame :uint32 (gloss.core/string :utf-8)),
+   :file-mac (gloss.core/finite-block :uint32),
+   :der (gloss.core/finite-block :uint32)))
+
+(defn- slice-n-dice
+  "Cut a limited amount out from a ByteBuffer, optionally starting
+from a specified offset."
+  ([handle limit] (-> handle .slice (.limit limit)))
+  ([handle offset limit] (-> handle (.position offset) .slice (.limit limit))))
 
 (defn- lst-file-header-read
   "Read the file header of a LogStore ByteBuffer.
 Returns an LSTFileHeader instance."
   [handle]
 
-  (let [magic (String. (bb-read-bytes handle 4))]
+  (let [file-magic (gloss.io/decode file-magic-codec (slice-n-dice handle 8))]
     (if (not (or
-              (= magic "LST3")
-              (= magic "LST4")))
+              (= (:magic file-magic) "LST3")
+              (= (:magic file-magic) "LST4")))
       (throw+ (errors/invalid-file :magic "File is not valid LST3/LST4")))
-    (LSTFileHeader. magic  ; magic
-                    (.getInt handle)  ; length
-                    (.getInt handle)  ; flags
-                    (.getInt handle)  ; last_chunk
-                    (.getInt handle)  ; last_rec
-                    (.getLong handle) ; last_chunk_end
-                    (do (.position handle 136) (lst-crypto-header-read handle)))))
+    (let [hdr (gloss.io/decode file-header-codec
+                               (slice-n-dice handle 8
+                                             (- (:length file-magic) 4)))]
+      (.position handle (+ 4 (:length file-magic)))
+      (LSTFileHeader. (:magic file-magic)
+                      (:length file-magic)
+                      (:flags hdr)
+                      (:last-chunk-id hdr)
+                      (:last-rec-id hdr)
+                      (:last-chunk-end-offset hdr)
+                      (LSTCryptoHeader.
+                         (:algo-hash hdr)
+                         (:algo-crypt hdr)
+                         (:file-mac hdr)
+                         (:der hdr))))))
 
 (defn- lst-file-map-record
   "Read a record from a LogStore ByteBuffer, and seek to its end."
