@@ -11,8 +11,9 @@
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))
 
-(defrecord LSTCryptoHeader [algo_hash, algo_crypt, file-mac, der])
-(defrecord LSTFileHeader [magic, length, flags, last_chunk, last_rec, last_chunk_end,
+(defrecord LSTCryptoHeader [algo-hash, algo-crypt, file-mac, der])
+(defrecord LSTFileHeader [magic, flags,
+                          last-block-id, last-chunk-id, last-block-end-offset,
                           crypto])
 
 (defrecord LSTFile [header handle record-map])
@@ -25,9 +26,9 @@
 (gloss.core/defcodec- file-header-codec
   (gloss.core/ordered-map
    :flags :uint32,
+   :last-block-id :uint32,
    :last-chunk-id :uint32,
-   :last-rec-id :uint32,
-   :last-chunk-end-offset :uint64,
+   :last-block-end-offset :uint64,
    :padding (gloss.core/finite-block 108),
 
    :algo-hash (gloss.core/finite-frame :uint32 (gloss.core/string :utf-8)),
@@ -56,11 +57,10 @@ Returns an LSTFileHeader instance."
                                              (- (:length file-magic) 4)))]
       (.position handle (+ 4 (:length file-magic)))
       (LSTFileHeader. (:magic file-magic)
-                      (:length file-magic)
                       (:flags hdr)
+                      (:last-block-id hdr)
                       (:last-chunk-id hdr)
-                      (:last-rec-id hdr)
-                      (:last-chunk-end-offset hdr)
+                      (:last-block-end-offset hdr)
                       (LSTCryptoHeader.
                          (:algo-hash hdr)
                          (:algo-crypt hdr)
@@ -80,7 +80,7 @@ Returns an LSTFileHeader instance."
   "Map all records from a LogStore ByteBuffer."
   [lst]
 
-  (loop [counter (:last_chunk (:header lst))
+  (loop [counter (-> lst :header :last-block-id)
          result []]
     (if (> counter 0)
       (let [rec (lst-file-map-record lst)]

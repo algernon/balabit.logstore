@@ -6,9 +6,8 @@
 (with-logstore "resources/logstores/loggen.compressed.store"
   (facts "about logstore meta-data"
          (logstore-header :magic) => "LST4"
-         (logstore-header :length) => 183
-         (logstore-header :crypto :algo_hash) => "SHA1"
-         (logstore-header :crypto :algo_crypt) => "AES-128-CBC")
+         (logstore-header :crypto :algo-hash) => "SHA1"
+         (logstore-header :crypto :algo-crypt) => "AES-128-CBC")
 
   (fact "about the number of records in the logstore"
         (count (logstore-records)) => 9)
@@ -20,10 +19,10 @@
            (logstore-record :header :type) => :chunk
            (logstore-record :header :flags) => [:compressed]
            (count (logstore-record :messages)) => 4161
-           (logstore-record :first_msgid) => 4162
-           (logstore-record :last_msgid) => 8322
-           (logstore-record :chunk_id) => 1
-           (logstore-record :xfrm_offset) => 0
+           (logstore-record :first-msgid) => 4162
+           (logstore-record :last-msgid) => 8322
+           (logstore-record :chunk-id) => 1
+           (logstore-record :xfrm-offset) => 0
            (logstore-record :flags) => [:hash]
            (nth (logstore-record :messages) 0) => (contains "PADDPADDPADD"))
 
@@ -44,7 +43,6 @@
 (with-logstore "resources/logstores/short.compressed.store"
   (facts "about a short, compressed logstore's meta-data"
          (logstore-header :magic) => "LST4"
-         (logstore-header :length) => 183
          (count (logstore-records)) => 1)
 
   (with-logstore-record 0

@@ -32,15 +32,15 @@ record, or a descendant of it, must implement this."
 
 (defrecheader LSTRecord [header data])
 (defrecheader LSTRecordChunk [header
-                              start_time end_time
-                              first_msgid last_msgid
-                              chunk_id
-                              xfrm_offset
+                              start-time end-time
+                              first-msgid last-msgid
+                              chunk-id
+                              xfrm-offset
                               
                               messages
                               flags
-                              file_mac
-                              chunk_mac
+                              file-mac
+                              chunk-mac
                               ])
 
 (def type-map #^{:private true}
