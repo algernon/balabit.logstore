@@ -4,6 +4,8 @@
   (:refer-clojure :exclude [read])
   (:use balabit.logstore.core.utils)
   (:use [slingshot.slingshot :only [throw+]])
+  (:require [gloss.core]
+            [gloss.io])
   (:import (org.joda.time DateTime DateTimeZone)
            (java.io DataInputStream)
            (java.util.zip InflaterInputStream Inflater)))
@@ -18,6 +20,12 @@ record, or a descendant of it, must implement this."
   IRecordHeader
   (flag-set? [this flag]
     (or (some #(= flag %) (:flags this)) false)))
+
+(gloss.core/defcodec record-common-header
+  (gloss.core/ordered-map
+   :size :uint32
+   :type :byte
+   :flags :byte))
 
 (defmacro defrecheader
   "Crete a record, descending from IRecordHeader, that has a default
@@ -87,12 +95,13 @@ record, or a descendant of it, must implement this."
   "Read the header of a LogStore record. Returns an LSTRecordHeader."
   [lst]
 
-  (let [handle (:handle lst)]
-    (LSTRecordHeader. (.position handle)
-                      (.getInt handle) ; size
-                      (resolve-type (.get handle)) ; type
-                      (resolve-flags (.get handle) record-flag-bitmap) ; flags
-                    )))
+  (let [offset (.position (:handle lst))
+        hdr (gloss.io/decode record-common-header (slice-n-dice (:handle lst) 6))]
+    (.position (:handle lst) (+ offset 6))
+    (LSTRecordHeader. offset
+                      (:size hdr)
+                      (resolve-type (:type hdr))
+                      (resolve-flags (:flags hdr) record-flag-bitmap))))
 
 (defmulti read-record-data
   "Read a given type of record from a LogStore ByteBuffer. The record
@@ -100,19 +109,14 @@ header is already parsed, and available as record-header, the buffer
 behind the handle is positioned right after the record header."
   (fn [record-header handle] (:type record-header)))
 
-;; Default implementation of the record data reader. It just reads the
-;; whole record, and returns a generic LSTRecord.
-(defmethod read-record-data :default
-  [header handle]
-  (LSTRecord. header (.limit (.slice handle) (- (:size header) 6))))
+(defn- translate-timestamp
+  "Translate a timestamp consisting of a 64bit seconds part, and a
+  32bit microsecond part into a single value, into a DateTime
+  object. It does loose a little bit of precision (it can only handle
+  millis)."
+  [secs usecs]
 
-(defn- read-timestamp
-  "Read a timestamp from a ByteBuffer"
-  [handle]
-
-  (let [sec (* (.getLong handle) 1000)
-        usec (.getInt handle)]
-    (+ sec (quot usec 1000))))
+  (DateTime. (+ (* secs 1000) (quot usecs 1000))))
 
 ;;
 ;; # Chunk format handling
@@ -174,37 +178,62 @@ behind the handle is positioned right after the record header."
   ((comp chunk-data-stringify
          (partial chunk-data-split header msgcnt)
          (partial chunk-decompress header data-size)
-         bb-buffer-stream) data))
+         bb-buffer-stream)
+   data))
+
+
+(gloss.core/defcodec- record-chunk-header
+  (gloss.core/ordered-map
+   :start-time :uint64
+   :start-time-usec :uint32
+   :end-time :uint64
+   :end-time-usec :uint32
+   :first-msgid :uint32
+   :last-msgid :uint32
+   :chunk-id :uint32
+   :xfrm-offset :uint64
+   :tail-offset :uint32))
+
+(defmacro record-chunk-assemble-trail
+  [header]
+  
+  `(gloss.core/compile-frame
+    (gloss.core/ordered-map
+     :chunk-data (gloss.core/finite-block (- (:tail-offset ~header) 54)),
+     :flags :uint32,
+     :file-mac (gloss.core/finite-block :uint32)
+     :chunk-hmac (gloss.core/finite-block :uint32)
+     )))
 
 ;; Reads :chunk type LogStore records, and parses the sub-header, and
 ;; will handle data demungling too, at a later time.
 (defmethod read-record-data :chunk
   [header handle]
 
-  (let [original_pos (.position handle)
-        buffer (.limit (.slice handle) (- (:size header) 6))
-        start_time (DateTime. (read-timestamp handle))
-        end_time (DateTime. (read-timestamp handle))
-        first_msgid (.getInt handle)
-        last_msgid (.getInt handle)
-        chunk_id (.getInt handle)
-        xfrm_offset (.getLong handle)
-        tail_offset (.getInt handle)
-        raw-data (.limit (.slice handle) (- tail_offset 48))
-        data (chunk-decode header (- last_msgid first_msgid)
-                           raw-data (.limit raw-data))
-        flags (do (.position handle (+ original_pos tail_offset -6)) (.getInt handle))
-        ]
+  (let [original-pos (.position handle)
+        chunk-header (gloss.io/decode record-chunk-header
+                                      (slice-n-dice handle 48))
+        raw-data (slice-n-dice handle (+ original-pos 48)
+                               (- (:size header) 54))
+        chunk-trail (gloss.io/decode
+                     (record-chunk-assemble-trail chunk-header)
+                     raw-data)]
+    (.position handle (+ original-pos (:size header) -6))
     (LSTRecordChunk. header
-                     start_time end_time
-                     first_msgid last_msgid
-                     chunk_id
-                     xfrm_offset
-                     data
-                     (resolve-flags flags chunk-flag-bitmap)
-                     (bb-read-block handle) ;file_mac
-                     (bb-read-block handle) ;chunk_mac
-                     )))
+                     (translate-timestamp (long (:start-time chunk-header))
+                                          (:start-time-usec chunk-header))
+                     (translate-timestamp (long (:end-time chunk-header))
+                                          (:end-time-usec chunk-header))
+                     (:first-msgid chunk-header) (:last-msgid chunk-header)
+                     (:chunk-id chunk-header)
+                     (:xfrm-offset chunk-header)
+                     (chunk-decode header (- (:last-msgid chunk-header)
+                                             (:first-msgid chunk-header))
+                                   (first (:chunk-data chunk-trail))
+                                   (- (:tail-offset chunk-header) 54))
+                     (resolve-flags (:flags chunk-trail) chunk-flag-bitmap)
+                     (:file-mac chunk-trail)
+                     (:chunk-hmac chunk-trail))))
 
 (defn read
   "Read a record from a LogStore. Returns an LSTRecord."

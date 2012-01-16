@@ -4,22 +4,6 @@
   (:import (java.io InputStream)
            (java.nio ByteBuffer)))
 
-(defn bb-read-bytes
-  "Read a given amount of bytes from a ByteBuffer, and return them
-as a byte array."
-  [handle length]
-  (let [buffer (make-array (. Byte TYPE) length)]
-    (.get handle buffer 0 length)
-    buffer))
-
-(defn bb-read-block
-  "Read a length-prefixed block from a ByteBuffer, and return the
-result as a byte array."
-  [handle]
-
-  (let [length (.getInt handle)]
-    (bb-read-bytes handle length)))
-
 (defn bb-buffer-stream
   "Returns an InputStream for a ByteBuffer, such as returned by mmap."
   [#^ByteBuffer buf]
@@ -30,3 +14,9 @@ result as a byte array."
       ([dst offset len] (let [actlen (min (.remaining buf) len)]
                           (.get buf dst offset actlen)
                           (if (< actlen 1) -1 actlen))))))
+
+(defn slice-n-dice
+  "Cut a limited amount out from a ByteBuffer, optionally starting
+from a specified offset."
+  ([handle limit] (-> handle .slice (.limit limit)))
+  ([handle offset limit] (-> handle (.position offset) .slice (.limit limit))))

@@ -1,7 +1,8 @@
 (ns balabit.logstore.core.file
   "Core functions to read syslog-ng PE's LogStore files."
   (:import (java.io FileInputStream))
-  (:use [slingshot.slingshot :only [throw+]])
+  (:use [slingshot.slingshot :only [throw+]]
+        [balabit.logstore.core.utils])
   (:refer-clojure :exclude [open count nth])
   (:require [balabit.logstore.core.errors :as errors]
             [balabit.logstore.core.record :as lst-record]
@@ -35,12 +36,6 @@
    :algo-crypt (gloss.core/finite-frame :uint32 (gloss.core/string :utf-8)),
    :file-mac (gloss.core/finite-block :uint32),
    :der (gloss.core/finite-block :uint32)))
-
-(defn- slice-n-dice
-  "Cut a limited amount out from a ByteBuffer, optionally starting
-from a specified offset."
-  ([handle limit] (-> handle .slice (.limit limit)))
-  ([handle offset limit] (-> handle (.position offset) .slice (.limit limit))))
 
 (defn- lst-file-header-read
   "Read the file header of a LogStore ByteBuffer.
