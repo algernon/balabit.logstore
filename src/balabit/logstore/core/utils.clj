@@ -20,3 +20,28 @@
 from a specified offset."
   ([handle limit] (-> handle .slice (.limit limit)))
   ([handle offset limit] (-> handle (.position offset) .slice (.limit limit))))
+
+(defn- bitmap-find
+  "Find out whether a bit is set in a Number, if so, add the same
+  index entry from a bitmap to the accumulator, otherwise don't touch
+  it. Returns the accumulator."
+  [acc bitmap x n]
+  (if (bit-test x n)
+    (conj acc (nth bitmap n))
+    acc))
+
+(defn resolve-flags
+  "Expand flags bitwise-OR'd together into symbolic names, using a
+  bitmap table."
+  [int-flags bitmap]
+
+  (loop [index 0
+         acc []]
+    (if (< index (count bitmap))
+      (recur (inc index) (bitmap-find acc bitmap int-flags index))
+      acc)))
+
+(defn flag-set?
+  "Determines whether a given flag is set on a LogStore record header"
+  [this flag]
+  (or (some #(= flag %) (:flags this)) false))

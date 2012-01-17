@@ -52,7 +52,7 @@
   "Public syslog-ng LogStore reader API"
   (:require [balabit.logstore.core.file :as lgs]
             [balabit.logstore.core.record :as lgs-record])
-  (:use balabit.logstore.impl.logstore)
+  (:use balabit.logstore.core.utils)
   (:import balabit.logstore.core.file.LSTFile)
   (:import balabit.logstore.core.record.LSTRecord))
 
@@ -124,6 +124,23 @@ result of the previous iteration as input."
 result of the previous iteration as input."
   [& chain]
   `(-> *logstore-record* ~@chain))
+
+(defmacro def-record-flag-accessor
+  "Define a record flag query macro. Takes a name, and a flag to
+  query, returns a macro that does just that."
+  [flag]
+  (let [name (symbol (str "logstore-record." flag "?"))
+        keyflag (keyword flag)]
+    `(defmacro ~name [& ~'record]
+       `(flag-set?
+         (:header (or ~@~'record
+                      balabit.logstore/*logstore-record*))
+         ~~keyflag))))
+
+(defmacro make-record-flag-accessors
+  "Make a set of flag accessors."
+  [& flags]
+  `(do ~@(map (fn [q] `(def-record-flag-accessor ~q)) flags)))
 
 ;; Create a set of flag accessors, that return true or false,
 ;; depending on whether a given flag was set on a LogStore record, or
