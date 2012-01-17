@@ -62,6 +62,7 @@ from that, a random message."
 
 ;; # Check timestamps
 ;; - - - - - - - - -
+
 (defn check-timestamps
   "This function iterates over a logstore, and attempts to find all
 the timestamps, and verifies that all chunks have a timestamp.
