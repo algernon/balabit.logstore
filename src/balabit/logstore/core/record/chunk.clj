@@ -4,8 +4,7 @@
   (:require [balabit.logstore.core.record.common :as lgs-rec-common])
   (:import (org.joda.time DateTime)
            (java.io DataInputStream)
-           (java.util.zip InflaterInputStream Inflater)
-           (balabit.logstore.core.record.common LSTRecordHeader))
+           (java.util.zip InflaterInputStream Inflater))
   (:use balabit.logstore.core.utils))
 
 (defrecord LSTRecordChunk [header
