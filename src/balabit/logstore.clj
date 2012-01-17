@@ -158,6 +158,7 @@ result of the previous iteration as input."
 ;;   the last message within the chunk, up to millisecond precision.
 ;; * `:first-msgid` and `:last-msgid`: The ID of the first and of the
 ;;   last message in the chunk.
+;; * `:chunk-id`: The ID of this chunk.
 ;; * `:xfrm-offset`: Currently extracted, but unused value, will
 ;;   disappear in the future.
 ;; * `:messages`: A vector of decrypted, decompressed, string messages.
