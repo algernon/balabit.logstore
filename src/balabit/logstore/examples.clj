@@ -72,9 +72,9 @@ Verification is done in a very simple way: we count the number of
   ([filename]
      (with-logstore filename
        (let [is-type (fn [type what] (= type (:type what)))
-             chunks (filter (partial is-type :chunk) (logstore-records))
-             timestamps (filter (partial is-type :timestamp) (logstore-records))]
-         (if (= (count chunks) (count timestamps))
+             chunks (count (filter (partial is-type :chunk) (logstore-records)))
+             timestamps (count (filter (partial is-type :timestamp) (logstore-records)))
+             unstamped (- chunks timestamps)]
+         (if (= 0 unstamped)
            (println "Congratulations, all your chunks are stamped!")
-           (println "Oh boy, there are" (- (count chunks) (count timestamps))
-                    "unstamped chunks!"))))))
+           (println "Oh boy, there are" unstamped "unstamped chunks!"))))))
