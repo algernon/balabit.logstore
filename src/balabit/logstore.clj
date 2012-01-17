@@ -69,6 +69,30 @@
 ;; All of these - except for itself - must be called from within the
 ;; body of a `(with-logstore)`.
 ;;
+;; ### File meta-data
+;;
+;; Opening a LogStore makes the file-metadata available via
+;; `(logstore-header)`, which returns a record that has the following
+;; fields:
+;;
+;; * `:magic`: The magic four bytes identifying what version this
+;;   LogStore is.
+;; * `:flags`: Currently unused, and should be zero.
+;; * `:last-block-id`: The ID of the last block in the file.
+;; * `:last-chunk-id`: The ID of the last chunk in the file.
+;; * `:last-block-end-offset`: The offset to the end of the last block
+;;   in the file.
+;; * `:crypto`: Crypto header, describing what hashing and encryption
+;;   methods are used within the file.
+;;
+;; The crypto header contains the following fields:
+;;
+;; * `:algo-hash`: Hashing method, as a string.
+;; * `:algo-crypt`: Encryption method, as a string.
+;; * `:file-mac`: The MAC of the full file.
+;; * `:der`: Currently unused and unsupported, but used for
+;;   encryption.
+;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;;
 
@@ -107,6 +131,43 @@ result of the previous iteration as input."
 ;; similar to the LogStore file macros, these must also be called from
 ;; within the body of a `(with-logstore-record)`, except for itself,
 ;; of course.
+;;
+;; ### Record Formats
+;;
+;; A LogStore can store multiple types of records, each of which have
+;; a different purpose, and as such, different fields and
+;; properties. The record types recognised by this library are
+;; explained below.
+;;
+;; All records have a common header, that contains the `:size`,
+;; `:type` and `:flags` properties. The first one is the full size of
+;; the block, with all headers included, the second is the type of the
+;; chunk, and the third is a vector of flag symbols.
+;;
+;; Available flags are: `:compressed`, `:serialized`, `:encrypted` and
+;; `:broken`. They signal that a block is compressed, serialized,
+;; encrypted or broken, respectively.
+;;
+;; #### Chunk
+;;
+;; A chunk is a collection of messages, with a little meta-data. A
+;; chunk object contains the following fields:
+;;
+;; * `:header`: The original record header, with fields explained above.
+;; * `:start-time` and `:end-time`: The timestamp of the first and of
+;;   the last message within the chunk, up to millisecond precision.
+;; * `:first-msgid` and `:last-msgid`: The ID of the first and of the
+;;   last message in the chunk.
+;; * `:xfrm-offset`: Currently extracted, but unused value, will
+;;   disappear in the future.
+;; * `:messages`: A vector of decrypted, decompressed, string messages.
+;; * `:flags`: A vector of flag symbols, specific to this chunk. Known
+;;   flags are `:hmac` and `:hash`.
+;; * `:file-mac`: Is the cryptographic hash of all the chunks
+;;   contained in the file so far. The exact format of it depends on
+;;   what was specified in the file headers.
+;; * `:chunk-mac`: The cryptograhic hash of the current chunk. Same
+;;   thing applies to it as for `:file-mac`.
 ;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;;
