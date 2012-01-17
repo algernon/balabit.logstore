@@ -47,6 +47,22 @@
 ;;   store state, using the same one from different threads will
 ;;   produce unpredictable results.
 ;;
+;; # Unimplemented features
+;;
+;; Unlike limitations, that are unlikely to ever appear in the
+;; library, there is a small set of unimplemented features, that
+;; sooner or later, will find its sway into the library.
+;;
+;; * Serialized messages are not deserialized yet.
+;; * Encrypted logstores are not supported at all yet: the library
+;;   will probably barf and throw exceptions when encountering one.
+;; * Timestamps are extracted only as a binary blob, the timestamp
+;;   part itself is not parsed yet.
+;; * File and chunk hashes are extracted as binary data only, they are
+;;   never checked, nor properly parsed.
+;; * There is no Java API yet. In the future, we want to make the
+;;   library easily accessible from Java aswell.
+;;
 
 (ns balabit.logstore
   "Public syslog-ng LogStore reader API"
