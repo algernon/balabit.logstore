@@ -59,3 +59,22 @@ from that, a random message."
                     "from chunk"
                     (str "#" (logstore-record :chunk-id) ":"))
            (println (nth (logstore-record :messages) rand-idx)))))))
+
+;; # Check timestamps
+;; - - - - - - - - -
+(defn check-timestamps
+  "This function iterates over a logstore, and attempts to find all
+the timestamps, and verifies that all chunks have a timestamp.
+
+Verification is done in a very simple way: we count the number of
+`:chunk` and `:timestamp` type records, and compare their number."
+  ([] (check-timestamps "resources/logstores/timestamped.store"))
+  ([filename]
+     (with-logstore filename
+       (let [is-type (fn [type what] (= type (:type what)))
+             chunks (filter (partial is-type :chunk) (logstore-records))
+             timestamps (filter (partial is-type :timestamp) (logstore-records))]
+         (if (= (count chunks) (count timestamps))
+           (println "Congratulations, all your chunks are stamped!")
+           (println "Oh boy, there are" (- (count chunks) (count timestamps))
+                    "unstamped chunks!"))))))
