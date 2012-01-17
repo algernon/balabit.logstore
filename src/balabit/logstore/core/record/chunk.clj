@@ -51,9 +51,6 @@
   "Split unserialized data into chunks"
   (fn [record-header msgcnt data] (flag-set? record-header :serialized)))
 
-(defmethod chunk-data-split :serialized
-  [record-header msgcnt data] data)
-
 (defn- chunk-data-read-line
   "Read a length-prefixed log line from a DataInputStream."
   [stream]
@@ -77,15 +74,24 @@
           messages
           (recur (conj messages line) (dec remaining)))))))
 
-(defn- chunk-data-stringify
+(defmethod chunk-data-split :serialized
+  [record-header msgcnt data] data)
+
+(defmulti chunk-data-stringify
   "Cast all members of data to Strings."
-  [data]
+  (fn [record-header data] (flag-set? record-header :serialized)))
+
+(defmethod chunk-data-stringify :default
+  [record-header data]
 
   (map #(String. %) data))
 
+(defmethod chunk-data-stringify true
+  [record-header data] data)
+
 (defn- chunk-decode
   [header msgcnt data data-size]
-  ((comp chunk-data-stringify
+  ((comp (partial chunk-data-stringify header)
          (partial chunk-data-split header msgcnt)
          (partial chunk-decompress header data-size)
          bb-buffer-stream)
