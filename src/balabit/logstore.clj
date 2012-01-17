@@ -170,6 +170,18 @@ result of the previous iteration as input."
 ;; * `:chunk-mac`: The cryptograhic hash of the current chunk. Same
 ;;   thing applies to it as for `:file-mac`.
 ;;
+;; #### Timestamp
+;;
+;; A timestamp is a cryptographically secure timestamp, that can be
+;; used to validate that a given chunk it refers to was made at a
+;; given time.
+;;
+;; The object contains the following fields:
+;;
+;; * `:header`: The original record header, with fields explained above.
+;; * `:chunk-id`: The ID of the chunk the timestamp refers to.
+;; * `:timestamp`: The timestamp itself, as a ByteBuffer.
+;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;;
 

@@ -1,7 +1,9 @@
 (ns balabit.logstore.core.record.chunk
   "LogStore chunk record functions."
 
-  (:require [balabit.logstore.core.record.common :as lgs-rec-common])
+  (:require [balabit.logstore.core.record.common :as lgs-rec-common]
+            [gloss.core]
+            [gloss.io])
   (:import (org.joda.time DateTime)
            (java.io DataInputStream)
            (java.util.zip InflaterInputStream Inflater))

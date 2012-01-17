@@ -67,3 +67,16 @@
 
            (nth (logstore-record :messages) 0) => (contains "localhost 1")
            (count (logstore-record :messages)) => 1810)))
+
+; Compressed, serialised, unencrypted, but timestamped logstore
+(with-logstore "resources/logstores/timestamped.store"
+  (facts "about a timestamped, serialized logstore"
+         (logstore-header :magic) => "LST4"
+         (count (logstore-records)) => 2)
+
+  (with-logstore-record 1
+    (facts "about a timestamp record"
+           (logstore-record :header :type) => :timestamp
+           (logstore-record :header :flags) => []
+           (logstore-record :chunk-id) => 0
+           (.limit (logstore-record :timestamp)) => 2492)))
