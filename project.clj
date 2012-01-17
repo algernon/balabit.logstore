@@ -3,7 +3,6 @@
   :aot :all
   :dependencies [
                  [org.clojure/clojure "1.3.0"]
-                 [org.clojure/tools.logging "0.2.3"]
                  [slingshot "0.10.1"]
                  [joda-time/joda-time "2.0"]
                  [gloss "0.2.1-SNAPSHOT"]
