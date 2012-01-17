@@ -75,11 +75,10 @@ Returns an LSTFileHeader instance."
   "Map all records from a LogStore ByteBuffer."
   [lst]
 
-  (loop [counter (-> lst :header :last-block-id)
-         result []]
-    (if (> counter 0)
+  (loop [result []]
+    (if (< (-> lst :handle .position) (-> lst :handle .limit))
       (let [rec (lst-file-map-record lst)]
-        (recur (dec counter) (conj result rec)))
+        (recur (conj result rec)))
       result)))
 
 (defn open
