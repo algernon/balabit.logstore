@@ -18,7 +18,7 @@
   "Resolve the type of a LogStore record."
   [int-type]
 
-  (if (and (> (count type-map) int-type)
+  (if (and (>= (count type-map) int-type)
            (> int-type 0))
     (nth type-map (dec int-type))
     :unknown))
