@@ -39,3 +39,21 @@ prints out some metadata about those, too!"
                      (logstore-record :first-msgid) " - "
                      (logstore-record :last-msgid)))
           (recur (inc index)))))))
+
+;; # Random message printer
+;; - - - - - - - - - - - -
+
+(defn random-message-printer
+  "Lets write a function that opens a logstore, and prints a random
+message from it. We do this by first selecting a random block, and
+from that, a random message."
+  []
+  (with-logstore "resources/logstores/loggen.compressed.store"
+    (with-logstore-record (rand-int (logstore-header :last-block-id))
+      (let [rand-idx (rand-int (- (logstore-record :last-msgid)
+                                  (logstore-record :first-msgid)))]
+        (println "Your random message is"
+                 (+ rand-idx (logstore-record :first-msgid))
+                 "from chunk"
+                 (str "#" (logstore-record :chunk-id) ":"))
+        (println (nth (logstore-record :messages) rand-idx))))))
