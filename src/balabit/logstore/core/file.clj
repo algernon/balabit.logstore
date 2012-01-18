@@ -14,21 +14,45 @@
             [gloss.core]
             [gloss.io]))
 
+;; A quick hack to make the READ_ONLY MapMode accessible.
 (def READ_ONLY #^{:private true}
   (java.nio.channels.FileChannel$MapMode/READ_ONLY))
 
+;; ## Header structures
+;; - - - - - - - - - -
+
+;; The crypto header, a sub-header of the LogStore file header.
 (defrecord LSTCryptoHeader [algo-hash, algo-crypt, file-mac, der])
+
+;; The full LogStore file header, with all interesting properties
+;; stored for easy access.
 (defrecord LSTFileHeader [magic, flags,
                           last-block-id, last-chunk-id, last-block-end-offset,
                           crypto])
 
+;; This record is used to describe a LogStore file. It contains the
+;; header, an mmapped ByteBuffer, and a record map, which is a vector
+;; of all the records (blocks) contained within the logstore.
 (defrecord LSTFile [header handle record-map])
 
+;; ## Codecs
+;; - - - - -
+
+;; Gloss codec to decode the magic part of a LogStore file. It is
+;; separate from the rest, because we want to examine the magic as
+;; soon as possible, and bail out with an appropriate exception in
+;; case the magic is bad.
+;;
+;; The 'magic header' consists of a four-byte char sequence, that
+;; tells us the version of the logstore (we support LST3 and LST4, see
+;; below).
 (gloss.core/defcodec- file-magic-codec
   (gloss.core/ordered-map
    :magic (gloss.core/string :utf-8 :length 4),
    :length :uint32))
 
+;; Codec for the rest of the file header, with the crypto sub-header
+;; included. The contents should be self-explanatory.
 (gloss.core/defcodec- file-header-codec
   (gloss.core/ordered-map
    :flags :uint32,
@@ -42,9 +66,24 @@
    :file-mac (gloss.core/finite-block :uint32),
    :der (gloss.core/finite-block :uint32)))
 
+;;
+;; ## Helper functions
+;; - - - - - - - - - -
+;;
+;; All of these helper functions that deal with parsing the LogStore
+;; can throw any of the exceptions that the underlying libraries
+;; throw. It is not handled on this library's level (yet?), those
+;; exceptions will bubble up to the application as-is.
+;;
+;; Whenever a function can throw something specific to this library,
+;; it will be noted in the appropriate section of the documentation.
+;;
+
 (defn- lst-file-header-read
-  "Read the file header of a LogStore ByteBuffer.
-Returns an LSTFileHeader instance."
+  "Read the file header of a LogStore ByteBuffer, and return an
+  `LSTFileHeader` instance.
+
+  Throws an `invalid-file` exception if the magic is invalid."
   [handle]
 
   (let [file-magic (gloss.io/decode file-magic-codec (slice-n-dice handle 8))]
@@ -68,7 +107,8 @@ Returns an LSTFileHeader instance."
                          (:der hdr))))))
 
 (defn- lst-file-map-record
-  "Read a record from a LogStore ByteBuffer, and seek to its end."
+  "Read a record from a LogStore ByteBuffer, and seek to its
+  end. Returns an `LSTRecordHeader` instance."
   [lst]
 
   (let [handle (:handle lst)
@@ -77,7 +117,10 @@ Returns an LSTFileHeader instance."
     record-header))
 
 (defn- lst-file-map
-  "Map all records from a LogStore ByteBuffer."
+  "Map all records from a LogStore ByteBuffer. This is done by reading
+  through the whole file until no bytes are left to read.
+
+  Returns a vector of `LSTRecordHeader` instances."
   [lst]
 
   (loop [result []]
@@ -86,8 +129,17 @@ Returns an LSTFileHeader instance."
         (recur (conj result rec)))
       result)))
 
+;;
+;; ## Published functions
+;; - - - - - - - - - - -
+;;
+;; The functions below are published towards the rest of the library,
+;; and can be used to do basic work on LogStore files.
+;;
+
 (defn open
-  "Open a LogStore file. Returns an LSTFile, or throws an exception on error."
+  "Open a LogStore file, and map its records. Returns an `LSTFile`
+  instance, or throws an exception on error."
   [filename]
 
   (let [channel (.getChannel (FileInputStream. filename))
@@ -96,12 +148,14 @@ Returns an LSTFileHeader instance."
     (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))
 
 (defn count
-  "Count the elements in a LogStore file."
+  "Count the records in a LogStore file."
   [lst]
   (clojure.core/count (:record-map lst)))
 
 (defn nth
-  "Get the nth record from a LogStore."
+  "Get the nth record from a LogStore. The returned value's type
+  depends on the type of the record, it can be any of `LSTRecordChunk`
+  or `LSTRecordTimestamp`."
   [lst index]
 
   (let [record-header (clojure.core/nth (:record-map lst) index)]

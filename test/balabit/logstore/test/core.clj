@@ -9,7 +9,7 @@
 (defn open-invalid []
   (try+
    (lst/open "project.clj")
-   (catch [:type :balabit.logstore.core.errors/invalid-file] {:keys [message]}
+   (catch [:type :invalid-file] {:keys [message]}
      true)))
 
 (defn open-non-existant []

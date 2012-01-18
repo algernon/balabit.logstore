@@ -74,11 +74,10 @@
   (:require [balabit.logstore.core.file :as lgs]
             [balabit.logstore.core.record :as lgs-record])
   (:use balabit.logstore.core.utils)
-  (:import balabit.logstore.core.file.LSTFile)
-  (:import balabit.logstore.core.record.common.LSTRecord))
+  (:import balabit.logstore.core.file.LSTFile))
 
 (declare ^:dynamic ^LSTFile *logstore*)
-(declare ^:dynamic ^LSTRecord *logstore-record*)
+(declare ^:dynamic *logstore-record*)
 
 ;;
 ;; # LogStore file convenience macros
