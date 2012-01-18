@@ -3,7 +3,10 @@
 ;; use the library from Clojure.
 ;;
 ;; All of the examples can be copy & pasted right into the REPL, or
-;; the namespace can be used, and the functions used directly.
+;; can be imported and used that way. It is also possible to run the
+;; various examples via lein:
+;;
+;; `lein run -m balabit.logstore.examples/lgstool-cat` **`filename`**
 ;;
 
 (ns balabit.logstore.examples
