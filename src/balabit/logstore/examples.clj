@@ -104,6 +104,6 @@ messages if the record's a chunk."
                                      (logstore-records))
              chunk-records (keys (filter #(= :chunk (:type (val %)))
                                          indexed-records))
-             print-msgs (fn [block]
-                          (dorun (map print (:messages block))))]
-         (dorun (map #(print-msgs (logstore-nth %)) chunk-records))))))
+             print-msgs (fn [index]
+                          (dorun (map print (:messages (logstore-nth index)))))]
+         (dorun (map print-msgs chunk-records))))))
