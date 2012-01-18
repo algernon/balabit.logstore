@@ -11,5 +11,6 @@
                      [lein-marginalia "0.7.0-SNAPSHOT"]
                      [midje "1.3.1"]
                      [lein-midje "1.0.7"]
+                     [lein-exec "0.1"]
                      ]
   )
