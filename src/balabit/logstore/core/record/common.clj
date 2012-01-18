@@ -1,6 +1,10 @@
 (ns balabit.logstore.core.record.common
   "Common functions and definitions for all record types."
 
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+
   (:require [gloss.core]
             [gloss.io]))
 

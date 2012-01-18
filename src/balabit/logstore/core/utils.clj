@@ -1,6 +1,10 @@
 (ns balabit.logstore.core.utils
   "Miscellaneous utility functions."
 
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+
   (:import (java.io InputStream)
            (java.nio ByteBuffer)))
 

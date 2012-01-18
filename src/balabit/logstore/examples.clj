@@ -8,6 +8,11 @@
 
 (ns balabit.logstore.examples
   "## Examples"
+
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+
   (:use balabit.logstore))
 
 ;; # Meta-data printer

@@ -1,5 +1,10 @@
 (ns balabit.logstore.core.file
   "Core functions to read syslog-ng PE's LogStore files."
+
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+
   (:import (java.io FileInputStream))
   (:use [slingshot.slingshot :only [throw+]]
         [balabit.logstore.core.utils])

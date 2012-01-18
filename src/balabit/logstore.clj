@@ -66,6 +66,11 @@
 
 (ns balabit.logstore
   "Public syslog-ng LogStore reader API"
+
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+  
   (:require [balabit.logstore.core.file :as lgs]
             [balabit.logstore.core.record :as lgs-record])
   (:use balabit.logstore.core.utils)

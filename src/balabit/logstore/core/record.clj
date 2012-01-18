@@ -1,6 +1,10 @@
 (ns balabit.logstore.core.record
   "LogStore record functions."
 
+  ^{:author "Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :license "All rights reserved"}
+
   (:refer-clojure :exclude [read])
   (:use [balabit.logstore.core.utils :only [resolve-flags, slice-n-dice]])
   (:use balabit.logstore.core.record.chunk)
