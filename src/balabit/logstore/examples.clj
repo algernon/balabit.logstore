@@ -84,3 +84,23 @@ Verification is done in a very simple way: we count the number of
          (if (= 0 unstamped)
            (println "Congratulations, all your chunks are stamped!")
            (println "Oh boy, there are" unstamped "unstamped chunks!"))))))
+
+;; # Print all messages from a logstore
+;; - - - - - - - - - - - - - - - - - -
+
+(defn lgstool-cat
+  "This function will print all messages, and only the messages from
+a LogStore.
+
+This is done by looping over the record indexes, and printing the
+messages if the record's a chunk."
+  ([] (lgstool-cat "resources/logstores/short.compressed.store"))
+  ([filename]
+     (with-logstore filename
+       (loop [index 0]
+         (when (< index (count (logstore-records)))
+           (do
+             (with-logstore-record index
+               (when (= :chunk (logstore-record :header :type))
+                 (doall (map print (logstore-record :messages)))))
+             (recur (inc index))))))))
