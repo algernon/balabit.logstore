@@ -100,10 +100,10 @@ messages if the record's a chunk."
   ([] (lgstool-cat "resources/logstores/short.compressed.store"))
   ([filename]
      (with-logstore filename
-       (loop [index 0]
-         (when (< index (count (logstore-records)))
-           (do
-             (with-logstore-record index
-               (when (= :chunk (logstore-record :header :type))
-                 (doall (map print (logstore-record :messages)))))
-             (recur (inc index))))))))
+       (let [indexed-records (zipmap (range (count (logstore-records)))
+                                     (logstore-records))
+             chunk-records (keys (filter #(= :chunk (:type (val %)))
+                                         indexed-records))
+             print-msgs (fn [block]
+                          (dorun (map print (:messages block))))]
+         (dorun (map #(print-msgs (logstore-nth %)) chunk-records))))))
