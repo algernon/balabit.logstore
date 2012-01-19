@@ -14,6 +14,7 @@
   (:import (org.joda.time DateTime DateTimeZone)
            (java.io ByteArrayOutputStream InputStream OutputStream)
            (java.nio ByteBuffer)
+           (java.net InetAddress)
            (java.util.zip InflaterInputStream Inflater))
   (:use balabit.logstore.core.utils))
 
@@ -217,7 +218,7 @@
    (= family 2) (gloss.io/decode
                  (gloss.core/compile-frame
                   (gloss.core/ordered-map
-                   :address :uint32
+                   :address (gloss.core/finite-block 4)
                    :port :uint16))
                  (slice-n-dice buffer (sockaddr-len family)))
    (= family 10) (gloss.io/decode
@@ -317,6 +318,26 @@
            {:tags tags}
            trail)))
 
+(defn- resolve-address
+  "Given an internet address in binary form (either IPv4 or IPv6),
+  turn it into a string with the address represented in
+  dotted-notation."
+  [addr]
+
+  (let [buffer (byte-array (.limit addr))]
+    (.get addr buffer 0 (.limit addr))
+    (InetAddress/getByAddress buffer)))
+
+(defn- resolve-socket-family
+  "Turns the binary representation of the socket family into a
+  symbolic name."
+  [family]
+
+  (cond
+   (= family 2) :inet4
+   (= family 10) :inet6
+   :else :unknown))
+
 (defn- serialized-msg-read
   "Read a single serialized message, and parse it. Returns an
   `LSTSerializedMessage`."
@@ -326,7 +347,12 @@
     (.position buffer (+ (.position buffer) (:length header)))
     (LSTSerializedMessage. (:flags header)
                            (:priority header)
-                           (:socket-address header)
+                           (merge
+                            (:socket-address header)
+                            {:address (resolve-address
+                                       (-> header :socket-address :address first))
+                             :family (resolve-socket-family
+                                      (-> header :socket-address :family))})
                            (translate-timestamp (long (-> header :stamp :sec))
                                                 (-> header :stamp :usec)
                                                 (* (-> header :stamp :zone-offset) 1000))
