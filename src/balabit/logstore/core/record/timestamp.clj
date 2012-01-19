@@ -11,6 +11,7 @@
   (:require [balabit.logstore.core.record.common :as lgs-rec-common]
             [gloss.core]
             [gloss.io])
+  (:import (java.nio ByteBuffer))
   (:use balabit.logstore.core.utils))
 
 ;; ## Records
@@ -58,7 +59,7 @@
 ;;
 ;; It does no post-processing of the timestamp (yet).
 (defmethod lgs-rec-common/read-record-data :timestamp
-  [header handle]
+  [header #^ByteBuffer handle]
 
   (let [original-pos (.position handle)
         ts (gloss.io/decode record-timestamp

@@ -13,4 +13,5 @@
                      [lein-midje "1.0.7"]
                      [lein-exec "0.1"]
                      ]
+  ;:warn-on-reflection true
   )

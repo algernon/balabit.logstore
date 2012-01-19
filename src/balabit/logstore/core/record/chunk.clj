@@ -189,7 +189,7 @@
   position the buffer to the byte after the read data.
 
   Returns the parsed header part."
-  [buffer]
+  [#^ByteBuffer buffer]
 
   (let [hdr-begin (gloss.io/decode serialized-msg-header-begin
                                    (slice-n-dice buffer 13))]
@@ -234,7 +234,7 @@
   "Retrieves the socket address from the buffer, and moves the buffer
   position to after the address. Returns the decoded address and port,
   along with the socket family."
-  [buffer family]
+  [#^ByteBuffer buffer family]
 
   (let [sa (serialized-msg-header-decode-sockaddr buffer family)]
     (.position buffer (+ (.position buffer) (sockaddr-len family)))
@@ -267,7 +267,7 @@
 (defn- serialized-msg-header-get-tag
   "Read a tag from the buffer, and move its position after the
   tag. Returns a String."
-  [buffer]
+  [#^ByteBuffer buffer]
 
   (let [tag-length (gloss.io/decode (gloss.core/compile-frame :uint32)
                                     (slice-n-dice buffer 4))
@@ -301,7 +301,7 @@
   "Read the full headers of a serialized message. Returns all the
   relevant info combined into a hash-map. Also positions the buffer to
   the end of the header."
-  [data]
+  [#^ByteBuffer data]
 
   (let [begin (serialized-msg-header-get-begin data)
         sockaddr (serialized-msg-header-get-sockaddr data (:socket-family begin))
@@ -323,7 +323,7 @@
   "Given an internet address in binary form (either IPv4 or IPv6),
   turn it into a string with the address represented in
   dotted-notation."
-  [addr]
+  [#^ByteBuffer addr]
 
   (let [buffer (byte-array (.limit addr))]
     (.get addr buffer 0 (.limit addr))
@@ -383,7 +383,7 @@
 (defn- serialized-msg-read
   "Read a single serialized message, and parse it. Returns an
   `LSTSerializedMessage`."
-  [buffer]
+  [#^ByteBuffer buffer]
 
   (let [start-pos (.position buffer)
         header (serialized-msg-header-read buffer)
@@ -414,7 +414,7 @@
 ;; data buffer, and deserializes each message one by one, returning a
 ;; vector of `LSTSerializedMessage` instances in the end.
 (defmethod chunk-data-deserialize :serialized
-  [record-header data]
+  [record-header #^ByteBuffer data]
 
   (loop [messages []]
     (if (>= (.position data) (.limit data))
@@ -477,7 +477,7 @@
 ;; vector of Strings or hash-maps; see the message deserialization
 ;; part just above).
 (defmethod lgs-rec-common/read-record-data :chunk
-  [header handle]
+  [header #^ByteBuffer handle]
 
   (let [original-pos (.position handle)
         chunk-header (gloss.io/decode record-chunk-header
