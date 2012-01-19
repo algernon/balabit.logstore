@@ -409,13 +409,17 @@
                            (:tags header)
                            nil)))
 
-;; Work in progress: until serialized-msg-read is incomplete, this
-;; will only return the first message, or what we could parse out of
-;; it so far.
+;; This impmenetation of the `chunk-data-deserialize` function is for
+;; chunks which have the `:serialized` flag set. It reads through the
+;; data buffer, and deserializes each message one by one, returning a
+;; vector of `LSTSerializedMessage` instances in the end.
 (defmethod chunk-data-deserialize :serialized
   [record-header data]
 
-  [(serialized-msg-read data)])
+  (loop [messages []]
+    (if (>= (.position data) (.limit data))
+      messages
+      (recur (conj messages (serialized-msg-read data))))))
 
 ;; ### Chunk decoding
 ;; - - - - - - - - -
