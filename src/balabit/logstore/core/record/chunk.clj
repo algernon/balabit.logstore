@@ -41,11 +41,12 @@
                            ])
 
 ;; A serialized message consists of a set of known properties, such as
-;; its flags, its priority, timestamps, tags and so on and so
-;; forth. It also contains a collection of name-value pairs, that
-;; contain the bulk of the information.
+;; its flags, its severity and facility, timestamps, tags and so on
+;; and so forth. It also contains a collection of name-value pairs,
+;; that contain the bulk of the information.
 (defrecord LSTSerializedMessage [flags
-                                 priority
+                                 severity
+                                 facility
                                  socket-address
                                  stamp
                                  recv-stamp
@@ -338,15 +339,59 @@
    (= family 10) :inet6
    :else :unknown))
 
+;; To help turning a priority (facility + severity combined) into a
+;; symbolic facility name, we define a vector of all known syslog
+;; facilities.
+(def facility-map #^{:private true}
+  [:kern
+   :user
+   :mail
+   :daemon
+   :auth
+   :syslog
+   :lpr
+   :news
+   :uucp
+   :cron
+   :authpriv
+   :ftp
+   :ntp
+   :log-audit
+   :log-alert
+   :clock2
+   :local0
+   :local1
+   :local2
+   :local3
+   :local4
+   :local5
+   :local6
+   :local7])
+
+;; Similar to `facility-map`, the other part of the priority is looked
+;; up from this table, that contains the known syslog severities.
+(def severity-map #^{:private true}
+  [:emergency
+   :alert
+   :critical
+   :error
+   :warning
+   :notice
+   :informational
+   :debug])
+
 (defn- serialized-msg-read
   "Read a single serialized message, and parse it. Returns an
   `LSTSerializedMessage`."
   [buffer]
 
-  (let [header (serialized-msg-header-read buffer)]
+  (let [header (serialized-msg-header-read buffer)
+        facility (quot (:priority header) 8)
+        severity (rem (:priority header) 8)]
     (.position buffer (+ (.position buffer) (:length header)))
     (LSTSerializedMessage. (:flags header)
-                           (:priority header)
+                           (severity-map severity)
+                           (facility-map facility)
                            (merge
                             (:socket-address header)
                             {:address (resolve-address
