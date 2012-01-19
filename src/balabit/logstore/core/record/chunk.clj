@@ -12,7 +12,8 @@
             [gloss.core]
             [gloss.io])
   (:import (org.joda.time DateTime)
-           (java.io DataInputStream)
+           (java.io ByteArrayOutputStream InputStream OutputStream)
+           (java.nio ByteBuffer)
            (java.util.zip InflaterInputStream Inflater))
   (:use balabit.logstore.core.utils))
 
@@ -56,6 +57,16 @@
 
   (DateTime. (+ (* secs 1000) (quot usecs 1000))))
 
+(defn stream-copy
+  "Copy a stream from an `InputStream` to an `OutputStream`."
+  [^InputStream input ^OutputStream output]
+  (let [buffer (make-array Byte/TYPE 1024)]
+    (loop []
+      (let [size (.read input buffer)]
+        (when (pos? size)
+          (do (.write output buffer 0 size)
+              (recur)))))))
+
 ;; ## Message deserialization
 ;; - - - - - - - - - - - - -
 ;;
@@ -74,7 +85,7 @@
 ;;
 
 (defmulti chunk-decompress
-  "Decompress a chunk, if so need be."
+  "Decompress a chunk, if so need be. Returns a `ByteBuffer`."
   (fn [record-header data-size data] (flag-set? record-header :compressed)))
 
 ;; By default, when the :compressed flag is not set, we do not need to
@@ -88,81 +99,53 @@
 ;; large enough to hold all the data. This is needed, because
 ;; otherwise decompression tends to fail horribly for some reason.
 ;;
-;; Returns an instance of `InflaterInputStream`, which is thankfully
-;; castable to `DataInputStream` (see `chunk-data-split` later).
+;; Returns a `ByteBuffer` with the decompressed data.
 (defmethod chunk-decompress true
   [record-header data-size data]
-  (InflaterInputStream. data (Inflater.) data-size))
 
-;; ### Message splitting
-;; - - - - - - - - - - -
+  (let [buffer (ByteArrayOutputStream.)]
+    (stream-copy (InflaterInputStream. (bb-buffer-stream data)
+                                       (Inflater.) data-size) buffer)
+    (ByteBuffer/wrap (.toByteArray buffer))))
+
+;; ### Message deserialization
+;; - - - - - - - - - - - - - -
 ;;
 ;; Each chunk contains multiple messages, and we want to return a
-;; record, where each element is a single message. To accomplish this,
-;; we need a method to split the data into a vector.
+;; vector, where each element is a single message. To accomplish this,
+;; we need a method to deserialize the messages.
+;;
+;; Depending on whether the message was stored in serialized or
+;; unserialized format, the vector's elements will be either hash
+;; maps, or strings, respectively.
 
-(defmulti chunk-data-split
-  "Split unserialized data into chunks."
-  (fn [record-header msgcnt data] (flag-set? record-header :serialized)))
+(defmulti chunk-data-deserialize
+  "Deserialize a message buffer."
+  (fn [record-header data] (flag-set? record-header :serialized)))
 
-(defn- chunk-data-read-line
-  "Read a length-prefixed log line from a DataInputStream."
-  [stream]
+;; #### Unserialized message splitting
 
-  (try
-    (let [len (.readInt stream)]
-      (let [buffer (byte-array len)]
-        (.read stream buffer)
-        buffer))
-    (catch Exception _
-      nil)))
+;; An *unserialized* string is a set of bytes, with a 32-bit length
+;; prefix.
+(gloss.core/defcodec- unserialized-string
+  (gloss.core/finite-frame :uint32 (gloss.core/string :utf-8)))
 
 ;; The default case is when the messages are not serialized, in which
-;; case they're just strings with a 32-bit length-prefix.
+;; case they're just strings with a 32-bit length-prefix. We'll use
+;; the codec above to split the buffer into individual strings.
 ;;
-;; We do the split by reading the whole data stream and split the
-;; strings up into a vector.
-;;
-;; Returns a vector of byte arrays.
-(defmethod chunk-data-split :default
-  [record-header msgcnt data]
+;; Returns a vector of Strings.
+(defmethod chunk-data-deserialize :default
+  [record-header data]
 
-  (let [stream (DataInputStream. data)]
-    (loop [messages []
-           remaining msgcnt]
-      (let [line (chunk-data-read-line stream)]
-        (if (< remaining 0)
-          messages
-          (recur (conj messages line) (dec remaining)))))))
+  (gloss.io/decode-all unserialized-string data))
+
+;; #### Serialized message deserialization and splitting
 
 ;; The harder case is when log messages are serialized, and
 ;; deserializing those is not implemented yet, so this function just
 ;; returns the data-as is.
-(defmethod chunk-data-split :serialized
-  [record-header msgcnt data] data)
-
-;; ### Message stringification
-;; - - - - - - - - - - - - - -
-;;
-;; In the end, we also want to turn the log messages into strings
-;; (unless serialized), and we use another multi-method to accomplish
-;; this task.
-
-(defmulti chunk-data-stringify
-  "Cast all members of data to Strings."
-  (fn [record-header data] (flag-set? record-header :serialized)))
-
-;; The default is - again - that messages are unserialized. We get a
-;; vector of byte-arrays, or something else that can be used as a
-;; constructor for Strings, and return a vector of Strings.
-(defmethod chunk-data-stringify :default
-  [record-header data]
-
-  (map #(String. %) data))
-
-;; For serialized data, however, we do nothing: we already have the
-;; preferred form: a hash-map.
-(defmethod chunk-data-stringify true
+(defmethod chunk-data-deserialize true
   [record-header data] data)
 
 ;; ### Chunk decoding
@@ -174,10 +157,8 @@
 
   This is done by composing all of the multi-methods above."
   [header msgcnt data data-size]
-  ((comp (partial chunk-data-stringify header)
-         (partial chunk-data-split header msgcnt)
-         (partial chunk-decompress header data-size)
-         bb-buffer-stream)
+  ((comp (partial chunk-data-deserialize header)
+         (partial chunk-decompress header data-size))
    data))
 
 ;; ## Codecs
