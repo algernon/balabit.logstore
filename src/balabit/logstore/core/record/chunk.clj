@@ -86,11 +86,14 @@
 
 (defmulti chunk-decompress
   "Decompress a chunk, if so need be. Returns a `ByteBuffer`."
-  (fn [record-header data-size data] (flag-set? record-header :compressed)))
+  (fn [record-header data-size data]
+    (if (flag-set? record-header :compressed)
+      :compressed
+      :uncompressed)))
 
 ;; By default, when the :compressed flag is not set, we do not need to
 ;; do a thing, and as such, just return the original data.
-(defmethod chunk-decompress :default
+(defmethod chunk-decompress :uncompressed
   [record-header data-size data] data)
 
 ;; If the dispatch function determined the :compressed flag is set,
@@ -100,7 +103,7 @@
 ;; otherwise decompression tends to fail horribly for some reason.
 ;;
 ;; Returns a `ByteBuffer` with the decompressed data.
-(defmethod chunk-decompress true
+(defmethod chunk-decompress :compressed
   [record-header data-size data]
 
   (let [buffer (ByteArrayOutputStream.)]
@@ -121,7 +124,10 @@
 
 (defmulti chunk-data-deserialize
   "Deserialize a message buffer."
-  (fn [record-header data] (flag-set? record-header :serialized)))
+  (fn [record-header data]
+    (if (flag-set? record-header :serialized)
+      :serialized
+      :unserialized)))
 
 ;; #### Unserialized message splitting
 
@@ -135,7 +141,7 @@
 ;; the codec above to split the buffer into individual strings.
 ;;
 ;; Returns a vector of Strings.
-(defmethod chunk-data-deserialize :default
+(defmethod chunk-data-deserialize :unserialized
   [record-header data]
 
   (gloss.io/decode-all unserialized-string data))
@@ -145,7 +151,7 @@
 ;; The harder case is when log messages are serialized, and
 ;; deserializing those is not implemented yet, so this function just
 ;; returns the data-as is.
-(defmethod chunk-data-deserialize true
+(defmethod chunk-data-deserialize :serialized
   [record-header data] data)
 
 ;; ### Chunk decoding
@@ -191,8 +197,7 @@
      :chunk-data (gloss.core/finite-block (- (:tail-offset ~header) 54)),
      :flags :uint32,
      :file-mac (gloss.core/finite-block :uint32)
-     :chunk-hmac (gloss.core/finite-block :uint32)
-     )))
+     :chunk-hmac (gloss.core/finite-block :uint32))))
 
 ;; ## Published functions
 ;; - - - - - - - - - - -
