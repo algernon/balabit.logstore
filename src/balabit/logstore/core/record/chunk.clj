@@ -193,7 +193,7 @@
 
   (let [hdr-begin (gloss.io/decode serialized-msg-header-begin
                                    (slice-n-dice buffer 13))]
-    (.position buffer 13)
+    (.position buffer (+ (.position buffer) 13))
     hdr-begin))
 
 ;; Following the first part of the header, is the socket address. The
@@ -385,10 +385,11 @@
   `LSTSerializedMessage`."
   [buffer]
 
-  (let [header (serialized-msg-header-read buffer)
+  (let [start-pos (.position buffer)
+        header (serialized-msg-header-read buffer)
         facility (quot (:priority header) 8)
         severity (rem (:priority header) 8)]
-    (.position buffer (+ (.position buffer) (:length header)))
+    (.position buffer (+ start-pos (:length header) 4))
     (LSTSerializedMessage. (:flags header)
                            (severity-map severity)
                            (facility-map facility)
