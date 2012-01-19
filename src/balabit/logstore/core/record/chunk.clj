@@ -11,7 +11,7 @@
   (:require [balabit.logstore.core.record.common :as lgs-rec-common]
             [gloss.core]
             [gloss.io])
-  (:import (org.joda.time DateTime)
+  (:import (org.joda.time DateTime DateTimeZone)
            (java.io ByteArrayOutputStream InputStream OutputStream)
            (java.nio ByteBuffer)
            (java.util.zip InflaterInputStream Inflater))
@@ -39,6 +39,20 @@
                            chunk-mac
                            ])
 
+;; A serialized message consists of a set of known properties, such as
+;; its flags, its priority, timestamps, tags and so on and so
+;; forth. It also contains a collection of name-value pairs, that
+;; contain the bulk of the information.
+(defrecord LSTSerializedMessage [flags
+                                 priority
+                                 socket-address
+                                 stamp
+                                 recv-stamp
+
+                                 tags
+                                 nvpairs
+                                 ])
+
 ;; Known chunk flags, used to turn a binary representation into a
 ;; vector of symbolic names.
 (def chunk-flag-bitmap #^{:private true}
@@ -52,10 +66,13 @@
   "Translate a timestamp consisting of a 64bit seconds part, and a
   32bit microsecond part into a single value, into a DateTime
   object. It does loose a little bit of precision (it can only handle
-  millis)."
-  [secs usecs]
+  millis).
 
-  (DateTime. (+ (* secs 1000) (quot usecs 1000))))
+  If a timezone offset is specified too, it will be used too."
+
+  ([secs usecs] (DateTime. (+ (* secs 1000) (quot usecs 1000))))
+  ([secs usecs tzoffs] (DateTime. (+ (* secs 1000) (quot usecs 1000))
+                                  (DateTimeZone/forOffsetMillis tzoffs))))
 
 (defn stream-copy
   "Copy a stream from an `InputStream` to an `OutputStream`."
@@ -162,12 +179,12 @@
    :length :uint32
    :version :byte,
    :flags :uint32,
-   :pri :uint16
+   :priority :uint16
    :socket-family :uint16))
 
 (defn- serialized-msg-header-get-begin
   "Read the beginning of the header of a serialized message, and
-  position the buffer to thebyte after the read data.
+  position the buffer to the byte after the read data.
 
   Returns the parsed header part."
   [buffer]
@@ -301,12 +318,24 @@
            trail)))
 
 (defn- serialized-msg-read
-  "Read a single serialized message, and parse it. Returns a `TBD`."
+  "Read a single serialized message, and parse it. Returns an
+  `LSTSerializedMessage`."
   [buffer]
 
   (let [header (serialized-msg-header-read buffer)]
     (.position buffer (+ (.position buffer) (:length header)))
-    header))
+    (LSTSerializedMessage. (:flags header)
+                           (:priority header)
+                           (:socket-address header)
+                           (translate-timestamp (long (-> header :stamp :sec))
+                                                (-> header :stamp :usec)
+                                                (* (-> header :stamp :zone-offset) 1000))
+                           (translate-timestamp (long (-> header :recv-stamp :sec))
+                                                (-> header :recv-stamp :usec)
+                                                (* (-> header :recv-stamp :zone-offset) 1000))
+
+                           (:tags header)
+                           nil)))
 
 ;; Work in progress: until serialized-msg-read is incomplete, this
 ;; will only return the first message, or what we could parse out of
