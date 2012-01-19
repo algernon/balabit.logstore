@@ -79,4 +79,18 @@
            (logstore-record :header :type) => :timestamp
            (logstore-record :header :flags) => []
            (logstore-record :chunk-id) => 0
-           (.limit (logstore-record :timestamp)) => 2492)))
+           (.limit (logstore-record :timestamp)) => 2492))
+
+  (with-logstore-record 0
+    (facts "about a serialized chunk"
+           (logstore-record :header :type) => :chunk
+           (logstore-record.compressed?) => true,
+           (logstore-record.serialized?) => true,
+
+           (count (logstore-record :messages)) => 2)
+
+    (let [msg (nth (logstore-record :messages) 1)]
+      (facts "about a deserialized message"
+             (:severity msg) => :notice,
+             (:facility msg) => :user,
+             (-> msg :socket-address :family) => :inet4))))
