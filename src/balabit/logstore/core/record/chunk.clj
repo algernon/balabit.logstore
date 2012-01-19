@@ -148,11 +148,173 @@
 
 ;; #### Serialized message deserialization and splitting
 
-;; The harder case is when log messages are serialized, and
-;; deserializing those is not implemented yet, so this function just
-;; returns the data-as is.
+;; Each serialized message begins with a fairly complex header, which
+;; is a bit awkward to parse: it's not easy to figure out the length
+;; of the socket address and the tags.
+;;
+;; For reasons above, deserializing a serialized message is split into
+;; multiple parts:
+
+;; To read the beginning of the header, up to and including the socket
+;; family, we need a simple codec.
+(gloss.core/defcodec- serialized-msg-header-begin
+  (gloss.core/ordered-map
+   :length :uint32
+   :version :byte,
+   :flags :uint32,
+   :pri :uint16
+   :socket-family :uint16))
+
+(defn- serialized-msg-header-get-begin
+  "Read the beginning of the header of a serialized message, and
+  position the buffer to thebyte after the read data.
+
+  Returns the parsed header part."
+  [buffer]
+
+  (let [hdr-begin (gloss.io/decode serialized-msg-header-begin
+                                   (slice-n-dice buffer 13))]
+    (.position buffer 13)
+    hdr-begin))
+
+;; Following the first part of the header, is the socket address. The
+;; length and contents depends on the socket type, so it needs special
+;; handling.
+
+(defn- sockaddr-len
+  "Given a socket family, return the length of its binary
+  representation, with a port number attached."
+  [family]
+
+  (cond
+   (= family 2) 6
+   (= family 10) 18
+   :else 0))
+
+(defn- serialized-msg-header-decode-sockaddr
+  "Decodes the socket address of `family` family from the
+  `buffer`. Returns the parsed address and port, if any."
+  [buffer family]
+
+  (cond
+   (= family 2) (gloss.io/decode
+                 (gloss.core/compile-frame
+                  (gloss.core/ordered-map
+                   :address :uint32
+                   :port :uint16))
+                 (slice-n-dice buffer (sockaddr-len family)))
+   (= family 10) (gloss.io/decode
+                  (gloss.core/compile-frame
+                   (gloss.core/ordered-map
+                    :address (gloss.core/finite-block 16)
+                    :port :uint16))
+                  (slice-n-dice buffer (sockaddr-len family)))
+   :else nil))
+
+(defn- serialized-msg-header-get-sockaddr
+  "Retrieves the socket address from the buffer, and moves the buffer
+  position to after the address. Returns the decoded address and port,
+  along with the socket family."
+  [buffer family]
+
+  (let [sa (serialized-msg-header-decode-sockaddr buffer family)]
+    (.position buffer (+ (.position buffer) (sockaddr-len family)))
+    (into {:family family} sa)))
+
+;; Following the socket address, come two timestamps: the timestamp of
+;; the message, and the timestamp it was received at.
+
+;; The timestamp itself is made up from three parts: the seconds part,
+;; microseconds, and a time-zone offset. We define an ordered map, so
+;; that we won't have to repeat ourselves for both stamps in the codec
+;; below.
+(def serialized-stamp
+  (gloss.core/ordered-map
+   :sec :uint64,
+   :usec :uint32,
+   :zone-offset :uint32))
+
+;; As explained just above, the serialized message header contains two
+;; timestamps, with the format described in `serialized-stamp`.
+(gloss.core/defcodec- serialized-msg-header-stamps
+  (gloss.core/ordered-map
+   :stamp serialized-stamp,
+   :recv-stamp serialized-stamp))
+
+;; The hardest part of parsing the header is without doubt the tags: a
+;; set of length-prefixed strings, where an empty string signals the
+;; end of the list.
+
+(defn- serialized-msg-header-get-tag
+  "Read a tag from the buffer, and move its position after the
+  tag. Returns a String."
+  [buffer]
+
+  (let [tag-length (gloss.io/decode (gloss.core/compile-frame :uint32)
+                                    (slice-n-dice buffer 4))
+        _ (.position buffer (+ (.position buffer) 4))]
+    (if (> tag-length 0)
+      (let [byte-array (byte-array tag-length)]
+        (.get buffer byte-array 0 tag-length)
+        (String. byte-array))
+      nil)))
+
+(defn- serialized-msg-header-get-tags
+  "Read all tags from the buffer. Returns a vector of Strings."
+  [buffer]
+
+  (loop [tags []]
+    (let [tag (serialized-msg-header-get-tag buffer)]
+      (if (empty? tag)
+        tags
+        (recur (conj tags tag))))))
+
+;; At the end of the header, after the tags, are a few more
+;; properties, which we'll need later on.
+(gloss.core/defcodec- serialized-msg-header-trail
+  (gloss.core/ordered-map
+   :initial-parse :byte
+   :num-matches :byte
+   :num-sdata :byte
+   :alloc-sdata :byte))
+
+(defn- serialized-msg-header-read
+  "Read the full headers of a serialized message. Returns all the
+  relevant info combined into a hash-map. Also positions the buffer to
+  the end of the header."
+  [data]
+
+  (let [begin (serialized-msg-header-get-begin data)
+        sockaddr (serialized-msg-header-get-sockaddr data (:socket-family begin))
+        stamps (gloss.io/decode serialized-msg-header-stamps
+                                (slice-n-dice data 32))
+        _ (.position data (+ (.position data) 32))
+        tags (serialized-msg-header-get-tags data)
+        trail (gloss.io/decode serialized-msg-header-trail
+                               (slice-n-dice data 4))
+        _ (.position data (+ (.position data) 4))
+        ]
+    (merge (dissoc begin :socket-family)
+           {:socket-address sockaddr}
+           stamps
+           {:tags tags}
+           trail)))
+
+(defn- serialized-msg-read
+  "Read a single serialized message, and parse it. Returns a `TBD`."
+  [buffer]
+
+  (let [header (serialized-msg-header-read buffer)]
+    (.position buffer (+ (.position buffer) (:length header)))
+    header))
+
+;; Work in progress: until serialized-msg-read is incomplete, this
+;; will only return the first message, or what we could parse out of
+;; it so far.
 (defmethod chunk-data-deserialize :serialized
-  [record-header data] data)
+  [record-header data]
+
+  [(serialized-msg-read data)])
 
 ;; ### Chunk decoding
 ;; - - - - - - - - -
