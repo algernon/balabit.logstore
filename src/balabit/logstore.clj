@@ -53,7 +53,8 @@
 ;; library, there is a small set of unimplemented features, that
 ;; sooner or later, will find its sway into the library.
 ;;
-;; * Serialized messages are not deserialized yet.
+;; * Serialized messages are not completely deserialized yet, the
+;;   name-value pairs are ignored right now.
 ;; * Encrypted logstores are not supported at all yet: the library
 ;;   will probably barf and throw exceptions when encountering one.
 ;; * Timestamps are extracted only as a binary blob, the timestamp
