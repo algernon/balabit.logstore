@@ -16,7 +16,7 @@
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license "All rights reserved"}
 
-  (:use balabit.logstore))
+  (:require [balabit.logstore :as logstore]))
 
 ;; # Meta-data printer
 ;; - - - - - - - - - -
@@ -27,26 +27,26 @@ prints out some metadata, then loops over all the records, and
 prints out some metadata about those, too!"
   ([] (meta-data-printer "resources/logstores/loggen.compressed.store"))
   ([filename]
-     (with-logstore filename
+     (logstore/with-file filename
        (println "Logstore meta-data")
-       (println " - Magic  :" (logstore-header :magic))
+       (println " - Magic  :" (-> (logstore/header) :magic))
        (println " - Crypto")
-       (println "   + Hash :" (logstore-header :crypto :algo-hash))
-       (println "   + Crypt:" (logstore-header :crypto :algo-crypt))
-       (println " - Records:" (count (logstore-records)))
+       (println "   + Hash :" (-> (logstore/header) :crypto :algo-hash))
+       (println "   + Crypt:" (-> (logstore/header) :crypto :algo-crypt))
+       (println " - Records:" (count (logstore/records)))
        (println)
 
        (loop [index 0]
-         (when (< index (count (logstore-records)))
+         (when (< index (count (logstore/records)))
            (do
-             (with-logstore-record index
-               (println (str "Chunk #" (logstore-record :chunk-id)))
-               (println " - Type :" (logstore-record :header :type))
-               (println " - Flags:" (logstore-record :header :flags))
-               (println " - Zip'd:" (logstore-record.compressed?))
+             (logstore/with-record index
+               (println (str "Chunk #" (-> (logstore/record) :chunk-id)))
+               (println " - Type :" (-> (logstore/record) :header :type))
+               (println " - Flags:" (-> (logstore/record) :header :flags))
+               (println " - Zip'd:" (logstore/compressed?))
                (println " - Msgs :"
-                        (logstore-record :first-msgid) " - "
-                        (logstore-record :last-msgid)))
+                        (-> (logstore/record) :first-msgid) " - "
+                        (-> (logstore/record) :last-msgid)))
              (recur (inc index))))))))
 
 ;; # Random message printer
@@ -58,15 +58,15 @@ message from it. We do this by first selecting a random block, and
 from that, a random message."
   ([] (random-message-printer "resources/logstores/loggen.compressed.store"))
   ([filename]
-     (with-logstore filename
-       (with-logstore-record (rand-int (logstore-header :last-block-id))
-         (let [rand-idx (rand-int (- (logstore-record :last-msgid)
-                                     (logstore-record :first-msgid)))]
+     (logstore/with-file filename
+       (logstore/with-record (rand-int (-> (logstore/header) :last-block-id))
+         (let [rand-idx (rand-int (- (-> (logstore/record) :last-msgid)
+                                     (-> (logstore/record) :first-msgid)))]
            (println "Your random message is"
-                    (+ rand-idx (logstore-record :first-msgid))
+                    (+ rand-idx (-> (logstore/record) :first-msgid))
                     "from chunk"
-                    (str "#" (logstore-record :chunk-id) ":"))
-           (println (nth (logstore-record :messages) rand-idx)))))))
+                    (str "#" (-> (logstore/record) :chunk-id) ":"))
+           (println (nth (-> (logstore/record) :messages) rand-idx)))))))
 
 ;; # Check timestamps
 ;; - - - - - - - - -
@@ -79,10 +79,10 @@ Verification is done in a very simple way: we count the number of
 `:chunk` and `:timestamp` type records, and compare their number."
   ([] (check-timestamps "resources/logstores/timestamped.store"))
   ([filename]
-     (with-logstore filename
+     (logstore/with-file filename
        (let [is-type (fn [type what] (= type (:type what)))
-             chunks (count (filter (partial is-type :chunk) (logstore-records)))
-             timestamps (count (filter (partial is-type :timestamp) (logstore-records)))
+             chunks (count (filter (partial is-type :chunk) (logstore/records)))
+             timestamps (count (filter (partial is-type :timestamp) (logstore/records)))
              unstamped (- chunks timestamps)]
          (if (= 0 unstamped)
            (println "Congratulations, all your chunks are stamped!")
@@ -99,11 +99,11 @@ This is done by looping over the record indexes, and printing the
 messages if the record's a chunk."
   ([] (lgstool-cat "resources/logstores/short.compressed.store"))
   ([filename]
-     (with-logstore filename
-       (let [indexed-records (zipmap (range (count (logstore-records)))
-                                     (logstore-records))
+     (logstore/with-file filename
+       (let [indexed-records (zipmap (range (count (logstore/records)))
+                                     (logstore/records))
              chunk-records (keys (filter #(= :chunk (:type (val %)))
                                          indexed-records))
              print-msgs (fn [index]
-                          (dorun (map print (:messages (logstore-nth index)))))]
+                          (dorun (map println (:messages (logstore/nth-record index)))))]
          (dorun (map print-msgs chunk-records))))))

@@ -35,6 +35,10 @@
 ;; For examples, see the [example][4] section of the documentation, or
 ;; the test suite in the source tree.
 ;;
+;; But the general idea is to use `(:require [balabit.logstore :as logstore])`
+;; or something similar, and use the macros provided herein, instead
+;; of `(:use balabit.logstore)`.
+;;
 ;; [4]: #balabit.logstore.examples
 ;;
 ;; # Limitations
@@ -88,13 +92,12 @@
 ;; therein.
 ;;
 ;; All of these - except for itself - must be called from within the
-;; body of a `(with-logstore)`.
+;; body of a `(with-file)`.
 ;;
 ;; ### File meta-data
 ;;
 ;; Opening a LogStore makes the file-metadata available via
-;; `(logstore-header)`, which returns a record that has the following
-;; fields:
+;; `(header)`, which returns a record that has the following fields:
 ;;
 ;; * `:magic`: The magic four bytes identifying what version this
 ;;   LogStore is.
@@ -117,29 +120,31 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;;
 
-(defmacro with-logstore
+(defmacro with-file
   "Evaluates body, with the specified LogStore file already opened,
-and bound to `*logstore*`."
+  and bound to `*logstore*`."
   [filename & body]
   `(binding [*logstore* (lgs/open ~filename)]
      (do ~@body)))
 
-(defmacro logstore-header
-  "Returns the full header of the already opened LogStore file, or, if
-`chain` is specified, then retrieves each key in the chain, using the
-result of the previous iteration as input."
-  [& chain]
-  `(-> *logstore* :header ~@chain))
+(defmacro header
+  "Returns the full header of the already opened LogStore file, be
+  that a specified logstore file, or if no arguments are given,
+  `*logstore*`."
+  ([] `(header *logstore*))
+  ([#^LSTFile logstore] `(:header ~logstore)))
 
-(defmacro logstore-records
-  "Returns the record headers in an opened LogStore file."
-  []
-  `(:record-map *logstore*))
+(defmacro records
+  "Returns the record headers in an opened LogStore file, be that a
+  specified logstore file, or if no arguments are given, `*logstore*`."
+  ([] `(records *logstore*))
+  ([#^LSTFile logstore] `(:record-map ~logstore)))
 
-(defmacro logstore-nth
-  "Returns the Nth record from an opened LogStore file."
-  [index]
-  `(lgs/nth *logstore* ~index))
+(defmacro nth-record
+  "Returns the Nth record from an opened LogStore file, be that a
+  specified logstore file, or if no arguments are given, `*logstore*`"
+  ([index] `(nth-record *logstore* ~index))
+  ([#^LSTFile logstore index] `(lgs/nth ~logstore ~index)))
 
 ;;
 ;; # LogStore record convenience macros
@@ -150,8 +155,7 @@ result of the previous iteration as input."
 ;;
 ;; The macros below make it easier to work with these records, and
 ;; similar to the LogStore file macros, these must also be called from
-;; within the body of a `(with-logstore-record)`, except for itself,
-;; of course.
+;; within the body of a `(with-record)`, except for itself, of course.
 ;;
 ;; ### Record Formats
 ;;
@@ -206,31 +210,39 @@ result of the previous iteration as input."
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;;
 
-(defmacro with-logstore-record
-  "Evaluates body, with the specified record retrieved and bound to
-`*logstore-record*`."
-  [index & body]
-  `(binding [*logstore-record* (logstore-nth ~index)]
+(defmacro with-file-record
+  "Evaluates `body`, with the specified record retrieved and bound to
+  `*logstore-record*`. Requires an `LTSFile` as the first parameter,
+  the record will be looked up from there."
+  [#^LSTFile logstore index & body]
+  `(binding [*logstore-record* (nth-record ~logstore ~index)]
      (do ~@body)))
 
-(defmacro logstore-record
-  "Returns the full header of the current LogStore record, or, if
-`chain` is specified, then retrieves each key in the chain, using the
-result of the previous iteration as input."
-  [& chain]
-  `(-> *logstore-record* ~@chain))
+(defmacro with-record
+  "Evaluates `body`, with the specified record retrieved and bound to
+  `*logstore-record*`. This works on the LogStore bound to
+  `*logstore*`."
+  [index & body]
+  `(with-file-record *logstore* ~index ~@body))
+
+(defmacro record
+  "Returns the full header of the current LogStore record, unless
+  another record is specified."
+  ([] `(record *logstore-record*))
+  ([rec] `~rec))
 
 (defmacro def-record-flag-accessor
   "Define a record flag query macro. Takes a name, and a flag to
   query, returns a macro that does just that."
   [flag]
-  (let [name (symbol (str "logstore-record." flag "?"))
+  (let [name (symbol (str flag "?"))
         keyflag (keyword flag)]
-    `(defmacro ~name [& ~'record]
-       `(flag-set?
-         (:header (or ~@~'record
-                      balabit.logstore/*logstore-record*))
-         ~~keyflag))))
+    `(defmacro ~name
+       "Check whether the current record (if not arguments are given)
+  or the specified one has the flag suggested by the name of the
+  macro, set. Returns true if so, false otherwise."
+       ([] `(flag-set? (:header balabit.logstore/*logstore-record*) ~~keyflag))
+       ([~'record] `(flag-set? (:header ~~'record) ~~keyflag)))))
 
 (defmacro make-record-flag-accessors
   "Make a set of flag accessors."
@@ -241,11 +253,10 @@ result of the previous iteration as input."
 ;; depending on whether a given flag was set on a LogStore record, or
 ;; not.
 ;;
-;; The accessors are named after the flag they check, and are prefixed
-;; with `logstore-record.`, ending up with such names as
-;; `logstore-record.compressed?`.
+;; The accessors are named after the flag they check, suffixed with a
+;; question mark, ending up with such names as `compressed?`.
 ;;
 ;; These, unlike the other macros, do not need to be called from
-;; within a `(with-logstore-record)`, but can take an optional record
+;; within a `(with-record)`, but can take an optional record
 ;; parameter, and work with that instead of the default.
 (make-record-flag-accessors compressed encrypted broken serialized)
