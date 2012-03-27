@@ -5,7 +5,7 @@
                  [org.clojure/clojure "1.3.0"]
                  [slingshot "0.10.1"]
                  [joda-time/joda-time "2.0"]
-                 [gloss "0.2.1-SNAPSHOT"]
+                 [gloss "0.2.1-alpha1"]
                  ]
   :dev-dependencies [
                      [lein-marginalia "0.7.0-SNAPSHOT"]
