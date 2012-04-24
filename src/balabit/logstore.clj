@@ -69,6 +69,15 @@
 ;; * There is no Java API yet. In the future, we want to make the
 ;;   library easily accessible from Java aswell.
 ;;
+;; # Documentation
+;;
+;; The library comes with two versions of API docs: one for
+;; [end-users][4], and another for [developers][5] interested in
+;; working on the library itself.
+;;
+;; [4]: http://algernon.github.com/balabit.logstore/public-api.html
+;; [5]: http://algernon.github.com/balabit.logstore/developer-api.html
+;;
 
 (ns balabit.logstore
   "Public syslog-ng LogStore reader API"
