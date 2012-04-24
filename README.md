@@ -8,4 +8,4 @@ See the marginalia docs for more information.
 
 Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>
 
-All rights reserved, for now.
+Released under the terms of the GNU GPL v3+.

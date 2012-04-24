@@ -7,7 +7,8 @@
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
-    :license "All rights reserved"}
+    :license {:name "GNU General Public License - v3"
+              :url "http://www.gnu.org/licenses/gpl.txt"}}
 
   (:require [gloss.core]
             [gloss.io]))

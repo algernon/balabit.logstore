@@ -43,7 +43,8 @@
 ;;
 ;; # Limitations
 ;;
-;; * This is a simple reader. It does not, and will not support writing LogStore files.
+;; * This is a simple reader. It does not, and will not support
+;;   writing LogStore files.
 ;; * It does not support reading from open LogStores. It's not guarded
 ;;   against, but the library assumes that the LogStore file is
 ;;   closed.
@@ -74,7 +75,8 @@
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
-    :license "All rights reserved"}
+    :license {:name "GNU General Public License - v3"
+              :url "http://www.gnu.org/licenses/gpl.txt"}}
   
   (:require [balabit.logstore.core.file :as lgs]
             [balabit.logstore.core.record :as lgs-record])
