@@ -2,7 +2,10 @@
 
 Independent implementation of a syslog-ng PE LogStore reader.
 
-See the marginalia docs for more information.
+See the [documentation](http://algernon.github.com/balabit.logstore/)
+for more information.
+
+[![Build Status](https://secure.travis-ci.org/algernon/balabit.logstore.png?branch=master)](http://travis-ci.org/algernon/balabit.logstore)
 
 ## License
 
