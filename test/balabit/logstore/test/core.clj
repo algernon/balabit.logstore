@@ -15,8 +15,10 @@
 (defn open-non-existant []
   (try+
    (lst/open "does-not-exist.store")
-   (catch java.lang.RuntimeException e
-     (= (class (.getCause e)) java.io.FileNotFoundException))))
+   (catch Exception e
+     (or
+      (= (class (.getCause e)) java.io.FileNotFoundException)
+      (= (class e) java.io.FileNotFoundException)))))
 
 (fact "about an invalid logstore throwing an exception"
       (open-invalid) => true)

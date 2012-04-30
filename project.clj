@@ -15,9 +15,9 @@
                  [slingshot "0.10.1"]
                  [joda-time/joda-time "2.0"]
                  [gloss "0.2.1-rc1"]]
-  :profiles {:dev
-             {:dependencies
-              [[midje "1.3.1" :exclusions [org.clojure/clojure]]]}}
+  :profiles {:dev {:dependencies
+                   [[midje "1.3.1" :exclusions [org.clojure/clojure]]]}
+             :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}}
   :plugins [[lein-marginalia "0.7.0"]
             [lein-midje "2.0.0-SNAPSHOT"]
             [lein-clojars "0.8.0"]
