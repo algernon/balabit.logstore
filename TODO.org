@@ -1,0 +1,51 @@
+# -*- org -*-
+#+STARTUP: indent showall lognotedone
+#+TODO: TODO(t) WIP(p) MAYBE(m) | CANCELED(c) DONE(d)
+#+OPTIONS: tasks:todo
+
+* TODO [#A] LogStore features
+The library is far from complete, it only supports simple logstores at
+the moment, can't handle the more common ones. So one of the highest
+priority goals is to fix that, and arrive to a state where the library
+can read any LogStore file, and present their contents in a convenient
+manner.
+
+** TODO [#A] Serialized chunk support
+The library needs to support serialized name-value pairs within
+chunks, and present them as a map.
+
+** TODO [#A] Support for encrypted logstores
+Most of the LogStores out in the wild are encrypted - for a reason -,
+so being able to decrypt them with the library is essential. Something
+along the lines of:
+
+  (with-logstore "/path/to/messages.store"
+                 :crypto-key "/path/to/key.pem")
+
+** TODO [#B] Parse timestamps too
+LogStores can have timestamp chunks, which we extract as binary data,
+but should present these in a more convenient format instead.
+
+** TODO [#B] File and chunk hash support
+File and Chunk hashes should be properly handled: at least recognised
+and presented in a suitable format. We should be able to -
+optionally - verify these hashes too.
+
+* TODO [#B] Java API
+From the very beginning one of the goals of the library was to provide
+a Java API too, along with the Clojure API. The Java API still remains
+to be done.
+
+* TODO [#C] Internal reworking
+The internals of the library are not pretty in certain places: be that
+awkward use of Gloss, or non-idiomatic Clojure, it's still rough
+around the edges.
+
+These should all be corrected.
+
+** TODO [#C] Replace Gloss with something more suitable
+Gloss appears to be tailored at describing whole-buffer data, it
+has little support for various things used within a LogStore. Either
+Gloss should be enhanced to support these things, so our use of it
+would become less awkward, or a new library shall be found or written
+that matches our needs.
