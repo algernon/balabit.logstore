@@ -208,6 +208,14 @@
     (catch Exception e
       (open (FileInputStream. filename)))))
 
+;; Trying to open anything else but the cases defined above, shall
+;; throw an exception.
+(defmethod open :default
+  [p]
+
+  (throw+ (errors/invalid-file
+           :type (str "Can't open " (type p) " as a LogStore file"))))
+
 (defn count
   "Count the records in a LogStore file."
   [lst]

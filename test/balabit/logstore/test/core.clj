@@ -28,6 +28,18 @@
   (fact "about ByteBuffer instances being openable"
         (lst/open buffer) =not=> nil))
 
+(defn open-invalid-type
+  [p]
+
+  (try+
+   (lst/open p)
+   (catch [:context :type] {:keys [message]}
+       true)))
+
+(facts "about not supported types not being openable"
+       (open-invalid-type 12) => true
+       (open-invalid-type nil) => true)
+
 (defn open-invalid []
   (try+
    (lst/open "project.clj")
