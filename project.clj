@@ -15,8 +15,8 @@
                  [slingshot "0.10.1"]
                  [joda-time/joda-time "2.0"]
                  [gloss "0.2.1-rc1"]]
-  :profiles {:dev {:dependencies
-                   [[midje "1.3.1" :exclusions [org.clojure/clojure]]]}
+  :resource-paths []
+  :profiles {:dev {:dependencies [[midje "1.3.1" :exclusions [org.clojure/clojure]]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
   :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.4:dev,1.5"]}
