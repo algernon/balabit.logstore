@@ -1,5 +1,5 @@
-#! /usr/bin/lein exec
-;; Usage: lein exec scripts/build-docs.clj
+#! lein2 exec
+;; Usage: lein2 exec scripts/build-docs.clj
 
 (use 'marginalia.core)
 
