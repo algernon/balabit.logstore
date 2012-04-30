@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.0.1-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">slingshot</td><td class="dotted"><hr /></td><td class="dep-version">0.10.1</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">gloss</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1-alpha1</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.7.0</td></tr><tr><td class="dep-name">midje</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr><tr><td class="dep-name">lein-midje</td><td class="dotted"><hr /></td><td class="dep-version">1.0.7</td></tr><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.8.0</td></tr><tr><td class="dep-name">lein-exec</td><td class="dotted"><hr /></td><td class="dep-version">0.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#"></a></li><li><a href="#balabit.logstore.core.errors">balabit.logstore.core.errors</a></li><li><a href="#balabit.logstore.core.utils">balabit.logstore.core.utils</a></li><li><a href="#balabit.logstore.core.file">balabit.logstore.core.file</a></li><li><a href="#balabit.logstore.core.record.common">balabit.logstore.core.record.common</a></li><li><a href="#balabit.logstore.core.record">balabit.logstore.core.record</a></li><li><a href="#balabit.logstore.core.record.chunk">balabit.logstore.core.record.chunk</a></li><li><a href="#balabit.logstore.core.record.timestamp">balabit.logstore.core.record.timestamp</a></li><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.examples">balabit.logstore.examples</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#" name=""><h1 class="project-name"></h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Developer documentation</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">slingshot</td><td class="dotted"><hr /></td><td class="dep-version">0.10.1</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">gloss</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1-rc1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#"></a></li><li><a href="#balabit.logstore.core.errors">balabit.logstore.core.errors</a></li><li><a href="#balabit.logstore.core.utils">balabit.logstore.core.utils</a></li><li><a href="#balabit.logstore.core.file">balabit.logstore.core.file</a></li><li><a href="#balabit.logstore.core.record.common">balabit.logstore.core.record.common</a></li><li><a href="#balabit.logstore.core.record">balabit.logstore.core.record</a></li><li><a href="#balabit.logstore.core.record.chunk">balabit.logstore.core.record.chunk</a></li><li><a href="#balabit.logstore.core.record.timestamp">balabit.logstore.core.record.timestamp</a></li><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.examples">balabit.logstore.examples</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#" name=""><h1 class="project-name"></h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Developer documentation</h2>
 
 <hr />
 
@@ -3110,7 +3110,8 @@ inner workings of the library.</p>
     :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
     :license {:name &quot;GNU General Public License - v3&quot;
               :url &quot;http://www.gnu.org/licenses/gpl.txt&quot;}}
-  (:import (java.io FileInputStream))
+  (:import (java.io FileInputStream)
+           (java.nio ByteBuffer))
   (:use [slingshot.slingshot :only [throw+]]
         [balabit.logstore.core.utils])
   (:refer-clojure :exclude [open count nth])
@@ -3216,12 +3217,59 @@ it will be noted in the appropriate section of the documentation.</p>
 and can be used to do basic work on LogStore files.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Open a LogStore file, and map its records. Returns an <code>LSTFile</code>
   instance, or throws an exception on error.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn open
+
+<p>  Depending on whether the LogStore to open is local (or already
+  opened by other means) or remote, it is either mmapped, or its whole
+  contents are read into memory first.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmulti open
+  class)</pre></td></tr><tr><td class="docs"><p>In the simplest case, we have a ByteBuffer, which we can directly
+use to construct an LSTFile instance.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.nio.ByteBuffer
+  [buffer]
+
+  (let [header (lst-file-header-read buffer)]
+    (LSTFile. header buffer (lst-file-map (LSTFile. header buffer {})))))</pre></td></tr><tr><td class="docs"><p>But in case we have a FileInputStream, we have to mmap it first,
+from which we get a ByteBuffer, which is handled already.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.io.FileInputStream
+  [stream]
+
+  (let [channel (.getChannel stream)
+        buffer (.map channel READ_ONLY 0 (.size channel))]
+    (open buffer)))</pre></td></tr><tr><td class="docs"><p>Opening a File instance is also easy: just wrap it in a
+FileInputStream, and we're done, that case is already handled!</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.io.File
+  [file]
+
+  (open (FileInputStream. file)))</pre></td></tr><tr><td class="docs"><p>If we have a FilterInputStream, we have no other choice, but to
+read it into memory in full, and wrap it in a ByteBuffer, so the
+basic open can handle it.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.io.FilterInputStream
+  [connection]
+
+  (let [buffer (byte-array (.available connection))]
+    (.read connection buffer)
+    (open (ByteBuffer/wrap buffer))))</pre></td></tr><tr><td class="docs"><p>We can also receive an URL instance, in which case we grab its
+contents, which is likely to be either a ByteBuffer, or a
+derivative of FilterInputStream - both of which can be opened
+already.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.net.URL
+  [url]
+
+  (open (.getContent url)))</pre></td></tr><tr><td class="docs"><p>The tricky part is when we get a string: that can be either an URL,
+or a simple filename. We do some dirty hackery here: first we try
+to create an URL instance out of the string, and if that fails, we
+wrap it in a FileInputStream.</p>
+
+<p>If either of those succeed, we have an open method implemented for
+either type already.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod open java.lang.String
   [filename]
-  (let [channel (.getChannel (FileInputStream. filename))
-        handle (.map channel READ_ONLY 0 (.size channel))
-        header (lst-file-header-read handle)]
-    (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))</pre></td></tr><tr><td class="docs"><p>Count the records in a LogStore file.</p>
+
+  (try
+    (let [url (java.net.URL. filename)]
+      (open url))
+    (catch Exception e
+      (open (FileInputStream. filename)))))</pre></td></tr><tr><td class="docs"><p>Count the records in a LogStore file.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn count
   [lst]
   (clojure.core/count (:record-map lst)))</pre></td></tr><tr><td class="docs"><p>Get the nth record from a LogStore. The returned value's type
@@ -4066,6 +4114,7 @@ various examples via lein:</p>
     :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
     :license {:name &quot;GNU General Public License - v3&quot;
               :url &quot;http://www.gnu.org/licenses/gpl.txt&quot;}}
+  (:use [clojure.java.io :only [resource]])
   (:require [balabit.logstore :as logstore]))</pre></td></tr><tr><td class="docs"><h1>Meta-data printer</h1>
 
 <hr />
@@ -4073,7 +4122,7 @@ various examples via lein:</p>
 prints out some metadata, then loops over all the records, and
 prints out some metadata about those, too!</p>
 </td><td class="codes"><pre class="brush: clojure">(defn meta-data-printer
-  ([] (meta-data-printer &quot;resources/logstores/loggen.compressed.store&quot;))
+  ([] (meta-data-printer (resource &quot;logstores/loggen.compressed.store&quot;)))
   ([filename]
      (logstore/with-file filename
        (println &quot;Logstore meta-data&quot;)
@@ -4101,7 +4150,7 @@ prints out some metadata about those, too!</p>
 message from it. We do this by first selecting a random block, and
 from that, a random message.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn random-message-printer
-  ([] (random-message-printer &quot;resources/logstores/loggen.compressed.store&quot;))
+  ([] (random-message-printer (resource &quot;logstores/loggen.compressed.store&quot;)))
   ([filename]
      (logstore/with-file filename
        (logstore/with-record (rand-int (-&gt; (logstore/header) :last-block-id))
@@ -4120,7 +4169,7 @@ the timestamps, and verifies that all chunks have a timestamp.</p>
 <p>Verification is done in a very simple way: we count the number of
 <code>:chunk</code> and <code>:timestamp</code> type records, and compare their number.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn check-timestamps
-  ([] (check-timestamps &quot;resources/logstores/timestamped.store&quot;))
+  ([] (check-timestamps (resource &quot;logstores/timestamped.store&quot;)))
   ([filename]
      (logstore/with-file filename
        (let [is-type (fn [type what] (= type (:type what)))
@@ -4138,7 +4187,7 @@ a LogStore.</p>
 <p>This is done by looping over the record indexes, and printing the
 messages if the record's a chunk.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn lgstool-cat
-  ([] (lgstool-cat &quot;resources/logstores/short.compressed.store&quot;))
+  ([] (lgstool-cat (resource &quot;logstores/short.compressed.store&quot;)))
   ([filename]
      (logstore/with-file filename
        (let [indexed-records (zipmap (range (count (logstore/records)))
@@ -4147,5 +4196,10 @@ messages if the record's a chunk.</p>
                                          indexed-records))
              print-msgs (fn [index]
                           (dorun (map println (:messages (logstore/nth-record index)))))]
-         (dorun (map print-msgs chunk-records))))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+         (dorun (map print-msgs chunk-records))))))</pre></td></tr><tr><td class="docs"><p>This function is mostly for convenience, so that one can call all
+the examples within this namespace, even if one only has a JAR file.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -main
+  ([] nil)
+  ([method] ((resolve (symbol &quot;balabit.logstore.examples&quot; method))))
+  ([method param] ((resolve (symbol &quot;balabit.logstore.examples&quot; method)) param)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
