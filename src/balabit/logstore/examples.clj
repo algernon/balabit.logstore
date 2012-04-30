@@ -109,3 +109,10 @@ messages if the record's a chunk."
              print-msgs (fn [index]
                           (dorun (map println (:messages (logstore/nth-record index)))))]
          (dorun (map print-msgs chunk-records))))))
+
+(defn -main
+  "This function is mostly for convenience, so that one can call all
+the examples within this namespace, even if one only has a JAR file."
+  ([] nil)
+  ([method] ((resolve (symbol "balabit.logstore.examples" method))))
+  ([method param] ((resolve (symbol "balabit.logstore.examples" method)) param)))
