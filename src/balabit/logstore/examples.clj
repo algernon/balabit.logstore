@@ -17,6 +17,7 @@
     :license {:name "GNU General Public License - v3"
               :url "http://www.gnu.org/licenses/gpl.txt"}}
 
+  (:use [clojure.java.io :only [resource]])
   (:require [balabit.logstore :as logstore]))
 
 ;; # Meta-data printer
@@ -26,7 +27,7 @@
   "As an example, lets write a program that opens a LogStore file,
 prints out some metadata, then loops over all the records, and
 prints out some metadata about those, too!"
-  ([] (meta-data-printer "resources/logstores/loggen.compressed.store"))
+  ([] (meta-data-printer (resource "logstores/loggen.compressed.store")))
   ([filename]
      (logstore/with-file filename
        (println "Logstore meta-data")
@@ -57,7 +58,7 @@ prints out some metadata about those, too!"
   "Lets write a function that opens a logstore, and prints a random
 message from it. We do this by first selecting a random block, and
 from that, a random message."
-  ([] (random-message-printer "resources/logstores/loggen.compressed.store"))
+  ([] (random-message-printer (resource "logstores/loggen.compressed.store")))
   ([filename]
      (logstore/with-file filename
        (logstore/with-record (rand-int (-> (logstore/header) :last-block-id))
@@ -78,7 +79,7 @@ the timestamps, and verifies that all chunks have a timestamp.
 
 Verification is done in a very simple way: we count the number of
 `:chunk` and `:timestamp` type records, and compare their number."
-  ([] (check-timestamps "resources/logstores/timestamped.store"))
+  ([] (check-timestamps (resource "logstores/timestamped.store")))
   ([filename]
      (logstore/with-file filename
        (let [is-type (fn [type what] (= type (:type what)))
@@ -98,7 +99,7 @@ a LogStore.
 
 This is done by looping over the record indexes, and printing the
 messages if the record's a chunk."
-  ([] (lgstool-cat "resources/logstores/short.compressed.store"))
+  ([] (lgstool-cat (resource "logstores/short.compressed.store")))
   ([filename]
      (logstore/with-file filename
        (let [indexed-records (zipmap (range (count (logstore/records)))

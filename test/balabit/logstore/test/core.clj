@@ -1,10 +1,11 @@
 (ns balabit.logstore.test.core
   (:require [balabit.logstore.core.file :as lst])
   (:use [midje.sweet])
-  (:use [slingshot.slingshot :only [throw+ try+]]))
+  (:use [slingshot.slingshot :only [throw+ try+]])
+  (:use [clojure.java.io :only [resource]]))
 
 (fact "about valid logstores being openable"
-      (lst/open "resources/logstores/loggen/loggen.compressed.store") =not=> nil)
+      (lst/open (resource "logstores/loggen.compressed.store")) =not=> nil)
 
 (defn open-invalid []
   (try+

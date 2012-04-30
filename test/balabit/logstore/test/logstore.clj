@@ -1,9 +1,10 @@
 (ns balabit.logstore.test.logstore
   (:use [midje.sweet])
+  (:use [clojure.java.io :only [resource]])
   (:require [balabit.logstore :as logstore]))
 
 ; Compressed, unserialized, unencrypted logstore, with uniform message length.
-(logstore/with-file "resources/logstores/loggen.compressed.store"
+(logstore/with-file (resource "logstores/loggen.compressed.store")
   (facts "about logstore meta-data"
          (-> (logstore/header) :magic) => "LST4"
          (-> (logstore/header) :crypto :algo-hash) => "SHA1"
@@ -40,7 +41,7 @@
            (logstore/serialized? rec) => false)))
 
 ; Short, compressed, unserialized and unencrypted logstore, with hand-made data.
-(logstore/with-file "resources/logstores/short.compressed.store"
+(logstore/with-file (resource "logstores/short.compressed.store")
   (facts "about a short, compressed logstore's meta-data"
          (-> (logstore/header) :magic) => "LST4"
          (count (logstore/records)) => 1)
@@ -55,7 +56,7 @@
            (count (-> (logstore/record) :messages)) => 4)))
 
 ; Uncompressed, unserialized, unencrypted logstore
-(logstore/with-file "resources/logstores/abc.uncompressed.store"
+(logstore/with-file (resource "logstores/abc.uncompressed.store")
   (facts "about an uncompressed logstore"
          (-> (logstore/header) :magic) => "LST4"
          (count (logstore/records)) => 1)
@@ -69,7 +70,7 @@
            (count (-> (logstore/record) :messages)) => 1810)))
 
 ; Compressed, serialised, unencrypted, but timestamped logstore
-(logstore/with-file "resources/logstores/timestamped.store"
+(logstore/with-file (resource "logstores/timestamped.store")
   (facts "about a timestamped, serialized logstore"
          (-> (logstore/header) :magic) => "LST4"
          (count (logstore/records)) => 2)
