@@ -6,7 +6,8 @@
     :license {:name "GNU General Public License - v3"
               :url "http://www.gnu.org/licenses/gpl.txt"}}
 
-  (:import (java.io FileInputStream))
+  (:import (java.io FileInputStream)
+           (java.nio ByteBuffer))
   (:use [slingshot.slingshot :only [throw+]]
         [balabit.logstore.core.utils])
   (:refer-clojure :exclude [open count nth])
@@ -140,25 +141,72 @@
 
 (defmulti open
   "Open a LogStore file, and map its records. Returns an `LSTFile`
-  instance, or throws an exception on error."
+  instance, or throws an exception on error.
+
+  Depending on whether the LogStore to open is local (or already
+  opened by other means) or remote, it is either mmapped, or its whole
+  contents are read into memory first."
+
   class)
 
-;; By default, opening a LogStore is as simple as creating a
-;; FileInputStream using the filename, mmapping it in, and reading the
-;; header.
-(defmethod open :default
+;; In the simplest case, we have a ByteBuffer, which we can directly
+;; use to construct an LSTFile instance.
+(defmethod open java.nio.ByteBuffer
+  [buffer]
+
+  (let [header (lst-file-header-read buffer)]
+    (LSTFile. header buffer (lst-file-map (LSTFile. header buffer {})))))
+
+;; But in case we have a FileInputStream, we have to mmap it first,
+;; from which we get a ByteBuffer, which is handled already.
+(defmethod open java.io.FileInputStream
+  [stream]
+
+  (let [channel (.getChannel stream)
+        buffer (.map channel READ_ONLY 0 (.size channel))]
+    (open buffer)))
+
+;; Opening a File instance is also easy: just wrap it in a
+;; FileInputStream, and we're done, that case is already handled!
+(defmethod open java.io.File
+  [file]
+
+  (open (FileInputStream. file)))
+
+;; If we have a FilterInputStream, we have no other choice, but to
+;; read it into memory in full, and wrap it in a ByteBuffer, so the
+;; basic open can handle it.
+(defmethod open java.io.FilterInputStream
+  [connection]
+
+  (let [buffer (byte-array (.available connection))]
+    (.read connection buffer)
+    (open (ByteBuffer/wrap buffer))))
+
+;; We can also receive an URL instance, in which case we grab its
+;; contents, which is likely to be either a ByteBuffer, or a
+;; derivative of FilterInputStream - both of which can be opened
+;; already.
+(defmethod open java.net.URL
+  [url]
+
+  (open (.getContent url)))
+
+;; The tricky part is when we get a string: that can be either an URL,
+;; or a simple filename. We do some dirty hackery here: first we try
+;; to create an URL instance out of the string, and if that fails, we
+;; wrap it in a FileInputStream.
+;;
+;; If either of those succeed, we have an open method implemented for
+;; either type already.
+(defmethod open java.lang.String
   [filename]
 
-  (let [channel (.getChannel (FileInputStream. filename))
-        handle (.map channel READ_ONLY 0 (.size channel))
-        header (lst-file-header-read handle)]
-    (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))
-
-;; However, FileInputStream does not support URLs, so in case we got
-;; an URL, we figure out the filename, and open that using the default
-;; dispatch method.
-(defmethod open java.net.URL [url]
-  (open (.getFile url)))
+  (try
+    (let [url (java.net.URL. filename)]
+      (open url))
+    (catch Exception e
+      (open (FileInputStream. filename)))))
 
 (defn count
   "Count the records in a LogStore file."
