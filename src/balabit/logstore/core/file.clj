@@ -138,15 +138,27 @@
 ;; and can be used to do basic work on LogStore files.
 ;;
 
-(defn open
+(defmulti open
   "Open a LogStore file, and map its records. Returns an `LSTFile`
   instance, or throws an exception on error."
+  class)
+
+;; By default, opening a LogStore is as simple as creating a
+;; FileInputStream using the filename, mmapping it in, and reading the
+;; header.
+(defmethod open :default
   [filename]
 
   (let [channel (.getChannel (FileInputStream. filename))
         handle (.map channel READ_ONLY 0 (.size channel))
         header (lst-file-header-read handle)]
     (LSTFile. header handle (lst-file-map (LSTFile. header handle {})))))
+
+;; However, FileInputStream does not support URLs, so in case we got
+;; an URL, we figure out the filename, and open that using the default
+;; dispatch method.
+(defmethod open java.net.URL [url]
+  (open (.getFile url)))
 
 (defn count
   "Count the records in a LogStore file."
