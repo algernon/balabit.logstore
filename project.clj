@@ -29,5 +29,4 @@
                                        :releases {:checksum :fail :update :always}}}
   :plugins [[lein-marginalia "0.7.0"]
             [lein-midje "2.0.0-SNAPSHOT"]
-            [lein-clojars "0.8.0"]
             [lein-exec "0.2.0"]])
