@@ -49,3 +49,15 @@ has little support for various things used within a LogStore. Either
 Gloss should be enhanced to support these things, so our use of it
 would become less awkward, or a new library shall be found or written
 that matches our needs.
+
+** TODO [#B] Better error handling
+Right now, we do very little error handling, and when something goes
+wrong, it usually goes wrong many layers below, and it is not entirely
+clear what the issue is.
+
+For example, trying to open a non-file URL will throw an exception
+that is hard to decipher unless one knows the internals of the
+library.
+
+File format errors are hardly ever detected at all, and the library
+can go astray in many interesting ways as a result.
