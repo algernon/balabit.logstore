@@ -48,7 +48,7 @@
   [int-type]
 
   (if (and (>= (count type-map) int-type)
-           (> int-type 0))
+           (pos? int-type))
     (nth type-map (dec int-type))
     :unknown))
 

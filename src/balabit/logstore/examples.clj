@@ -86,7 +86,7 @@ Verification is done in a very simple way: we count the number of
              chunks (count (filter (partial is-type :chunk) (logstore/records)))
              timestamps (count (filter (partial is-type :timestamp) (logstore/records)))
              unstamped (- chunks timestamps)]
-         (if (= 0 unstamped)
+         (if (zero? unstamped)
            (println "Congratulations, all your chunks are stamped!")
            (println "Oh boy, there are" unstamped "unstamped chunks!"))))))
 

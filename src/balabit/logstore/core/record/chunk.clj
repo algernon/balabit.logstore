@@ -273,11 +273,10 @@
   (let [tag-length (gloss.io/decode (gloss.core/compile-frame :uint32)
                                     (slice-n-dice buffer 4))
         _ (.position buffer (+ (.position buffer) 4))]
-    (if (> tag-length 0)
+    (when (pos? tag-length)
       (let [byte-array (byte-array tag-length)]
         (.get buffer byte-array 0 tag-length)
-        (String. byte-array))
-      nil)))
+        (String. byte-array)))))
 
 (defn- serialized-msg-header-get-tags
   "Read all tags from the buffer. Returns a vector of Strings."
