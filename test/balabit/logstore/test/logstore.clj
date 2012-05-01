@@ -1,6 +1,6 @@
 (ns balabit.logstore.test.logstore
-  (:use [midje.sweet])
-  (:use [clojure.java.io :only [resource]])
+  (:use [midje.sweet]
+        [clojure.java.io :only [resource]])
   (:require [balabit.logstore :as logstore]))
 
 ; Compressed, unserialized, unencrypted logstore, with uniform message length.

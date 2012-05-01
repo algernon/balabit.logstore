@@ -12,9 +12,9 @@
               :url "http://www.gnu.org/licenses/gpl.txt"}}
 
   (:refer-clojure :exclude [read])
-  (:use [balabit.logstore.core.utils :only [resolve-flags, slice-n-dice]])
-  (:use balabit.logstore.core.record.chunk)
-  (:use balabit.logstore.core.record.timestamp)
+  (:use [balabit.logstore.core.utils :only [resolve-flags, slice-n-dice]]
+        [balabit.logstore.core.record.chunk]
+        [balabit.logstore.core.record.timestamp])
   (:require [gloss.core]
             [gloss.io]
             [balabit.logstore.core.record.common :as lgs-rec-common])

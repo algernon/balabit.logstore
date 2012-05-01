@@ -89,7 +89,7 @@
   
   (:require [balabit.logstore.core.file :as lgs]
             [balabit.logstore.core.record :as lgs-record])
-  (:use balabit.logstore.core.utils)
+  (:use [balabit.logstore.core.utils])
   (:import balabit.logstore.core.file.LSTFile))
 
 (declare ^:dynamic ^LSTFile *logstore*)

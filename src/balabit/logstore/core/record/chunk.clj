@@ -17,7 +17,7 @@
            (java.nio ByteBuffer)
            (java.net InetAddress)
            (java.util.zip InflaterInputStream Inflater))
-  (:use balabit.logstore.core.utils))
+  (:use [balabit.logstore.core.utils]))
 
 ;; ## Records, bitmaps, etc
 ;; - - - - - - - - - - - -

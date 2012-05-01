@@ -3,9 +3,9 @@
   (:import (java.net URL)
            (java.io File FileInputStream)
            (java.nio ByteBuffer))
-  (:use [midje.sweet])
-  (:use [slingshot.slingshot :only [throw+ try+]])
-  (:use [clojure.java.io :only [resource]]))
+  (:use [midje.sweet]
+        [slingshot.slingshot :only [throw+ try+]]
+        [clojure.java.io :only [resource]]))
 
 (def store (resource "logstores/loggen.compressed.store"))
 

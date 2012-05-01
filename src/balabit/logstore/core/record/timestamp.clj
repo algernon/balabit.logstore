@@ -13,7 +13,7 @@
             [gloss.core]
             [gloss.io])
   (:import (java.nio ByteBuffer))
-  (:use balabit.logstore.core.utils))
+  (:use [balabit.logstore.core.utils]))
 
 ;; ## Records
 ;; - - - - -
