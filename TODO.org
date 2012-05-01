@@ -57,3 +57,8 @@ clear what the issue is.
 
 File format errors are hardly ever detected at all, and the library
 can go astray in many interesting ways as a result.
+
+*** TODO [#A] Better exception checking in the test suite
+Use slingshot exceptions in the test suite too, and when something
+throws an exception, check it properly with the throws checker, if
+possible.
