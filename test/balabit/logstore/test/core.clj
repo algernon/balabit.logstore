@@ -40,7 +40,5 @@
               (lst/open "project.clj")) => #"File is not valid")
 
 (fact "about a non-existing logstore throwing an exception"
-      (try+
-       (lst/open "does-not-exist.store")
-       (catch Exception e
-         (is-exception? e java.io.FileNotFoundException))) => true)
+      (catchE java.io.FileNotFoundException
+              (lst/open "does-not-exist.store")) => #"No such file or directory")
