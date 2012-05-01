@@ -28,34 +28,32 @@
   (fact "about ByteBuffer instances being openable"
         (lst/open buffer) =not=> nil))
 
-(defn open-invalid-type
-  [p]
-
-  (try+
-   (lst/open p)
-   (catch [:context :type] {:keys [message]}
-       true)))
-
 (facts "about not supported types not being openable"
-       (open-invalid-type 12) => true
-       (open-invalid-type nil) => true)
+       (try+
+        (lst/open 12)
+        (catch [:context :type] {:keys [message]}
+          message)) => #"Can't open .* as a LogStore file"
 
-(defn open-invalid []
-  (try+
-   (lst/open "project.clj")
-   (catch [:type :invalid-file] {:keys [message]}
-     true)))
+       (try+
+        (lst/open nil)
+        (catch [:context :type] {:keys [message]}
+          message)) => #"Can't open .* as a LogStore file")
+          
+(defn is-exception?
+  [e expected]
 
-(defn open-non-existant []
-  (try+
-   (lst/open "does-not-exist.store")
-   (catch Exception e
-     (or
-      (= (class (.getCause e)) java.io.FileNotFoundException)
-      (= (class e) java.io.FileNotFoundException)))))
+  (if (.getCause e)
+    (= (class (.getCause e)) expected)
+    (= (class e) expected)))
 
 (fact "about an invalid logstore throwing an exception"
-      (open-invalid) => true)
+      (try+
+       (lst/open "project.clj")
+       (catch [:type :invalid-file] {:keys [message]}
+         message)) => #"File is not valid")
 
 (fact "about a non-existing logstore throwing an exception"
-      (open-non-existant) => true)
+      (try+
+       (lst/open "does-not-exist.store")
+       (catch Exception e
+         (is-exception? e java.io.FileNotFoundException))) => true)
