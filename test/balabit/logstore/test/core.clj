@@ -4,7 +4,8 @@
            (java.io File FileInputStream)
            (java.nio ByteBuffer))
   (:use [midje.sweet]
-        [slingshot.slingshot :only [throw+ try+]]
+        [balabit.logstore.test.utils]
+        [slingshot.slingshot :only [try+]]
         [clojure.java.io :only [resource]]))
 
 (def store (resource "logstores/loggen.compressed.store"))
@@ -29,28 +30,14 @@
         (lst/open buffer) =not=> nil))
 
 (facts "about not supported types not being openable"
-       (try+
-        (lst/open 12)
-        (catch [:context :type] {:keys [message]}
-          message)) => #"Can't open .* as a LogStore file"
-
-       (try+
-        (lst/open nil)
-        (catch [:context :type] {:keys [message]}
-          message)) => #"Can't open .* as a LogStore file")
+       (catch+ [:context :type]
+               (lst/open 12)) => #"Can't open .* as a LogStore file"
+       (catch+ [:context :type]
+               (lst/open nil)) => #"Can't open .* as a LogStore file")
           
-(defn is-exception?
-  [e expected]
-
-  (if (.getCause e)
-    (= (class (.getCause e)) expected)
-    (= (class e) expected)))
-
 (fact "about an invalid logstore throwing an exception"
-      (try+
-       (lst/open "project.clj")
-       (catch [:type :invalid-file] {:keys [message]}
-         message)) => #"File is not valid")
+      (catch+ [:type :invalid-file]
+              (lst/open "project.clj")) => #"File is not valid")
 
 (fact "about a non-existing logstore throwing an exception"
       (try+
