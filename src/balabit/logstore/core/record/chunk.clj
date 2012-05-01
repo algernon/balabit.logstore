@@ -206,10 +206,10 @@
   representation, with a port number attached."
   [family]
 
-  (cond
-   (= family 2) 6
-   (= family 10) 18
-   :else 0))
+  (case family
+    2 6
+    10 18
+    0))
 
 (defn- serialized-msg-header-decode-sockaddr
   "Decodes the socket address of `family` family from the
