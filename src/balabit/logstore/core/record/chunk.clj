@@ -216,20 +216,16 @@
   `buffer`. Returns the parsed address and port, if any."
   [buffer family]
 
-  (cond
-   (= family 2) (gloss.io/decode
-                 (gloss.core/compile-frame
-                  (gloss.core/ordered-map
-                   :address (gloss.core/finite-block 4)
-                   :port :uint16))
-                 (slice-n-dice buffer (sockaddr-len family)))
-   (= family 10) (gloss.io/decode
-                  (gloss.core/compile-frame
-                   (gloss.core/ordered-map
-                    :address (gloss.core/finite-block 16)
-                    :port :uint16))
-                  (slice-n-dice buffer (sockaddr-len family)))
-   :else nil))
+  (case family
+    2 (gloss.io/decode (gloss.core/compile-frame
+                        (gloss.core/ordered-map :address (gloss.core/finite-block 4)
+                                                :port :uint16))
+                       (slice-n-dice buffer (sockaddr-len family)))
+    10 (gloss.io/decode (gloss.core/compile-frame
+                         (gloss.core/ordered-map :address (gloss.core/finite-block 16)
+                                                 :port :uint16))
+                        (slice-n-dice buffer (sockaddr-len family)))
+    nil))
 
 (defn- serialized-msg-header-get-sockaddr
   "Retrieves the socket address from the buffer, and moves the buffer
