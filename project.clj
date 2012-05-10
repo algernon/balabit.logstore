@@ -16,15 +16,15 @@
                  [joda-time/joda-time "2.0"]
                  [gloss "0.2.1-rc1"]]
   :resource-paths []
-  :profiles {:dev {:dependencies [[midje "1.3.1" :exclusions [org.clojure/clojure]]]
+  :profiles {:dev {:dependencies [[midje "1.3.1" :exclusions [org.clojure/clojure]]
+                                  [marginalia "0.7.0"]]
                    :plugins [[lein-midje "2.0.0-SNAPSHOT"]]
+                   :source-paths ["src" "src/docs"]
                    :resource-paths ["resources"]}
-             :doc {:dependencies [[marginalia "0.7.0"]]
-                   :source-paths ["src" "src/docs"]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
   :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.4:dev,1.5"],
-            "build-docs" ["with-profile" "doc" "run" "-m" "balabit.logstore.docs/generate-docs"]}
+            "build-docs" ["with-profile" "dev" "run" "-m" "balabit.logstore.docs/generate-docs"]}
   :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                              :snapshots false
                              :releases {:checksum :fail :update :always}}
