@@ -11,7 +11,7 @@
               :url "http://www.gnu.org/licenses/gpl.txt"}}
 
   (:gen-class)
-  (:use marginalia.core))
+  (:use [marginalia.core]))
 
 (def public-docs #^{:private true}
   ["../logstore", "examples"])
