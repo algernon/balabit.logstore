@@ -1,6 +1,9 @@
 (ns balabit.logstore.docs
   "Helper functions to generate documentation from the
-   balabit.logstore sources."
+   balabit.logstore sources.
+
+   One's expected to use this namespace via lein run, such as:
+    `lein run -m balabit.logstore.docs/generate-docs`"
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
