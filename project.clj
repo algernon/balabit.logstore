@@ -17,16 +17,16 @@
                  [gloss "0.2.1-rc1"]]
   :resource-paths []
   :profiles {:dev {:dependencies [[midje "1.3.1" :exclusions [org.clojure/clojure]]]
+                   :plugins [[lein-midje "2.0.0-SNAPSHOT"]]
                    :resource-paths ["resources"]}
+             :doc {:dependencies [[marginalia "0.7.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
-  :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.4:dev,1.5"]}
+  :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.4:dev,1.5"],
+            "build-docs" ["with-profile" "doc" "run" "-m" "balabit.logstore.docs/generate-docs"]}
   :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                              :snapshots false
                              :releases {:checksum :fail :update :always}}
                  "sonatype-snapshots" {:url "http://oss.sonatype.org/content/repositories/snapshots"
                                        :snapshots true
-                                       :releases {:checksum :fail :update :always}}}
-  :plugins [[lein-marginalia "0.7.0"]
-            [lein-midje "2.0.0-SNAPSHOT"]
-            [lein-exec "0.2.0"]])
+                                       :releases {:checksum :fail :update :always}}})
