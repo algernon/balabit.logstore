@@ -16,7 +16,7 @@
                  [joda-time/joda-time "2.0"]
                  [gloss "0.2.1-rc1"]]
   :resource-paths []
-  :profiles {:dev {:dependencies [[midje "1.3.1" :exclusions [org.clojure/clojure]]
+  :profiles {:dev {:dependencies [[midje "1.4.0" :exclusions [org.clojure/clojure]]
                                   [marginalia "0.7.0"]]
                    :plugins [[lein-midje "2.0.0-SNAPSHOT"]]
                    :source-paths ["src/docs"]
