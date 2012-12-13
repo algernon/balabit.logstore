@@ -240,6 +240,15 @@
 
 ;; <a name="nvt/payload-header">The payload header</a>
 ;;
+;; The payload itself is a header, followed by table entries. The
+;; header itself is made up from a 4-byte magic string, a 8-bit flag,
+;; then a 16-bit `:size` and a 16-bit `:used` property. The `:used`
+;; property is the amount of data saved to disk, but needs to be
+;; shifted left 2 bits (all table entries are put on word boundaries).
+;;
+;; After these properties, the header has the number of dynamic
+;; entries stored, as a 16-bit integer, and finally the number of
+;; static entries, as a 8-bit byte.
 (defmethod decode-frame :nvtable/payload.header
   [#^ByteBuffer buffer _]
 
@@ -252,8 +261,23 @@
 
 ;; <a name="nvt/static-prop">Static properties</a>
 ;;
-
+;; Static properties are those that have built-in names (these are
+;; `:HOST`, `:HOST_FROM`, `:LEGACY_MSGHDR`, `:MESSAGE`, `:MSGID`,
+;; `:PID`, `:PROGRAM`, `:SOURCE`), so they do not have the property
+;; name stored.
 ;;
+
+;; Static properties have their offsets stored as 16-bit integers,
+;; where each offset needs to be shifted left two bits.
+(defmethod decode-frame :nvtable/payload.offsets.static
+  [#^ByteBuffer buffer _ num-static]
+
+  (doall (map #(bit-shift-left % 2)
+              (take num-static (decode-blob-array buffer :uint16)))))
+
+;; Decoding all the static property pairs is done by decoding each
+;; property, and zipmapping the results to the predefined
+;; keys. Returns a map of key-value pairs.
 (defmethod decode-frame :nvtable/payload.pairs.static
   [#^ByteBuffer buffer _ offsets]
 
@@ -262,7 +286,17 @@
                    (zipmap [:HOST :HOST_FROM :MESSAGE :PROGRAM
                             :PID :MSGID :SOURCE :LEGACY_MSGHDR] offsets))))
 
+;; Since a static property does not have a name, the caller must
+;; supply one (as can be seen above). Decoding one also needs an
+;; offset, where the offset is counted backwards from the end of the
+;; buffer.
 ;;
+;; Because the buffer in this case is not used anywhere but only in
+;; situations where the library knows where to seek, it is safe to
+;; mutate the position, and not restore it.
+;;
+;; The result will be a map of a single key-value pair, where the key
+;; is caller-supplied.
 (defmethod decode-frame :nvpair/static
   [#^ByteBuffer buffer _ key offset]
 
@@ -270,15 +304,23 @@
   (when-not (zero? offset)
     {key (:value (decode-frame buffer :nvtable/nventry))}))
 
-;;
-(defmethod decode-frame :nvtable/payload.offsets.static
-  [#^ByteBuffer buffer _ num-static]
-
-  (doall (map #(bit-shift-left % 2)
-              (take num-static (decode-blob-array buffer :uint16)))))
 
 ;; <a name="nvt/dyn-prop">Dynamic properties</a>
+;;
+;; Dynamic properties differ from static ones by having a name, and no
+;; pre-defined handle.
 
+;; Dynamic properties have their offsets stored as 32-bit integers,
+;; where the first 16 bits are the ID, the other 16 bits are the
+;; offset. This function does not split them up, however.
+(defmethod decode-frame :nvtable/payload.offsets.dynamic
+  [#^ByteBuffer buffer _ num-dynamic]
+
+  (doall (take num-dynamic (decode-blob-array buffer :uint32))))
+
+;; Decoding all the dynamic properties is as simple as figuring out
+;; the offsets, and decoding the elements one by one. Returns a map of
+;; key-value pairs.
 (defmethod decode-frame :nvtable/payload.pairs.dynamic
   [#^ByteBuffer buffer _ offsets]
 
@@ -286,11 +328,13 @@
     (mapcat #(decode-frame buffer :nvpair/dynamic %)
             real-offsets)))
 
-(defmethod decode-frame :nvtable/payload.offsets.dynamic
-  [#^ByteBuffer buffer _ num-dynamic]
-
-  (doall (take num-dynamic (decode-blob-array buffer :uint32))))
-
+;; A dynamic property has a name, so all the caller needs to supply is
+;; the offset to read the entry from. Similar to the case of static
+;; properties, seeking in this buffer without restoring the state is
+;; fine, as every function that reads from the nvpair buffer does seek
+;; to the appropriate place anyway.
+;;
+;; Returns a map of a single key-value pair.
 (defmethod decode-frame :nvpair/dynamic
   [#^ByteBuffer buffer _ offset]
 
@@ -300,8 +344,14 @@
 
 ;; <a name="nventry">Name-value entry pairs</a>
 ;;
-
+;; Behind every static and dynamic property, there's a name-value
+;; entry, a structure common between both.
 ;;
+;; It consists of a header, followed by either a direct entry, or an
+;; indirect one, that is a kind of glorified alias for another, direct
+;; entry.
+;;
+;; Returns a map of a single key-value pair.
 (defmethod decode-frame :nvtable/nventry
   [#^ByteBuffer buffer _]
 
@@ -310,7 +360,14 @@
       (decode-frame buffer :nventry/indirect common-header)
       (decode-frame buffer :nventry/direct common-header))))
 
+;; The header common to both direct and indirect entries consists of a
+;; 8-bit flag, whose first bit signals whether the entry is indirect
+;; or not. Following the flag, is the `:name-length` property, which,
+;; as the name implies, is the length of the property's name. In case
+;; of static entries, this will be zero.
 ;;
+;; There's also an `:alloc-len` property, but that is unused by the
+;; library.
 (defmethod decode-frame :nventry/common-header
   [#^ByteBuffer buffer _]
 
@@ -318,7 +375,10 @@
                        :name-len :ubyte
                        :alloc-len :uint16]))
 
+;; A direct entry has another property: the `:value-len`, which tells
+;; us how long the value is.
 ;;
+;; The function returns a map of a single key-value pair.
 (defmethod decode-frame :nventry/direct
   [#^ByteBuffer buffer _ common-header]
 
@@ -327,19 +387,28 @@
     (decode-frame buffer :nventry/pair
                   (:name-len header) (:value-len header))))
 
+;; An indirect buffer has only meta-data: the 16-bit `:handle` of the
+;; property (unused by the library), the 16-bit `:offset` (which, like
+;; all other offsets within the table, needs to be shifted left two
+;; bits), the 16-bit `:length` of the value, and a 8-bit `:type` (both
+;; of which are unused by the library at this time).
 ;;
+;; Based on this information, the decoding function can find the
+;; referenced direct property, read and return it.
 (defmethod decode-frame :nventry/indirect
   [#^ByteBuffer buffer _ common-header]
 
   (let [header (merge common-header
                       (decode-blob buffer [:handle :uint16
-                                           :ofs :uint16
-                                           :len :uint16
+                                           :offset :uint16
+                                           :length :uint16
                                            :type :ubyte]))]
-    (.position buffer (- (.limit buffer) (:ofs header)))
+    (.position buffer (- (.limit buffer)
+                         (bit-shift-left (:offset header) 2)))
     (decode-frame buffer :nventry/direct common-header)))
 
-;;
+;; On the lowest level, a name-value pair is a NULL-terminated string,
+;; followed by a value. The caller must supply the length of both.
 (defmethod decode-frame :nventry/pair
   [#^ByteBuffer buffer _ name-len value-len]
 
