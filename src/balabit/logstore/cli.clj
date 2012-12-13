@@ -8,7 +8,8 @@
   
   (:require [balabit.logstore.sweet :as logstore])
   (:use [clojure.tools.cli :only [cli]]
-        [clostache.parser]))
+        [clostache.parser]
+        [clojure.pprint]))
 
 ;; The command-line interface provides a few handy functions to
 ;; inspect LogStores with, without having to write Clojure code. They
@@ -87,6 +88,21 @@
       (dorun (map (partial print-message (:template params))
                   (take (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))
 
+(defn inspect
+  "Inspect a LogStore file, dumping its decoded contents back out as-is."
+
+  [& args]
+
+  (let [[params [fn _] banner] (cli args
+                                ["-h" "--help" "Show help"
+                                 :default false :flag true])]
+
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+
+    (pprint (logstore/from-file fn))))
+
 (defn help
   "Display a help overview."
 
@@ -94,9 +110,10 @@
 
   (println "Usage: lgstool <command> [options] <filename>\n")
   (println "Available commands:")
-  (println " cat  [-t|--template=TEMPLATE]")
-  (println " tail [-t|--template=TEMPLATE] [-n|--lines=N]")
-  (println " head [-t|--template=TEMPLATE] [-n|--lines=N]"))
+  (println " cat     [-t|--template=TEMPLATE]")
+  (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
+  (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
+  (println " inspect"))
 
 (defn -main
   "Main entry point when running with leiningen, dispatches to any of
