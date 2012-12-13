@@ -9,7 +9,8 @@
   (:require [balabit.logstore.sweet :as logstore])
   (:use [clojure.tools.cli :only [cli]]
         [clostache.parser]
-        [clojure.pprint]))
+        [clojure.pprint]
+        [balabit.logstore.cli.search-predicates]))
 
 ;; The command-line interface provides a few handy functions to
 ;; inspect LogStores with, without having to write Clojure code. They
@@ -59,6 +60,7 @@
       (println banner)
       (System/exit 0))
 
+    (in-ns 'balabit.logstore.cli)
     (dorun (map (partial print-message (:template params))
                 (filter (eval (read-string search-pred))
                         (logstore/messages (logstore/from-file fn)))))))

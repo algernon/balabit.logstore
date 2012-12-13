@@ -28,5 +28,6 @@
                           "src/balabit/logstore/codec/chunk/serialization.clj"
                           "src/balabit/logstore/codec/chunk/sweet.clj"
                           "src/balabit/logstore/utils.clj"
-                          "src/balabit/logstore/cli.clj"]}
+                          "src/balabit/logstore/cli.clj"
+                          "src/balabit/logstore/cli/search_predicates.clj"]}
   :main balabit.logstore.cli)
