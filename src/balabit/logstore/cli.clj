@@ -17,7 +17,7 @@
 ;;
 ;; All of the examples should be run as:
 ;;
-;;     lein run -m balabit.logstore.cli/function [args] <filename>
+;;     lein lgstool command <filename> [args]
 ;;
 
 (defn print-message
