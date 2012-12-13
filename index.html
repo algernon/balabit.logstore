@@ -3029,7 +3029,7 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">com.balabit/balabit.blobbity</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.sweet">balabit.logstore.sweet</a></li><li><a href="#balabit.logstore.codec">balabit.logstore.codec</a></li><li><a href="#balabit.logstore.codec.common">balabit.logstore.codec.common</a></li><li><a href="#balabit.logstore.codec.timestamp">balabit.logstore.codec.timestamp</a></li><li><a href="#balabit.logstore.codec.chunk">balabit.logstore.codec.chunk</a></li><li><a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a></li><li><a href="#balabit.logstore.codec.chunk.sweet">balabit.logstore.codec.chunk.sweet</a></li><li><a href="#balabit.logstore.utils">balabit.logstore.utils</a></li><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">com.balabit/balabit.blobbity</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.sweet">balabit.logstore.sweet</a></li><li><a href="#balabit.logstore.codec">balabit.logstore.codec</a></li><li><a href="#balabit.logstore.codec.common">balabit.logstore.codec.common</a></li><li><a href="#balabit.logstore.codec.timestamp">balabit.logstore.codec.timestamp</a></li><li><a href="#balabit.logstore.codec.chunk">balabit.logstore.codec.chunk</a></li><li><a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a></li><li><a href="#balabit.logstore.codec.chunk.sweet">balabit.logstore.codec.chunk.sweet</a></li><li><a href="#balabit.logstore.utils">balabit.logstore.utils</a></li><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li><li><a href="#balabit.logstore.cli.search-predicates">balabit.logstore.cli.search-predicates</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
 
 <p>The balabit.logstore project is a library written in <a href="http://clojure.org/">Clojure</a>,
 that tries to provide a convenient API to read <a href="http://www.balabit.com/network-security/syslog-ng/central-syslog-server/overview">syslog-ng PE</a>
@@ -3061,12 +3061,12 @@ usable for Clojure and Java developers alike.</li>
 
 <h1>How?</h1>
 
-<p>For examples, see the <a href="#balabit.logstore.examples">example</a> section of the documentation, or
-the test suite in the source tree.</p>
+<p>For examples, see the <a href="#balabit.logstore.cli">CLI</a> section of the documentation, or the
+test suite in the source tree.</p>
 
-<p>But the general idea is to use `(:require [balabit.logstore.sweet
-:as logstore])` or something similar, and use the convenience
-functions provided therein.</p>
+<p>But the general idea is to use
+<code>(:require [balabit.logstore.sweet :as logstore])</code> or something
+similar, and use the convenience functions provided therein.</p>
 
 <h1>Limitations</h1>
 
@@ -3613,6 +3613,16 @@ where each integer is an offset into the main table data.</p>
 
   ; FIXME: Need to resolve these too!
   (doall (take num-sdata (decode-blob-array buffer :uint16))))</pre></td></tr><tr><td class="docs"><p><a name="nvt/payload-header">The payload header</a></p>
+
+<p>The payload itself is a header, followed by table entries. The
+header itself is made up from a 4-byte magic string, a 8-bit flag,
+then a 16-bit <code>:size</code> and a 16-bit <code>:used</code> property. The <code>:used</code>
+property is the amount of data saved to disk, but needs to be
+shifted left 2 bits (all table entries are put on word boundaries).</p>
+
+<p>After these properties, the header has the number of dynamic
+entries stored, as a 16-bit integer, and finally the number of
+static entries, as a 8-bit byte.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.header
   [#^ByteBuffer buffer _]
 
@@ -3622,73 +3632,131 @@ where each integer is an offset into the main table data.</p>
                        :used :uint16
                        :num-dyn-entries :uint16
                        :num-static-entries :ubyte]))</pre></td></tr><tr><td class="docs"><p><a name="nvt/static-prop">Static properties</a></p>
-</td><td class="codes"></td></tr><tr><td class="docs">
+
+<p>Static properties are those that have built-in names (these are
+<code>:HOST</code>, <code>:HOST_FROM</code>, <code>:LEGACY_MSGHDR</code>, <code>:MESSAGE</code>, <code>:MSGID</code>,
+<code>:PID</code>, <code>:PROGRAM</code>, <code>:SOURCE</code>), so they do not have the property
+name stored.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Static properties have their offsets stored as 16-bit integers,
+where each offset needs to be shifted left two bits.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.static
+  [#^ByteBuffer buffer _ num-static]
+
+  (doall (map #(bit-shift-left % 2)
+              (take num-static (decode-blob-array buffer :uint16)))))</pre></td></tr><tr><td class="docs"><p>Decoding all the static property pairs is done by decoding each
+property, and zipmapping the results to the predefined
+keys. Returns a map of key-value pairs.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.pairs.static
   [#^ByteBuffer buffer _ offsets]
 
   (into {} (mapcat (fn [[key offset]]
          (decode-frame buffer :nvpair/static key offset))
                    (zipmap [:HOST :HOST_FROM :MESSAGE :PROGRAM
-                            :PID :MSGID :SOURCE :LEGACY_MSGHDR] offsets))))</pre></td></tr><tr><td class="docs">
+                            :PID :MSGID :SOURCE :LEGACY_MSGHDR] offsets))))</pre></td></tr><tr><td class="docs"><p>Since a static property does not have a name, the caller must
+supply one (as can be seen above). Decoding one also needs an
+offset, where the offset is counted backwards from the end of the
+buffer.</p>
+
+<p>Because the buffer in this case is not used anywhere but only in
+situations where the library knows where to seek, it is safe to
+mutate the position, and not restore it.</p>
+
+<p>The result will be a map of a single key-value pair, where the key
+is caller-supplied.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvpair/static
   [#^ByteBuffer buffer _ key offset]
 
   (.position buffer (- (.limit buffer) offset))
   (when-not (zero? offset)
-    {key (:value (decode-frame buffer :nvtable/nventry))}))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.static
-  [#^ByteBuffer buffer _ num-static]
+    {key (:value (decode-frame buffer :nvtable/nventry))}))</pre></td></tr><tr><td class="docs"><p><a name="nvt/dyn-prop">Dynamic properties</a></p>
 
-  (doall (map #(bit-shift-left % 2)
-              (take num-static (decode-blob-array buffer :uint16)))))</pre></td></tr><tr><td class="docs"><p><a name="nvt/dyn-prop">Dynamic properties</a></p>
-</td><td class="codes"></td></tr><tr><td class="docs">
+<p>Dynamic properties differ from static ones by having a name, and no
+pre-defined handle.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Dynamic properties have their offsets stored as 32-bit integers,
+where the first 16 bits are the ID, the other 16 bits are the
+offset. This function does not split them up, however.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.dynamic
+  [#^ByteBuffer buffer _ num-dynamic]
+
+  (doall (take num-dynamic (decode-blob-array buffer :uint32))))</pre></td></tr><tr><td class="docs"><p>Decoding all the dynamic properties is as simple as figuring out
+the offsets, and decoding the elements one by one. Returns a map of
+key-value pairs.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.pairs.dynamic
   [#^ByteBuffer buffer _ offsets]
 
   (let [real-offsets (map #(bit-shift-left (bit-and % 0xffff) 2) offsets)]
     (mapcat #(decode-frame buffer :nvpair/dynamic %)
-            real-offsets)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.dynamic
-  [#^ByteBuffer buffer _ num-dynamic]
+            real-offsets)))</pre></td></tr><tr><td class="docs"><p>A dynamic property has a name, so all the caller needs to supply is
+the offset to read the entry from. Similar to the case of static
+properties, seeking in this buffer without restoring the state is
+fine, as every function that reads from the nvpair buffer does seek
+to the appropriate place anyway.</p>
 
-  (doall (take num-dynamic (decode-blob-array buffer :uint32))))</pre></td></tr><tr><td class="docs">
+<p>Returns a map of a single key-value pair.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvpair/dynamic
   [#^ByteBuffer buffer _ offset]
 
   (.position buffer (- (.limit buffer) offset))
   (let [v (decode-frame buffer :nvtable/nventry)]
     {(keyword (:name v)) (:value v)}))</pre></td></tr><tr><td class="docs"><p><a name="nventry">Name-value entry pairs</a></p>
-</td><td class="codes"></td></tr><tr><td class="docs">
+
+<p>Behind every static and dynamic property, there's a name-value
+entry, a structure common between both.</p>
+
+<p>It consists of a header, followed by either a direct entry, or an
+indirect one, that is a kind of glorified alias for another, direct
+entry.</p>
+
+<p>Returns a map of a single key-value pair.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/nventry
   [#^ByteBuffer buffer _]
 
   (let [common-header (decode-frame buffer :nventry/common-header)]
     (if (bit-test (:indirect common-header) 1)
       (decode-frame buffer :nventry/indirect common-header)
-      (decode-frame buffer :nventry/direct common-header))))</pre></td></tr><tr><td class="docs">
+      (decode-frame buffer :nventry/direct common-header))))</pre></td></tr><tr><td class="docs"><p>The header common to both direct and indirect entries consists of a
+8-bit flag, whose first bit signals whether the entry is indirect
+or not. Following the flag, is the <code>:name-length</code> property, which,
+as the name implies, is the length of the property's name. In case
+of static entries, this will be zero.</p>
+
+<p>There's also an <code>:alloc-len</code> property, but that is unused by the
+library.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/common-header
   [#^ByteBuffer buffer _]
 
   (decode-blob buffer [:indirect :ubyte
                        :name-len :ubyte
-                       :alloc-len :uint16]))</pre></td></tr><tr><td class="docs">
+                       :alloc-len :uint16]))</pre></td></tr><tr><td class="docs"><p>A direct entry has another property: the <code>:value-len</code>, which tells
+us how long the value is.</p>
+
+<p>The function returns a map of a single key-value pair.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/direct
   [#^ByteBuffer buffer _ common-header]
 
   (let [header (assoc common-header
                  :value-len (decode-frame buffer :uint16))]
     (decode-frame buffer :nventry/pair
-                  (:name-len header) (:value-len header))))</pre></td></tr><tr><td class="docs">
+                  (:name-len header) (:value-len header))))</pre></td></tr><tr><td class="docs"><p>An indirect buffer has only meta-data: the 16-bit <code>:handle</code> of the
+property (unused by the library), the 16-bit <code>:offset</code> (which, like
+all other offsets within the table, needs to be shifted left two
+bits), the 16-bit <code>:length</code> of the value, and a 8-bit <code>:type</code> (both
+of which are unused by the library at this time).</p>
+
+<p>Based on this information, the decoding function can find the
+referenced direct property, read and return it.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/indirect
   [#^ByteBuffer buffer _ common-header]
 
   (let [header (merge common-header
                       (decode-blob buffer [:handle :uint16
-                                           :ofs :uint16
-                                           :len :uint16
+                                           :offset :uint16
+                                           :length :uint16
                                            :type :ubyte]))]
-    (.position buffer (- (.limit buffer) (:ofs header)))
-    (decode-frame buffer :nventry/direct common-header)))</pre></td></tr><tr><td class="docs">
+    (.position buffer (- (.limit buffer)
+                         (bit-shift-left (:offset header) 2)))
+    (decode-frame buffer :nventry/direct common-header)))</pre></td></tr><tr><td class="docs"><p>On the lowest level, a name-value pair is a NULL-terminated string,
+followed by a value. The caller must supply the length of both.</p>
 </td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/pair
   [#^ByteBuffer buffer _ name-len value-len]
 
@@ -3812,13 +3880,14 @@ where each integer is an offset into the main table data.</p>
   (:require [balabit.logstore.sweet :as logstore])
   (:use [clojure.tools.cli :only [cli]]
         [clostache.parser]
-        [clojure.pprint]))</pre></td></tr><tr><td class="docs"><p>The command-line interface provides a few handy functions to
+        [clojure.pprint]
+        [balabit.logstore.cli.search-predicates]))</pre></td></tr><tr><td class="docs"><p>The command-line interface provides a few handy functions to
 inspect LogStores with, without having to write Clojure code. They
 both serve as an example, and also as very simple tools.</p>
 
 <p>All of the examples should be run as:</p>
 
-<pre><code>lein run -m balabit.logstore.cli/function [args] &lt;filename&gt;
+<pre><code>lein lgstool command &lt;filename&gt; [args]
 </code></pre>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Print a message, either as-is, or using a {{mustache}} template.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn print-message
@@ -3836,7 +3905,33 @@ both serve as an example, and also as very simple tools.</p>
     (when (:help params)
       (println banner)
       (System/exit 0))
-    (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Display the last N messages of a LogStore, optionally with a
+    (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Display a random message from a LogStore file, optionally with a
+  template.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn random
+  [&amp; args]
+  (let [[params [fn _] banner] (cli args
+                                    [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustacher}} template for output&quot;]
+                                    [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+                                     :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Display messages matching a predicate. The predicate can be any
+  clojure code that is valid as a filter predicate.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn search
+  [&amp; args]
+  (let [[params [fn search-pred _] banner]
+        (cli args
+             [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustache}} template for output&quot;]
+             [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+              :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (in-ns 'balabit.logstore.cli)
+    (dorun (map (partial print-message (:template params))
+                (filter (eval (read-string search-pred))
+                        (logstore/messages (logstore/from-file fn)))))))</pre></td></tr><tr><td class="docs"><p>Display the last N messages of a LogStore, optionally with a
   template. N is handled the same way as tail(1) handles it.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn tail
   [&amp; args]
@@ -3887,11 +3982,55 @@ both serve as an example, and also as very simple tools.</p>
   (println &quot; cat     [-t|--template=TEMPLATE]&quot;)
   (println &quot; tail    [-t|--template=TEMPLATE] [-n|--lines=N]&quot;)
   (println &quot; head    [-t|--template=TEMPLATE] [-n|--lines=N]&quot;)
+  (println &quot; search  [-t|--template=TEMPLATE] &lt;search-term&gt;&quot;)
+  (println &quot; random&quot;)
   (println &quot; inspect&quot;))</pre></td></tr><tr><td class="docs"><p>Main entry point when running with leiningen, dispatches to any of
   the above functions.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
   [cmd &amp; args]
   (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
     (apply cmd args)
-    (help)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+    (help)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.cli.search-predicates" name="balabit.logstore.cli.search-predicates"><h1 class="project-name">balabit.logstore.cli.search-predicates</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Search predicates for the CLI</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.cli.search-predicates
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:use [balabit.logstore.utils]))</pre></td></tr><tr><td class="docs"><p>All of the functions here are syntatic sugar, to be used with the
+search command of the <a href="#balabit.logstore.cli">CLI</a>. Each function returns another
+function, suitable for using as a filter predicate.</p>
+
+<p>A few examples:</p>
+
+<pre><code>lgstool search log.store '(tag :s_tcp)'
+lgstool search log.store '(severity &gt;= :notice)'
+lgstool search log.store '(facility :mail)'
+lgstool search log.store '(=== :a-field "a-value")'
+lgstool search log.store '(re-match #"[aA]*[zZ]")'
+</code></pre>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Match only those messages that have the given tag among their
+  tags.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn tag
+  [tag]
+  (fn [msg] (some #{tag} (-&gt; msg :meta :tags))))</pre></td></tr><tr><td class="docs"><p>Match only those messages that have the given severity, or -
+  optionally - those that bear a given relation with the specified
+  severity, where relation is a function taking two arguments.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn severity
+  ([sev] (severity = sev))
+  ([cmp sev] (fn [msg]
+               (let [sev-map (zipmap (reverse severity-map) (range))]
+                 (cmp (get sev-map (-&gt; msg :meta :severity))
+                      (get sev-map sev))))))</pre></td></tr><tr><td class="docs"><p>Match only those messages that were sent using the specified
+  facility.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn facility
+  [fac] (fn [msg] (= fac (-&gt; msg :meta :facility))))</pre></td></tr><tr><td class="docs"><p>Matches messages where the last argument can be found by following
+  the path laid out by the rest.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn ===
+  [&amp; args] (fn [msg] (= (get-in msg (butlast args)) (last args))))</pre></td></tr><tr><td class="docs"><p>Matches messages where the message parts matches the given regular
+  expression</p>
+</td><td class="codes"><pre class="brush: clojure">(defn re-match
+  [pattern] (let [p (if (= (type pattern) java.util.regex.Pattern)
+                      pattern
+                      (re-pattern pattern))]
+              (fn [msg] (re-find p (:MESSAGE msg)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
