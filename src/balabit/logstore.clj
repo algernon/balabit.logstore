@@ -35,9 +35,9 @@
 ;; For examples, see the [example][4] section of the documentation, or
 ;; the test suite in the source tree.
 ;;
-;; But the general idea is to use `(:require [balabit.logstore.sweet
-;; :as logstore])` or something similar, and use the convenience
-;; functions provided therein.
+;; But the general idea is to use
+;; `(:require [balabit.logstore.sweet :as logstore])` or something
+;; similar, and use the convenience functions provided therein.
 ;;
 ;; [4]: #balabit.logstore.examples
 ;;
