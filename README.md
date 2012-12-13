@@ -11,4 +11,4 @@ for more information.
 
 Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>
 
-Released under the terms of the GNU GPL v3+.
+[![CC-BY-SA](http://i.creativecommons.org/l/by-sa/3.0/80x15.png)](http://creativecommons.org/licenses/by-sa/3.0/)

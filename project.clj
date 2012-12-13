@@ -7,27 +7,26 @@
                  :post "syslog-ng@lists.balabit.hu"
                  :subscribe "syslog-ng-request@lists.balabit.hu?subject=subscribe"
                  :unsubscribe "syslog-ng-request@lists.balabit.hu?subject=unsubscribe"}
-  :license {:name "GNU General Public License - v3"
-            :url "http://www.gnu.org/licenses/gpl.txt"
+  :license {:name "Creative Commons Attribution-ShareAlike 3.0"
+            :url "http://creativecommons.org/licenses/by-sa/3.0/"
             :distribution :repo}
-  :aot :all
-  :dependencies [[org.clojure/clojure "1.3.0"]
-                 [slingshot "0.10.1"]
+  :dependencies [[org.clojure/clojure "1.4.0"]
                  [joda-time/joda-time "2.0"]
-                 [gloss "0.2.1-rc1"]]
-  :resource-paths []
-  :profiles {:dev {:dependencies [[midje "1.4.0" :exclusions [org.clojure/clojure]]
-                                  [marginalia "0.7.0"]]
-                   :plugins [[lein-midje "2.0.0-SNAPSHOT"]]
-                   :source-paths ["src/docs"]
-                   :resource-paths ["resources"]}
-             :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-master-SNAPSHOT"]]}}
-  :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.4:dev,1.5"],
-            "build-docs" ["with-profile" "dev" "run" "-m" "balabit.logstore.docs/generate-docs"]}
-  :repositories {"sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
-                             :snapshots false
-                             :releases {:checksum :fail :update :always}}
-                 "sonatype-snapshots" {:url "http://oss.sonatype.org/content/repositories/snapshots"
-                                       :snapshots true
-                                       :releases {:checksum :fail :update :always}}})
+                 [org.clojure/tools.cli "0.2.2"]
+                 [com.balabit/balabit.blobbity "0.1.0"]
+                 [de.ubercode.clostache/clostache "1.3.1"]]
+  :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
+  :aliases {"with-all-profiles" ["with-profile" "dev"],
+            "lgstool" ["run" "--"]
+            "build-docs" ["with-profile" "dev" "marg"
+                          "src/balabit/logstore.clj"
+                          "src/balabit/logstore/sweet.clj"
+                          "src/balabit/logstore/codec.clj"
+                          "src/balabit/logstore/codec/common.clj"
+                          "src/balabit/logstore/codec/timestamp.clj"
+                          "src/balabit/logstore/codec/chunk.clj"
+                          "src/balabit/logstore/codec/chunk/serialization.clj"
+                          "src/balabit/logstore/codec/chunk/sweet.clj"
+                          "src/balabit/logstore/utils.clj"
+                          "src/balabit/logstore/cli.clj"]}
+  :main balabit.logstore.cli)
