@@ -65,6 +65,9 @@
     (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
 
 (defn search
+  "Display messages matching a predicate. The predicate can be any
+  clojure code that is valid as a filter predicate."
+
   [& args]
 
   (let [[params [fn search-pred _] banner]
