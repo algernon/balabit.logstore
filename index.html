@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.0.1-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">slingshot</td><td class="dotted"><hr /></td><td class="dep-version">0.10.1</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">gloss</td><td class="dotted"><hr /></td><td class="dep-version">0.2.1-rc1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.examples">balabit.logstore.examples</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
+</script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">com.balabit/balabit.blobbity</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.sweet">balabit.logstore.sweet</a></li><li><a href="#balabit.logstore.codec">balabit.logstore.codec</a></li><li><a href="#balabit.logstore.codec.common">balabit.logstore.codec.common</a></li><li><a href="#balabit.logstore.codec.timestamp">balabit.logstore.codec.timestamp</a></li><li><a href="#balabit.logstore.codec.chunk">balabit.logstore.codec.chunk</a></li><li><a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a></li><li><a href="#balabit.logstore.codec.chunk.sweet">balabit.logstore.codec.chunk.sweet</a></li><li><a href="#balabit.logstore.utils">balabit.logstore.utils</a></li><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
 
 <p>The balabit.logstore project is a library written in <a href="http://clojure.org/">Clojure</a>,
 that tries to provide a convenient API to read <a href="http://www.balabit.com/network-security/syslog-ng/central-syslog-server/overview">syslog-ng PE</a>
@@ -3061,12 +3061,12 @@ usable for Clojure and Java developers alike.</li>
 
 <h1>How?</h1>
 
-<p>For examples, see the <a href="http://algernon.github.com/balabit.logstore/public-api.html">example</a> section of the documentation, or
+<p>For examples, see the <a href="#balabit.logstore.examples">example</a> section of the documentation, or
 the test suite in the source tree.</p>
 
-<p>But the general idea is to use <code>(:require [balabit.logstore :as logstore])</code>
-or something similar, and use the macros provided herein, instead
-of <code>(:use balabit.logstore)</code>.</p>
+<p>But the general idea is to use `(:require [balabit.logstore.sweet
+:as logstore])` or something similar, and use the convenience
+functions provided therein.</p>
 
 <h1>Limitations</h1>
 
@@ -3076,9 +3076,7 @@ writing LogStore files.</li>
 <li>It does not support reading from open LogStores. It's not guarded
 against, but the library assumes that the LogStore file is
 closed.</li>
-<li>The library is not thread-safe. The LogStore file object does
-store state, using the same one from different threads will
-produce unpredictable results.</li>
+<li>The library is not thread-safe.</li>
 </ul>
 
 <h1>Unimplemented features</h1>
@@ -3088,8 +3086,6 @@ library, there is a small set of unimplemented features, that
 sooner or later, will find its sway into the library.</p>
 
 <ul>
-<li>Serialized messages are not completely deserialized yet, the
-name-value pairs are ignored right now.</li>
 <li>Encrypted logstores are not supported at all yet: the library
 will probably barf and throw exceptions when encountering one.</li>
 <li>Timestamps are extracted only as a binary blob, the timestamp
@@ -3099,282 +3095,803 @@ never checked, nor properly parsed.</li>
 <li>There is no Java API yet. In the future, we want to make the
 library easily accessible from Java aswell.</li>
 </ul>
-
-<h1>Documentation</h1>
-
-<p>The library comes with two versions of API docs: one for
-<a href="http://algernon.github.com/balabit.logstore/public-api.html">end-users</a>, and another for <a href="http://algernon.github.com/balabit.logstore/developer-api.html">developers</a> interested in
-working on the library itself.</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Public syslog-ng LogStore reader API</p>
-</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.sweet" name="balabit.logstore.sweet"><h1 class="project-name">balabit.logstore.sweet</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Entry point of the LogStore reader API</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.sweet
   ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
     :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
-    :license {:name &quot;GNU General Public License - v3&quot;
-              :url &quot;http://www.gnu.org/licenses/gpl.txt&quot;}}
-  (:require [balabit.logstore.core.file :as lgs]
-            [balabit.logstore.core.record :as lgs-record])
-  (:use balabit.logstore.core.utils)
-  (:import balabit.logstore.core.file.LSTFile))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(declare ^:dynamic ^LSTFile *logstore*)
-(declare ^:dynamic *logstore-record*)</pre></td></tr><tr><td class="docs"><h1>LogStore file convenience macros</h1>
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.io FileInputStream))
+  (:use [balabit.logstore.codec]))</pre></td></tr><tr><td class="docs"><p>The library is built upon a very simple idea: that is, to lazily
+load a LogStore, process and parse it into a simple, logically
+structured map. Once it is in a map, it becomes easy to work with
+it using nothing more than standard Clojure functions.</p>
 
-<p>On the highest level, we deal with LogStore files: we want to keep
-one open, work with its file headers, and the records contained
-therein.</p>
-
-<p>All of these - except for itself - must be called from within the
-body of a <code>(with-file)</code>.</p>
-
-<h3>File meta-data</h3>
-
-<p>Opening a LogStore makes the file-metadata available via
-<code>(header)</code>, which returns a record that has the following fields:</p>
-
-<ul>
-<li><code>:magic</code>: The magic four bytes identifying what version this
-LogStore is.</li>
-<li><code>:flags</code>: Currently unused, and should be zero.</li>
-<li><code>:last-block-id</code>: The ID of the last block in the file.</li>
-<li><code>:last-chunk-id</code>: The ID of the last chunk in the file.</li>
-<li><code>:last-block-end-offset</code>: The offset to the end of the last block
-in the file.</li>
-<li><code>:crypto</code>: Crypto header, describing what hashing and encryption
-methods are used within the file.</li>
-</ul>
-
-<p>The crypto header contains the following fields:</p>
-
-<ul>
-<li><code>:algo-hash</code>: Hashing method, as a string.</li>
-<li><code>:algo-crypt</code>: Encryption method, as a string.</li>
-<li><code>:file-mac</code>: The MAC of the full file.</li>
-<li><code>:der</code>: Currently unused and unsupported, but used for
-encryption.</li>
-</ul>
-
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Evaluates body, with the specified LogStore file already opened,
-  and bound to <code>*logstore*</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro with-file
-  [filename &amp; body]
-  `(binding [*logstore* (lgs/open ~filename)]
-     (do ~@body)))</pre></td></tr><tr><td class="docs"><p>Returns the full header of the already opened LogStore file, be
-  that a specified logstore file, or if no arguments are given,
-  <code>*logstore*</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro header
-  ([] `(header *logstore*))
-  ([#^LSTFile logstore] `(:header ~logstore)))</pre></td></tr><tr><td class="docs"><p>Returns the record headers in an opened LogStore file, be that a
-  specified logstore file, or if no arguments are given, <code>*logstore*</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro records
-  ([] `(records *logstore*))
-  ([#^LSTFile logstore] `(:record-map ~logstore)))</pre></td></tr><tr><td class="docs"><p>Returns the Nth record from an opened LogStore file, be that a
-  specified logstore file, or if no arguments are given, <code>*logstore*</code></p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro nth-record
-  ([index] `(nth-record *logstore* ~index))
-  ([#^LSTFile logstore index] `(lgs/nth ~logstore ~index)))</pre></td></tr><tr><td class="docs"><h1>LogStore record convenience macros</h1>
-
-<p>LogStore files are built up from records, where each record has a
-common set of header fields, and - depending on type -
-type-specific headers and data.</p>
-
-<p>The macros below make it easier to work with these records, and
-similar to the LogStore file macros, these must also be called from
-within the body of a <code>(with-record)</code>, except for itself, of course.</p>
-
-<h3>Record Formats</h3>
-
-<p>A LogStore can store multiple types of records, each of which have
-a different purpose, and as such, different fields and
-properties. The record types recognised by this library are
-explained below.</p>
-
-<p>All records have a common header, that contains the <code>:size</code>,
-<code>:type</code> and <code>:flags</code> properties. The first one is the full size of
-the block, with all headers included, the second is the type of the
-chunk, and the third is a vector of flag symbols.</p>
-
-<p>Available flags are: <code>:compressed</code>, <code>:serialized</code>, <code>:encrypted</code> and
-<code>:broken</code>. They signal that a block is compressed, serialized,
-encrypted or broken, respectively.</p>
-
-<h4>Chunk</h4>
-
-<p>A chunk is a collection of messages, with a little meta-data. A
-chunk object contains the following fields:</p>
-
-<ul>
-<li><code>:header</code>: The original record header, with fields explained above.</li>
-<li><code>:start-time</code> and <code>:end-time</code>: The timestamp of the first and of
-the last message within the chunk, up to millisecond precision.</li>
-<li><code>:first-msgid</code> and <code>:last-msgid</code>: The ID of the first and of the
-last message in the chunk.</li>
-<li><code>:chunk-id</code>: The ID of this chunk.</li>
-<li><code>:xfrm-offset</code>: Currently extracted, but unused value, will
-disappear in the future.</li>
-<li><code>:messages</code>: A vector of decrypted, decompressed, string messages.</li>
-<li><code>:flags</code>: A vector of flag symbols, specific to this chunk. Known
-flags are <code>:hmac</code> and <code>:hash</code>.</li>
-<li><code>:file-mac</code>: Is the cryptographic hash of all the chunks
-contained in the file so far. The exact format of it depends on
-what was specified in the file headers.</li>
-<li><code>:chunk-mac</code>: The cryptograhic hash of the current chunk. Same
-thing applies to it as for <code>:file-mac</code>.</li>
-</ul>
-
-<h4>Timestamp</h4>
-
-<p>A timestamp is a cryptographically secure timestamp, that can be
-used to validate that a given chunk it refers to was made at a
-given time.</p>
-
-<p>The object contains the following fields:</p>
-
-<ul>
-<li><code>:header</code>: The original record header, with fields explained above.</li>
-<li><code>:chunk-id</code>: The ID of the chunk the timestamp refers to.</li>
-<li><code>:timestamp</code>: The timestamp itself, as a ByteBuffer.</li>
-</ul>
-
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Evaluates <code>body</code>, with the specified record retrieved and bound to
-  <code>*logstore-record*</code>. Requires an <code>LTSFile</code> as the first parameter,
-  the record will be looked up from there.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro with-file-record
-  [#^LSTFile logstore index &amp; body]
-  `(binding [*logstore-record* (nth-record ~logstore ~index)]
-     (do ~@body)))</pre></td></tr><tr><td class="docs"><p>Evaluates <code>body</code>, with the specified record retrieved and bound to
-  <code>*logstore-record*</code>. This works on the LogStore bound to
-  <code>*logstore*</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro with-record
-  [index &amp; body]
-  `(with-file-record *logstore* ~index ~@body))</pre></td></tr><tr><td class="docs"><p>Returns the full header of the current LogStore record, unless
-  another record is specified.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro record
-  ([] `(record *logstore-record*))
-  ([rec] `~rec))</pre></td></tr><tr><td class="docs"><p>Define a record flag query macro. Takes a name, and a flag to
-  query, returns a macro that does just that.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro def-record-flag-accessor
-  [flag]
-  (let [name (symbol (str flag &quot;?&quot;))
-        keyflag (keyword flag)]
-    `(defmacro ~name
-       &quot;Check whether the current record (if not arguments are given)
-  or the specified one has the flag suggested by the name of the
-  macro, set. Returns true if so, false otherwise.&quot;
-       ([] `(flag-set? (:header balabit.logstore/*logstore-record*) ~~keyflag))
-       ([~'record] `(flag-set? (:header ~~'record) ~~keyflag)))))</pre></td></tr><tr><td class="docs"><p>Make a set of flag accessors.</p>
-</td><td class="codes"><pre class="brush: clojure">(defmacro make-record-flag-accessors
-  [&amp; flags]
-  `(do ~@(map (fn [q] `(def-record-flag-accessor ~q)) flags)))</pre></td></tr><tr><td class="docs"><p>Create a set of flag accessors, that return true or false,
-depending on whether a given flag was set on a LogStore record, or
-not.</p>
-
-<p>The accessors are named after the flag they check, suffixed with a
-question mark, ending up with such names as <code>compressed?</code>.</p>
-
-<p>These, unlike the other macros, do not need to be called from
-within a <code>(with-record)</code>, but can take an optional record
-parameter, and work with that instead of the default.</p>
-</td><td class="codes"><pre class="brush: clojure">(make-record-flag-accessors compressed encrypted broken serialized)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.examples" name="balabit.logstore.examples"><h1 class="project-name">balabit.logstore.examples</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Down below, we'll explore a few simple examples that shows how to
-use the library from Clojure.</p>
-
-<p>All of the examples can be copy &amp; pasted right into the REPL, or
-can be imported and used that way. It is also possible to run the
-various examples via lein:</p>
-
-<p><code>lein run -m balabit.logstore.examples/lgstool-cat</code> <strong><code>filename</code></strong></p>
-</td><td class="codes"></td></tr><tr><td class="docs"><h2>Examples</h2>
-</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.examples
+<p>To make it even easier to do this, a few helper functions are
+provided:</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Load a LogStore file, by mapping into memory and parsing it. Takes
+  a filename, and returns a map of the LogStore.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn from-file
+  [fn]
+  (let [channel (.getChannel (FileInputStream. fn))]
+    (decode-logstore (.map channel
+                           (java.nio.channels.FileChannel$MapMode/READ_ONLY)
+                           0 (.size channel)))))</pre></td></tr><tr><td class="docs"><p>Return a lazy list of all the messages from within a LogStore.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn messages
+  [logstore]
+  (mapcat #(get % :messages) (:records logstore)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec" name="balabit.logstore.codec"><h1 class="project-name">balabit.logstore.codec</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>High level LogStore codec definitions</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec
   ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
     :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
-    :license {:name &quot;GNU General Public License - v3&quot;
-              :url &quot;http://www.gnu.org/licenses/gpl.txt&quot;}}
-  (:use [clojure.java.io :only [resource]])
-  (:require [balabit.logstore :as logstore]))</pre></td></tr><tr><td class="docs"><h1>Meta-data printer</h1>
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.nio ByteBuffer))
+  (:use [balabit.blobbity]
+        [balabit.logstore.utils]
+        [balabit.logstore.codec.common]
+        [balabit.logstore.codec.chunk]
+        [balabit.logstore.codec.timestamp]))</pre></td></tr><tr><td class="docs"><p>On the top level, a LogStore file consists of a file header,
+followed by a number of records (where records can be of varying
+types). So all we need, are two methods: one to parse the header,
+and another to parse any kind of record. Then we only need to bind
+them together, and we have a map of the LogStore.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h3>The file header</h3>
 
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>As an example, lets write a program that opens a LogStore file,
-prints out some metadata, then loops over all the records, and
-prints out some metadata about those, too!</p>
-</td><td class="codes"><pre class="brush: clojure">(defn meta-data-printer
-  ([] (meta-data-printer (resource &quot;logstores/loggen.compressed.store&quot;)))
-  ([filename]
-     (logstore/with-file filename
-       (println &quot;Logstore meta-data&quot;)
-       (println &quot; - Magic  :&quot; (-&gt; (logstore/header) :magic))
-       (println &quot; - Crypto&quot;)
-       (println &quot;   + Hash :&quot; (-&gt; (logstore/header) :crypto :algo-hash))
-       (println &quot;   + Crypt:&quot; (-&gt; (logstore/header) :crypto :algo-crypt))
-       (println &quot; - Records:&quot; (count (logstore/records)))
-       (println)
-       (loop [index 0]
-         (when (&lt; index (count (logstore/records)))
-           (do
-             (logstore/with-record index
-               (println (str &quot;Chunk #&quot; (-&gt; (logstore/record) :chunk-id)))
-               (println &quot; - Type :&quot; (-&gt; (logstore/record) :header :type))
-               (println &quot; - Flags:&quot; (-&gt; (logstore/record) :header :flags))
-               (println &quot; - Zip'd:&quot; (logstore/compressed?))
-               (println &quot; - Msgs :&quot;
-                        (-&gt; (logstore/record) :first-msgid) &quot; - &quot;
-                        (-&gt; (logstore/record) :last-msgid)))
-             (recur (inc index))))))))</pre></td></tr><tr><td class="docs"><h1>Random message printer</h1>
+<p>The file header is fairly simple: It starts with four magic bytes,
+which identify which version of the LogStore spec the file is
+in. This library supports <code>LST3</code> and <code>LST4</code> files only.</p>
 
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Lets write a function that opens a logstore, and prints a random
-message from it. We do this by first selecting a random block, and
-from that, a random message.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn random-message-printer
-  ([] (random-message-printer (resource &quot;logstores/loggen.compressed.store&quot;)))
-  ([filename]
-     (logstore/with-file filename
-       (logstore/with-record (rand-int (-&gt; (logstore/header) :last-block-id))
-         (let [rand-idx (rand-int (- (-&gt; (logstore/record) :last-msgid)
-                                     (-&gt; (logstore/record) :first-msgid)))]
-           (println &quot;Your random message is&quot;
-                    (+ rand-idx (-&gt; (logstore/record) :first-msgid))
-                    &quot;from chunk&quot;
-                    (str &quot;#&quot; (-&gt; (logstore/record) :chunk-id) &quot;:&quot;))
-           (println (nth (-&gt; (logstore/record) :messages) rand-idx)))))))</pre></td></tr><tr><td class="docs"><h1>Check timestamps</h1>
+<p>Following the magic, we have the length of the header (a 32-bit
+integer), followed by a set of flags (also 32-bit integer), which
+are currently unused. Past the flags, the header contains
+information about the id of the last record within the LogStore,
+the id of the last message within it (both 32-bit integers), and an
+offset to the end of the last record (a 64-bit integer).</p>
 
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>This function iterates over a logstore, and attempts to find all
-the timestamps, and verifies that all chunks have a timestamp.</p>
+<p>All of this information is useful for the parser, but post parsing,
+not so much. Therefore they do not appear in the map emitted.</p>
 
-<p>Verification is done in a very simple way: we count the number of
-<code>:chunk</code> and <code>:timestamp</code> type records, and compare their number.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn check-timestamps
-  ([] (check-timestamps (resource &quot;logstores/timestamped.store&quot;)))
-  ([filename]
-     (logstore/with-file filename
-       (let [is-type (fn [type what] (= type (:type what)))
-             chunks (count (filter (partial is-type :chunk) (logstore/records)))
-             timestamps (count (filter (partial is-type :timestamp) (logstore/records)))
-             unstamped (- chunks timestamps)]
-         (if (= 0 unstamped)
-           (println &quot;Congratulations, all your chunks are stamped!&quot;)
-           (println &quot;Oh boy, there are&quot; unstamped &quot;unstamped chunks!&quot;))))))</pre></td></tr><tr><td class="docs"><h1>Print all messages from a logstore</h1>
+<p>For future enhancements, 108 bytes were reserved past this point,
+which the reader skips.</p>
 
-<hr />
-</td><td class="codes"></td></tr><tr><td class="docs"><p>This function will print all messages, and only the messages from
-a LogStore.</p>
+<p>The rest of the file header is about encryption and hashing: we
+have two strings describing the crypto hash and encrypt methods
+(both strings are prefixed by a 32-bit length). Following these, we
+have the MAC of the file, and a DER. These are not processed by the
+library at this point, but they're part of the LogStore map,
+extracted from the buffer as-is.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/file.header
+  [#^ByteBuffer buffer _]
 
-<p>This is done by looping over the record indexes, and printing the
-messages if the record's a chunk.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn lgstool-cat
-  ([] (lgstool-cat (resource &quot;logstores/short.compressed.store&quot;)))
-  ([filename]
-     (logstore/with-file filename
-       (let [indexed-records (zipmap (range (count (logstore/records)))
-                                     (logstore/records))
-             chunk-records (keys (filter #(= :chunk (:type (val %)))
-                                         indexed-records))
-             print-msgs (fn [index]
-                          (dorun (map println (:messages (logstore/nth-record index)))))]
-         (dorun (map print-msgs chunk-records))))))</pre></td></tr><tr><td class="docs"><p>This function is mostly for convenience, so that one can call all
-the examples within this namespace, even if one only has a JAR file.</p>
+  (-&gt;
+   (decode-blob buffer [:magic [:string 4],
+                        :length :uint32,
+                        :flags :uint32,
+                        :last [:struct [:record-id :uint32,
+                                        :message-id :uint32,
+                                        :record-end-offset :uint64]],
+                        :skip 108,
+                        :crypto [:struct [:algo [:struct [:hash [:prefixed :string :uint32],
+                                                          :crypt [:prefixed :string :uint32]]],
+                                          :file-mac [:prefixed :slice :uint32],
+                                          :der [:prefixed :slice :uint32]]]])
+   (dissoc :magic :length :flags :last)))</pre></td></tr><tr><td class="docs"><h3>Anatomy of a LogStore record</h3>
+
+<p>Each record in a LogStore starts with a header, where the first
+part of that header (see the
+<a href="#balabit.logstore.codec.common">logstore/record.common-header</a> documentation) is common to
+all types of headers.</p>
+
+<p>Reading a record in an uniform way is as simple as grabbing the
+header, and dispatching to the appropriate decoder for the type,
+and merging the results.</p>
+
+<p>From the resulting map, we remove some unused fields that are only
+useful during parsing. The returned map will have at least a
+<code>:type</code> member, that tells us the type of the record, and it
+optionally has a <code>:flags</code> field, if any flags are set. Not all
+types of records have flags defined, those that do not, will not
+have the flag member in the map.</p>
+
+<p>Other members will be present too, depending on the type of the
+record.</p>
+
+<p>The recognised record types are:</p>
+
+<ul>
+<li><a href="#balabit.logstore.codec.chunk"><code>:chunk</code></a>: A chunk of messages, contains log messages and
+some meta-data about them.</li>
+<li><a href="#balabit.logstore.codec.timestamp"><code>:timestamp</code></a>: A timestamp for a number of previous
+chunks.</li>
+</ul>
+
+<p>Any other type of tag will cause an exception.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record
+  [#^ByteBuffer buffer _]
+
+  (let [header (decode-frame buffer :logstore/record.common-header)
+        maybe-dissoc (fn [coll field]
+                       (if (empty? (get coll field))
+                         (dissoc coll field)
+                         coll))]
+    (-&gt; header
+        (merge (decode-frame buffer (keyword (str &quot;logstore/record.&quot;
+                                                  (name (:type header)))) header))
+        (dissoc :offsets :size)
+        (maybe-dissoc :flags))))</pre></td></tr><tr><td class="docs"><h3>Putting it all together</h3>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Given a LogStore in a buffer, decode it, and return a map of
+  it. The returned map will contain the file header, and a <code>:records</code>
+  key, a lazy list of records available.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn decode-logstore
+  [#^ByteBuffer buffer]
+  (assoc (decode-frame buffer :logstore/file.header)
+    :records (decode-blob-array buffer :logstore/record)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec.common" name="balabit.logstore.codec.common"><h1 class="project-name">balabit.logstore.codec.common</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec.common
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.nio ByteBuffer))
+  (:use [balabit.blobbity]
+        [balabit.logstore.utils]))</pre></td></tr><tr><td class="docs"><h3>The common record header</h3>
+
+<p>Each record has a common header, that starts by a 32-bit <code>:size</code>,
+followed by a 8-bit <code>:type</code>, and 8 bits of <code>:flags</code>.</p>
+
+<p>For the sake of clarity, both types and flags are resolved to
+keywords.</p>
+
+<p>There can be multiple flags set, so in the output, <code>:flags</code> will
+appear as a vector of keywords.</p>
+
+<p>Known flags are:</p>
+
+<ul>
+<li><code>:compressed</code>: The record itself is gzip-compressed. This flag is
+only valid for <code>:chunk</code>-type records.</li>
+<li><code>:encrypted</code>: The record is encrypted. This flag is only valid
+for <code>:chunk</code>-type records.</li>
+<li><code>:serialized</code>: The record contains serialized messages, and as
+such, is only valid for <code>:chunk</code>-type records.</li>
+<li><code>:broken</code>: The record is broken, or not fully written yet. These
+should not appear in properly closed LogStores.</li>
+</ul>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.common-header
+  [#^ByteBuffer buffer _]
+
+  (-&gt; (decode-blob buffer [:size :uint32
+                           :type :byte
+                           :flags :byte])
+      (update-in [:type]
+                 (partial nth [:invalid :xfrm-info :chunk :timestamp]))
+
+      (update-in [:flags]
+                 (partial resolve-flags [:compressed
+                                         :encrypted
+                                         :broken
+                                         :serialized]))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec.timestamp" name="balabit.logstore.codec.timestamp"><h1 class="project-name">balabit.logstore.codec.timestamp</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec.timestamp
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.nio ByteBuffer))
+  (:use [balabit.blobbity]))</pre></td></tr><tr><td class="docs"><h3>Timestamp records</h3>
+
+<p>Timestamp records are used to apply cryptographically secure
+timestamps to previous records within a LogStore.</p>
+
+<p>Right now, the library does not process these further than
+extracting them as binary data.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.timestamp
+  [#^ByteBuffer buffer _ header]
+
+  (let [timestamp (decode-frame buffer :prefixed :slice :uint32)]
+    (decode-frame buffer :skip (.capacity timestamp))
+    (assoc header :timestamp timestamp)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec.chunk" name="balabit.logstore.codec.chunk"><h1 class="project-name">balabit.logstore.codec.chunk</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec.chunk
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.util.zip InflaterInputStream Inflater)
+           (java.nio ByteBuffer)
+           (java.io ByteArrayOutputStream FileInputStream InputStream OutputStream))
+  (:use [balabit.blobbity]
+        [balabit.logstore.utils]
+        [balabit.logstore.codec.chunk.serialization])
+  (:require [balabit.logstore.codec.chunk.sweet :as chunk]))</pre></td></tr><tr><td class="docs"><h3>Chunks, the bread and butter of a LogStore</h3>
+
+<p>Chunks are the heart of LogStore, they contain our messages, they
+hold most information that is of interest to us.</p>
+
+<p>The chunk has <a href="#lgs/chunk-head">extra headers</a> after the
+<a href="#balabit.logstore.codec.common">common record header</a>, and also sports a
+<a href="#lgs/chunk-tail">tail</a> at the end, with <a href="#lgs/chunk-messages">messages</a>
+inbetween.</p>
+
+<p>From all these, we assemble the records map: merge the headers and
+the tail, with the messages added under a <code>:messages</code> key.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.chunk
+  [#^ByteBuffer buffer _ header]
+
+  (let [chunk-head (merge header (decode-frame buffer :logstore/record.chunk-head))
+        messages (decode-frame buffer :logstore/record.chunk-messages chunk-head)
+        chunk-tail (decode-frame buffer :logstore/record.chunk-tail)]
+    (-&gt;
+     chunk-head
+
+     (assoc :messages messages)
+     (merge chunk-tail)
+     (update-in [:flags] (partial apply conj (:flags chunk-head))))))</pre></td></tr><tr><td class="docs"><h3><a name="lgs/chunk-head">The chunk header</a></h3>
+
+<p>The chunk header starts with two timestamps: the <code>:start-time</code> and
+the <code>:end-time</code> of the messages within the record, both are made up
+of two parts: a 64-bit second counter, and a 32-bit microsecond one.</p>
+
+<p>After the timestamps, the header contains the <code>:first-id</code> and
+<code>:last-id</code> (both 32-bit integers), which are the IDs of the first
+and last message within the chunk, respectively.</p>
+
+<p>Past the message range, we have the 32-bit <code>:chunk-id</code>, followed by
+a set of offsets: one to the <code>:xfrm</code> frame (if any, 0 otherwise),
+and another to the beginning of the <a href="#lgs/chunk-tail">tail</a>.</p>
+
+<p>The timestamps are converted to a suitable Java object, otherwise
+the header is left intact.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.chunk-head
+  [#^ByteBuffer buffer _]
+
+  (-&gt; (decode-blob buffer [:start-time [:struct [:sec :uint64,
+                                                 :usec :uint32]],
+                           :end-time [:struct [:sec :uint64,
+                                               :usec :uint32]],
+                           :msg-limits [:struct [:first-id :uint32,
+                                                 :last-id :uint32]],
+                           :chunk-id :uint32,
+                           :offsets [:struct [:xfrm :uint64,
+                                              :tail :uint32]]])
+
+      (update-in [:start-time] resolve-timestamp)
+      (update-in [:end-time] resolve-timestamp)))</pre></td></tr><tr><td class="docs"><h3><a name="lgs/chunk-taiol">The chunk tail</a></h3>
+
+<p>At the end of a chunk record, there's the tail, which starts with a
+32-bit integer for various <code>:flags</code> (namely, <code>:hmac</code> and <code>:hash</code>,
+neither of which is used by this library at this time), which are
+followed by two checksums: one for the whole file so far, and
+another for this chunk only. Both are prefixed by a 32-bit length.</p>
+
+<p>The library does not do anything with these checksums, merely
+extracts them as-is.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.chunk-tail
+  [#^ByteBuffer buffer _]
+
+  (-&gt;
+   (decode-blob buffer [:flags :uint32,
+                        :macs [:struct [:file-mac [:prefixed :slice :uint32],
+                                        :chunk-hmac [:prefixed :slice :uint32]]]])
+
+   (update-in [:flags] (partial resolve-flags [:hmac :hash]))))</pre></td></tr><tr><td class="docs"><h3><a name="lgs/chunk-messages">Messages within a chunk</a></h3>
+
+<p>Deserializing a message is far more work than what we've seen so
+far: messages can be compressed or serialized, or even both, and
+they need to be handled transparently.</p>
+
+<p>To this end, we introduce a couple of helper functions:</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Given a chunk data and its header, decompress it if
+  necessary. Returns the uncompressed data as a ByteBuffer.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn chunk-data-decompress
+  [data data-size header]
+  (if (chunk/compressed? header)
+    (let [buffer (ByteArrayOutputStream.)]
+      (stream-copy (InflaterInputStream. (-&gt;InputStream data)
+                                         (Inflater.) data-size) buffer)
+      (ByteBuffer/wrap (.toByteArray buffer)))
+    data))</pre></td></tr><tr><td class="docs"><p>Given some chunk data and its header, deserialize it. Returns a
+  list of deserialized messages, where each message itself is a map.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn chunk-data-deserialize
+  [data header]
+  (if (chunk/serialized? header)
+    (decode-blob-array data :chunk/message.serialized)
+    (decode-blob-array data :chunk/message.unserialized)))</pre></td></tr><tr><td class="docs"><p>Given the chunk header, the data-size and the data itself, decode
+  it. This is simply an composition of <code>chunk-data-decompress</code> and
+  <code>chunk-data-deserialize</code>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn chunk-decode
+  [header data-size data]
+  (-&gt; data
+      (chunk-data-decompress data-size header)
+      (chunk-data-deserialize header)))</pre></td></tr><tr><td class="docs"><p>Armed with these helper functions, we can now decode the messages
+in a chunk! We know its size: it is the offset of the tail, minus
+the size of the full header.</p>
+
+<p>What we do here, is we extract the messages part of the input
+buffer, and run it through <code>chunk-decode</code>.</p>
+
+<p>To understand how deserialization works, please see
+<a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a>!</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :logstore/record.chunk-messages
+  [#^ByteBuffer buffer _ header]
+
+  (let [size (- (-&gt; header :offsets :tail) 54)]
+    (chunk-decode header size (decode-frame buffer :slice size))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec.chunk.serialization" name="balabit.logstore.codec.chunk.serialization"><h1 class="project-name">balabit.logstore.codec.chunk.serialization</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec.chunk.serialization
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.nio ByteBuffer))
+  (:use [balabit.blobbity]
+        [balabit.logstore.utils]
+        [balabit.logstore.codec.common]))</pre></td></tr><tr><td class="docs"><h3>Decoding messages</h3>
+
+<p>Deserializing messages is a tough job, the format is fairly
+compact, and optimised for easy run-time access. As a consequence,
+there are a lot of transformations the library will need to apply
+to get useful results back.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><h4>Deserialization</h4>
+
+<p>There are two types of messages that can be stored within a chunk:
+<code>:serialized</code> and <code>:unserialized</code>.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Unserialized messages are simply 32-bit length prefixed strings. To
+be compatible with serialzied messages (which are key-value based),
+when decoding an unserialized message, we forcibly associate the
+message text to a <code>:MESSAGE</code> field, and return a map.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk/message.unserialized
+  [#^ByteBuffer buffer _]
+  (decode-blob buffer [:MESSAGE [:prefixed :string :uint32]]))</pre></td></tr><tr><td class="docs"><p>A serialized message contains a lot more information than an
+already formatted message text.</p>
+
+<p>It starts with a <a href="#chunk/sr-msghdr">:header</a>, followed by a
+<a href="#chunk/sr-sockaddr">:socket-address</a>, two
+<a href="#chunk/sr-timestamp">timestamps</a> (<code>:stamp</code> and <code>:recv-stamp</code>, which
+are the timestamps of the message itself, and the timestamp of its
+receipt, respectively).</p>
+
+<p>After the timestamps, we have the <a href="#chunk/sr-tags">:tags</a>, followed
+by the <a href="#chunk/nvtable">name-value pairs</a>.</p>
+
+<p>With these extracted, all we need is to transform the result into
+something usable by the end user. We do this by post-processing the
+socket address, so that the address and the family are of
+appropriate type (<code>InetAddress</code> and a keyword) and resolving both
+timestamps into Java objects. Apart from this, fields that are only
+necessary for decoding (such as <code>:length</code>, <code>:vesion</code>, <code>:priority</code>
+and <code>:flags</code> are removed.</p>
+
+<p>The returned map therefore contains a combination of data extracted
+from the header (including the <code>:priority</code> and <code>:facility</code> of the
+message), timestamps, <code>:tags</code> assembled inside a <code>:meta</code> map, along
+with the deserialized name-value pairs.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk/message.serialized
+  [#^ByteBuffer buffer _]
+
+  (let [hdr (decode-frame buffer :chunk.serialized/message-header)
+        sockaddr (decode-frame buffer :chunk.serialized/sockaddr
+                               (-&gt; hdr :socket :family))
+        stamps (decode-blob buffer [:stamp :chunk.serialized/timestamp
+                                    :recv-stamp :chunk.serialized/timestamp])
+        tags (decode-frame buffer :chunk.serialized/tags)
+        nvt (decode-frame buffer :chunk.serialized/nvtable)
+
+        facility (quot (:priority hdr) 8)
+        severity (rem (:priority hdr) 8)]
+    (.position buffer (.limit buffer))
+    (let [meta-data (-&gt; hdr
+                        (update-in [:socket] (partial merge sockaddr))
+                        (update-in [:socket :family] (partial get {2 :inet4, 10 :inet6}))
+                        (update-in [:socket :address] resolve-address)
+                        (merge stamps)
+                        (update-in [:stamp] resolve-timestamp)
+                        (update-in [:recv-stamp] resolve-timestamp)
+                        (dissoc :length :version :priority :flags)
+                        (assoc :facility (facility-map facility)
+                               :severity (severity-map severity)
+                               :tags tags))]
+      (assoc nvt :meta meta-data))))</pre></td></tr><tr><td class="docs"><h4><a name="chunk/sr-msghdr">The message header</a></h4>
+
+<p>Each serialized message has its own little header, starting with a
+32-bit <code>:length</code>, which is followed by a 8-bit <code>:version</code>.</p>
+
+<p>Depending on the version, a different set of other fields
+follow. This library supports version 22 and above only, though.</p>
+
+<p>For version 22, the header contains a 32-bit integer for various
+<code>:flags</code> (which, at this time, are not used by the library), a
+16-bit <code>:priority</code>, which is a combination of <code>:facility</code> and
+<code>:severity</code> (and is not decoded by this function, it is left up to
+the caller). Finally, it also contains a <code>:socket-address</code>, of
+which only its <code>:family</code> is interesting for this function, the rest
+of it will be decoded by
+<a href="#chunk/sr-sockaddr">:chunk.serialized/sockaddr</a>.</p>
+
+<p>Version 23 also contains a 64-bit <code>:rcptid</code> field in front of the
+fields above.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk.serialized/message-header
+  [#^ByteBuffer buffer _]
+
+  (let [header (decode-blob buffer [:length :uint32
+                                    :version :byte])
+        v22-fields [:flags :uint32
+                    :priority :uint16
+                    :socket [:struct [:family :uint16]]]]
+    (if (= (:version header) 23)
+      (merge header (decode-blob buffer (concat [:rcptid :uint64] v22-fields)))
+      (merge header (decode-blob buffer v22-fields)))))</pre></td></tr><tr><td class="docs"><h4><a name="chunk/sr-timestamp">Timestamps</a></h4>
+
+<p>Timestamps consist of a 64-bit second counter (<code>:sec</code>), a 32-bit
+micro-second counter (<code>:usec</code>), and a 32-bit zone offset (<code>:zone-offset</code>).</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk.serialized/timestamp
+  [#^ByteBuffer buffer _]
+
+  (decode-blob buffer [:sec :uint64
+                       :usec :uint32
+                       :zone-offset :uint32]))</pre></td></tr><tr><td class="docs"><h4><a name="chunk/sr-sockaddr">Socket addresses</a></h4>
+
+<p>Socket addresses can be IPv4 or IPv6 addresses, and in both cases,
+are stored along with a 16-bit port number.</p>
+
+<p>In case the family is IPv4 (2), the decoder uses 32 bits for the
+address, if it is IPv6 (10), it uses 128. If the family is zero, or
+any other unknown value, it returns nil.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk.serialized/sockaddr
+  [#^ByteBuffer buffer _ family]
+
+  (cond
+   (= family 2) (decode-blob buffer [:address [:slice 4]
+                                     :port :uint16])
+
+   (= family 10) (decode-blob buffer [:address [:slice 16]
+                                      :port :uint16])
+   (zero? family) nil))</pre></td></tr><tr><td class="docs"><h4><a name="chunk/sr-tags">Tags</a></h4>
+
+<p>Tags are stored as a list of 32-bit length prefixed strings. An
+empty string of zero length marks the end of the tag list.</p>
+
+<p>Tags are converted into keywords.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk.serialized/tags
+  [#^ByteBuffer buffer _]
+
+  (loop [tags []]
+    (let [tag (decode-frame buffer :prefixed :string :uint32)]
+      (if (empty? tag)
+        tags
+        (recur (conj tags (keyword tag)))))))</pre></td></tr><tr><td class="docs"><h4><a name="chunk/nvtable">Name-value pairs</a></h4>
+
+<p>The name-value table is the toughest part to decode, as it was
+architected for compactness and performance in C. In the end, we
+want a list of key-value pairs, everything else this method does,
+is done to that end.</p>
+
+<p>The structure of the table is as follows:</p>
+
+<p>We have a <a href="#nvt/header">header</a>, followed by
+<a href="#nvt/sdata">structured-data</a>, which is followed by a payload, which
+itself is made up of a <a href="#nvt/payload-header">payload-header</a>, and
+two sets of offsets: one for <a href="#nvt/static-prop">static properties</a>,
+and one for [dynamic ones][nvt/dyn-prop] (we'll see in a moment
+what the difference between the two is).</p>
+
+<p>The bulk of the table is stored past the offsets, and combination
+of static and dynamic properties from that will be the result of
+the function.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :chunk.serialized/nvtable
+  [#^ByteBuffer buffer _]
+
+  (let [nvt-header (decode-frame buffer :nvtable/header)
+        sdata (decode-frame buffer :nvtable/sdata (:num-sdata nvt-header))
+        payload-header (decode-frame buffer :nvtable/payload.header)
+        static-offsets (decode-frame buffer :nvtable/payload.offsets.static
+                                     (:num-static-entries payload-header))
+        dynamic-offsets (decode-frame buffer :nvtable/payload.offsets.dynamic
+                                      (:num-dyn-entries payload-header))
+
+        pairs (.order
+               (decode-frame buffer :slice (bit-shift-left (:used payload-header) 2))
+               java.nio.ByteOrder/LITTLE_ENDIAN)
+
+        static-pairs (decode-frame pairs :nvtable/payload.pairs.static static-offsets)
+        dyn-pairs (decode-frame pairs :nvtable/payload.pairs.dynamic dynamic-offsets)]
+    (merge static-pairs dyn-pairs)))</pre></td></tr><tr><td class="docs"><p><a name="nvt/header">The name-value table header</a></p>
+
+<p>The header of the name-value table is a mere four bytes:
+<code>:initial-parse</code>, <code>:num-matches</code>, <code>:num-sdata</code>, and <code>:alloc-sdata</code>,
+all of them 8-bit. For this library, only <code>:num-sdata</code> is
+interesting, <a href="#nvt/sdata">see below</a>.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/header
+  [#^ByteBuffer buffer _]
+
+  (decode-blob buffer [:initial-parse :byte
+                       :num-matches :byte
+                       :num-sdata :byte
+                       :alloc-sdata :byte]))</pre></td></tr><tr><td class="docs"><p><a name="nvt/sdata">Structured data</a></p>
+
+<p>Structured data offsets are stored as a list of 16-bit integers,
+where each integer is an offset into the main table data.</p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/sdata
+  [#^ByteBuffer buffer _ num-sdata]
+
+  ; FIXME: Need to resolve these too!
+  (doall (take num-sdata (decode-blob-array buffer :uint16))))</pre></td></tr><tr><td class="docs"><p><a name="nvt/payload-header">The payload header</a></p>
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.header
+  [#^ByteBuffer buffer _]
+
+  (decode-blob buffer [:magic [:string 4]
+                       :serialized-flag :ubyte
+                       :size :uint16
+                       :used :uint16
+                       :num-dyn-entries :uint16
+                       :num-static-entries :ubyte]))</pre></td></tr><tr><td class="docs"><p><a name="nvt/static-prop">Static properties</a></p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.pairs.static
+  [#^ByteBuffer buffer _ offsets]
+
+  (into {} (mapcat (fn [[key offset]]
+         (decode-frame buffer :nvpair/static key offset))
+                   (zipmap [:HOST :HOST_FROM :MESSAGE :PROGRAM
+                            :PID :MSGID :SOURCE :LEGACY_MSGHDR] offsets))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvpair/static
+  [#^ByteBuffer buffer _ key offset]
+
+  (.position buffer (- (.limit buffer) offset))
+  (when-not (zero? offset)
+    {key (:value (decode-frame buffer :nvtable/nventry))}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.static
+  [#^ByteBuffer buffer _ num-static]
+
+  (doall (map #(bit-shift-left % 2)
+              (take num-static (decode-blob-array buffer :uint16)))))</pre></td></tr><tr><td class="docs"><p><a name="nvt/dyn-prop">Dynamic properties</a></p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.pairs.dynamic
+  [#^ByteBuffer buffer _ offsets]
+
+  (let [real-offsets (map #(bit-shift-left (bit-and % 0xffff) 2) offsets)]
+    (mapcat #(decode-frame buffer :nvpair/dynamic %)
+            real-offsets)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/payload.offsets.dynamic
+  [#^ByteBuffer buffer _ num-dynamic]
+
+  (doall (take num-dynamic (decode-blob-array buffer :uint32))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvpair/dynamic
+  [#^ByteBuffer buffer _ offset]
+
+  (.position buffer (- (.limit buffer) offset))
+  (let [v (decode-frame buffer :nvtable/nventry)]
+    {(keyword (:name v)) (:value v)}))</pre></td></tr><tr><td class="docs"><p><a name="nventry">Name-value entry pairs</a></p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nvtable/nventry
+  [#^ByteBuffer buffer _]
+
+  (let [common-header (decode-frame buffer :nventry/common-header)]
+    (if (bit-test (:indirect common-header) 1)
+      (decode-frame buffer :nventry/indirect common-header)
+      (decode-frame buffer :nventry/direct common-header))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/common-header
+  [#^ByteBuffer buffer _]
+
+  (decode-blob buffer [:indirect :ubyte
+                       :name-len :ubyte
+                       :alloc-len :uint16]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/direct
+  [#^ByteBuffer buffer _ common-header]
+
+  (let [header (assoc common-header
+                 :value-len (decode-frame buffer :uint16))]
+    (decode-frame buffer :nventry/pair
+                  (:name-len header) (:value-len header))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/indirect
+  [#^ByteBuffer buffer _ common-header]
+
+  (let [header (merge common-header
+                      (decode-blob buffer [:handle :uint16
+                                           :ofs :uint16
+                                           :len :uint16
+                                           :type :ubyte]))]
+    (.position buffer (- (.limit buffer) (:ofs header)))
+    (decode-frame buffer :nventry/direct common-header)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defmethod decode-frame :nventry/pair
+  [#^ByteBuffer buffer _ name-len value-len]
+
+  (decode-blob buffer [:name [:string name-len]
+                       :skip 1
+                       :value [:string value-len]]))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.codec.chunk.sweet" name="balabit.logstore.codec.chunk.sweet"><h1 class="project-name">balabit.logstore.codec.chunk.sweet</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h3>Little helpers for dealing with chunk flags</h3>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.codec.chunk.sweet
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:use [balabit.logstore.utils]))</pre></td></tr><tr><td class="docs"><p>Given a chunk, check if the :compressed flag is set.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn compressed?
+  [chunk]
+  (flag-set? chunk :compressed))</pre></td></tr><tr><td class="docs"><p>Given a chunk, check if the :serialized flag is set.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn serialized?
+  [chunk]
+  (flag-set? chunk :serialized))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.utils" name="balabit.logstore.utils"><h1 class="project-name">balabit.logstore.utils</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Utility functions</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.utils
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (org.joda.time DateTime DateTimeZone)
+           (java.nio ByteBuffer)
+           (java.net InetAddress)
+           (java.io InputStream OutputStream)))</pre></td></tr><tr><td class="docs"><p>Takes an accumulator, a map, an integer and an index. Checks
+  whether the <code>index</code> bit of the integer is set, and if so, looks up the
+  same index from the map, and adds it to the accumulator.</p>
+
+<p>  Returns either the accumulator (either extended or unmodified).</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- bitmap-find
+  [acc bitmap x n]
+  (if (bit-test x n)
+    (conj acc (nth bitmap n))
+    acc))</pre></td></tr><tr><td class="docs"><p>Given a map, and an integer flagset, find all elements of the map
+  which are set in the flagset.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn resolve-flags
+  [bitmap int-flags]
+  (loop [index 0
+         acc []]
+    (if (&lt; index (count bitmap))
+      (recur (inc index) (bitmap-find acc bitmap int-flags index))
+      acc)))</pre></td></tr><tr><td class="docs"><p>Checks whether the given flag is set in the flagset.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn flag-set?
+  [this flag]
+  (or (some #(= flag %) (:flags this)) false))</pre></td></tr><tr><td class="docs"><p>Resolve a timestamp into DateTime objects. The <code>timespec</code> is a map
+  that has at least <code>:sec</code> and <code>:usec</code> members, and can optionally
+  have a <code>:zone-offset</code> (in seconds) too.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn resolve-timestamp
+  [timespec]
+  (if (:zone-offset timespec)
+    (DateTime. (+ (* (long (:sec timespec)) 1000)
+                  (quot (:usec timespec) 1000))
+               (DateTimeZone/forOffsetMillis (* (:zone-offset timespec) 1000)))
+    (DateTime. (+ (* (long (:sec timespec)) 1000)
+                  (quot (:usec timespec) 1000)))))</pre></td></tr><tr><td class="docs"><p>Proxy a ByteBuffer into an InputStream, for functions that need the
+  latter.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -&gt;InputStream
+  [#^ByteBuffer buf]
+  (proxy [InputStream] []
+    (available [] (.remaining buf))
+    (read
+      ([] (if (.hasRemaining buf) (.get buf) -1))
+      ([dst offset len] (let [actlen (min (.remaining buf) len)]
+                          (.get buf dst offset actlen)
+                          (if (&lt; actlen 1) -1 actlen))))))</pre></td></tr><tr><td class="docs"><p>Copy an InputStream to an OutputStream.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn stream-copy
+  [#^InputStream input #^OutputStream output]
+  (let [buffer (make-array Byte/TYPE 1024)]
+    (loop []
+      (let [size (.read input buffer)]
+        (when (pos? size)
+          (do (.write output buffer 0 size)
+              (recur)))))))</pre></td></tr><tr><td class="docs"><p>Resolve the binary representation of an address into an InetAddress
+  object.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn resolve-address
+  [#^ByteBuffer addr]
+  (let [buffer (byte-array (.limit addr))]
+    (.get addr buffer 0 (.limit addr))
+    (InetAddress/getByAddress buffer)))</pre></td></tr><tr><td class="docs"><p>List of known syslog facilities.</p>
+</td><td class="codes"><pre class="brush: clojure">(def facility-map
+  [:kern
+   :user
+   :mail
+   :daemon
+   :auth
+   :syslog
+   :lpr
+   :news
+   :uucp
+   :cron
+   :authpriv
+   :ftp
+   :ntp
+   :log-audit
+   :log-alert
+   :clock
+   :local0
+   :local1
+   :local2
+   :local3
+   :local4
+   :local5
+   :local6
+   :local7])</pre></td></tr><tr><td class="docs"><p>List of known syslog severities.</p>
+</td><td class="codes"><pre class="brush: clojure">(def severity-map
+  [:emergency
+   :alert
+   :critical
+   :error
+   :warning
+   :notice
+   :informational
+   :debug])</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.cli" name="balabit.logstore.cli"><h1 class="project-name">balabit.logstore.cli</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Command-line interface</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.cli
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:require [balabit.logstore.sweet :as logstore])
+  (:use [clojure.tools.cli :only [cli]]
+        [clostache.parser]
+        [clojure.pprint]))</pre></td></tr><tr><td class="docs"><p>The command-line interface provides a few handy functions to
+inspect LogStores with, without having to write Clojure code. They
+both serve as an example, and also as very simple tools.</p>
+
+<p>All of the examples should be run as:</p>
+
+<pre><code>lein run -m balabit.logstore.cli/function [args] &lt;filename&gt;
+</code></pre>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Print a message, either as-is, or using a {{mustache}} template.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn print-message
+  [template message]
+  (if template
+    (println (render template message))
+    (prn message)))</pre></td></tr><tr><td class="docs"><p>Display all messages from a LogStore file, optionally with a
+  template.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn cat
+  [&amp; args]
+  (let [[params [fn _] banner] (cli args
+                                    [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustache}} template for output&quot;]
+                                    [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+                                     :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Display the last N messages of a LogStore, optionally with a
+  template. N is handled the same way as tail(1) handles it.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn tail
+  [&amp; args]
+  (let [[params [fn _] banner] (cli args
+                                    [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustache}} template for output&quot;]
+                                    [&quot;-n&quot; &quot;--lines&quot; &quot;Output only the last K lines&quot;
+                                     :default &quot;10&quot;]
+                                    [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+                                     :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (if (.startsWith (:lines params) &quot;+&quot;)
+      (dorun (map (partial print-message (:template params))
+                  (drop (read-string (:lines params)) (logstore/messages (logstore/from-file fn)))))
+      (dorun (map (partial print-message (:template params))
+                  (take-last (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))</pre></td></tr><tr><td class="docs"><p>Display the first N messages of a LogStore, optionally with a
+  template. N is handled the same way as head(1) handles it.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn head
+  [&amp; args]
+  (let [[params [fn _] banner] (cli args
+                                    [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustache}} template for output&quot;]
+                                    [&quot;-n&quot; &quot;--lines&quot; &quot;Output only the first K lines&quot;
+                                     :default &quot;10&quot;]
+                                    [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+                                     :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (if (.startsWith (:lines params) &quot;-&quot;)
+      (dorun (map (partial print-message (:template params))
+                  (drop-last (- (read-string (:lines params))) (logstore/messages (logstore/from-file fn)))))
+      (dorun (map (partial print-message (:template params))
+                  (take (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))</pre></td></tr><tr><td class="docs"><p>Inspect a LogStore file, dumping its decoded contents back out as-is.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn inspect
+  [&amp; args]
+  (let [[params [fn _] banner] (cli args
+                                [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
+                                 :default false :flag true])]
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+    (pprint (logstore/from-file fn))))</pre></td></tr><tr><td class="docs"><p>Display a help overview.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn help
+  [&amp; args]
+  (println &quot;Usage: lgstool &lt;command&gt; [options] &lt;filename&gt;\n&quot;)
+  (println &quot;Available commands:&quot;)
+  (println &quot; cat     [-t|--template=TEMPLATE]&quot;)
+  (println &quot; tail    [-t|--template=TEMPLATE] [-n|--lines=N]&quot;)
+  (println &quot; head    [-t|--template=TEMPLATE] [-n|--lines=N]&quot;)
+  (println &quot; inspect&quot;))</pre></td></tr><tr><td class="docs"><p>Main entry point when running with leiningen, dispatches to any of
+  the above functions.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn -main
-  ([] nil)
-  ([method] ((resolve (symbol &quot;balabit.logstore.examples&quot; method))))
-  ([method param] ((resolve (symbol &quot;balabit.logstore.examples&quot; method)) param)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+  [cmd &amp; args]
+  (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
+    (apply cmd args)
+    (help)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
