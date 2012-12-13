@@ -46,6 +46,23 @@
 
     (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))
 
+(defn search
+  [& args]
+
+  (let [[params [fn search-pred _] banner]
+        (cli args
+             ["-t" "--template" "Use a {{mustache}} template for output"]
+             ["-h" "--help" "Show help"
+              :default false :flag true])]
+    
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+
+    (dorun (map (partial print-message (:template params))
+                (filter (eval (read-string search-pred))
+                        (logstore/messages (logstore/from-file fn)))))))
+
 (defn tail
   "Display the last N messages of a LogStore, optionally with a
   template. N is handled the same way as tail(1) handles it."
@@ -113,6 +130,7 @@
   (println " cat     [-t|--template=TEMPLATE]")
   (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
+  (println " search  [-t|--template=TEMPLATE] <search-term>")
   (println " inspect"))
 
 (defn -main
