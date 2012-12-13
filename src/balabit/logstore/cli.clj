@@ -47,6 +47,23 @@
 
     (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))
 
+(defn random
+  "Display a random message from a LogStore file, optionally with a
+  template."
+
+  [& args]
+
+  (let [[params [fn _] banner] (cli args
+                                    ["-t" "--template" "Use a {{mustacher}} template for output"]
+                                    ["-h" "--help" "Show help"
+                                     :default false :flag true])]
+
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+
+    (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
+
 (defn search
   [& args]
 
@@ -133,6 +150,7 @@
   (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " search  [-t|--template=TEMPLATE] <search-term>")
+  (println " random")
   (println " inspect"))
 
 (defn -main
