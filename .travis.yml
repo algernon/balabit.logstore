@@ -3,3 +3,7 @@ lein: lein2
 script:
  - "lein2 with-all-profiles test"
  - "lein2 build-docs"
+notifications:
+ irc:
+   channels:
+     - "irc.freenode.net#balabit"
