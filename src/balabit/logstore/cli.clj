@@ -64,13 +64,25 @@
 
     (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
 
+(defn with-all-predicates
+  "Returns a function that takes one argument, and runs all predicates
+  specified to this function, until it finds one that is false, or
+  reaches the end of the list.
+
+  Returns trueish when all predicates matched, falsy otherwise."
+
+  [preds]
+
+  (fn [msg]
+    (not (some nil? (map #((eval (read-string %)) msg) preds)))))
+
 (defn search
   "Display messages matching a predicate. The predicate can be any
   clojure code that is valid as a filter predicate."
 
   [& args]
 
-  (let [[params [fn search-pred _] banner]
+  (let [[params [fn & search-preds] banner]
         (cli args
              ["-t" "--template" "Use a {{mustache}} template for output"]
              ["-h" "--help" "Show help"
@@ -81,8 +93,9 @@
       (System/exit 0))
 
     (in-ns 'balabit.logstore.cli)
+
     (dorun (map (partial print-message (:template params))
-                (filter (eval (read-string search-pred))
+                (filter (all-predicates search-preds)
                         (logstore/messages (logstore/from-file fn)))))))
 
 (defn tail
