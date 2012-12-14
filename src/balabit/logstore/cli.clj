@@ -95,7 +95,7 @@
     (in-ns 'balabit.logstore.cli)
 
     (dorun (map (partial print-message (:template params))
-                (filter (all-predicates search-preds)
+                (filter (with-all-predicates search-preds)
                         (logstore/messages (logstore/from-file fn)))))))
 
 (defn tail
