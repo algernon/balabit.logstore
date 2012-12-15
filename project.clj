@@ -14,7 +14,9 @@
                  [joda-time/joda-time "2.0"]
                  [org.clojure/tools.cli "0.2.2"]
                  [com.balabit/balabit.blobbity "0.1.0"]
-                 [de.ubercode.clostache/clostache "1.3.1"]]
+                 [de.ubercode.clostache/clostache "1.3.1"]
+                 [robert/hooke "1.3.0"]
+                 [me.raynes/conch "0.4.0"]]
   :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
   :aliases {"with-all-profiles" ["with-profile" "dev"],
             "lgstool" ["run" "--"]
@@ -29,5 +31,6 @@
                           "src/balabit/logstore/codec/chunk/sweet.clj"
                           "src/balabit/logstore/utils.clj"
                           "src/balabit/logstore/cli.clj"
-                          "src/balabit/logstore/cli/search_predicates.clj"]}
+                          "src/balabit/logstore/cli/search_predicates.clj"
+                          "src/balabit/logstore/visualisation/gource.clj"]}
   :main balabit.logstore.cli)
