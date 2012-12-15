@@ -26,9 +26,11 @@
 ;;   * Clojure has a very good REPL, which allows us, and the
 ;;     potential users of this library, to quickly inspect certain
 ;;     aspects of a LogStore file, right from the REPL.
-;;   * Being a JVM language, it's reasonably easy to provide a Java
-;;     API aswell, on top of the Clojure library, making it readily
-;;     usable for Clojure and Java developers alike.
+;;   * Being a JVM language, it's reasonably easy to provide a
+;;     [Java API][java-api] aswell, on top of the Clojure library,
+;;     making it readily usable for Clojure and Java developers alike.
+;;
+;; [java-api]: #balabit.logstore.java
 ;;
 ;; # How?
 ;;
@@ -38,6 +40,10 @@
 ;; But the general idea is to use
 ;; `(:require [balabit.logstore.sweet :as logstore])` or something
 ;; similar, and use the convenience functions provided therein.
+;;
+;; To run the Java examples, use `lein javac` to compile them, and
+;; to launch them:
+;;  `lein run -m LGSCat resources/logstores/serialized.store`
 ;;
 ;; [4]: #balabit.logstore.cli
 ;;
@@ -62,8 +68,6 @@
 ;;   part itself is not parsed yet.
 ;; * File and chunk hashes are extracted as binary data only, they are
 ;;   never checked, nor properly parsed.
-;; * There is no Java API yet. In the future, we want to make the
-;;   library easily accessible from Java aswell.
 ;;
 
 (ns balabit.logstore)

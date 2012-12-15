@@ -20,6 +20,8 @@
   :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/java"]
+  :aot [balabit.logstore.java]
+  :prep-tasks ["compile"]
   :aliases {"with-all-profiles" ["with-profile" "dev"],
             "lgstool" ["run" "--"]
             "build-docs" ["with-profile" "dev" "marg"
@@ -34,5 +36,6 @@
                           "src/clj/balabit/logstore/utils.clj"
                           "src/clj/balabit/logstore/cli.clj"
                           "src/clj/balabit/logstore/cli/search_predicates.clj"
-                          "src/clj/balabit/logstore/visualisation/gource.clj"]}
+                          "src/clj/balabit/logstore/visualisation/gource.clj"
+                          "src/clj/balabit/logstore/java.clj"]}
   :main balabit.logstore.cli)
