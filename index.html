@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">com.balabit/balabit.blobbity</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.sweet">balabit.logstore.sweet</a></li><li><a href="#balabit.logstore.codec">balabit.logstore.codec</a></li><li><a href="#balabit.logstore.codec.common">balabit.logstore.codec.common</a></li><li><a href="#balabit.logstore.codec.timestamp">balabit.logstore.codec.timestamp</a></li><li><a href="#balabit.logstore.codec.chunk">balabit.logstore.codec.chunk</a></li><li><a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a></li><li><a href="#balabit.logstore.codec.chunk.sweet">balabit.logstore.codec.chunk.sweet</a></li><li><a href="#balabit.logstore.utils">balabit.logstore.utils</a></li><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li><li><a href="#balabit.logstore.cli.search-predicates">balabit.logstore.cli.search-predicates</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
+</script><title>com.balabit/logstore -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore</h1><h2 class="project-version">0.1.0</h2><br /><p>syslog-ng PE logstore reader</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">joda-time/joda-time</td><td class="dotted"><hr /></td><td class="dep-version">2.0</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">com.balabit/balabit.blobbity</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr><tr><td class="dep-name">robert/hooke</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">me.raynes/conch</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore">balabit.logstore</a></li><li><a href="#balabit.logstore.sweet">balabit.logstore.sweet</a></li><li><a href="#balabit.logstore.codec">balabit.logstore.codec</a></li><li><a href="#balabit.logstore.codec.common">balabit.logstore.codec.common</a></li><li><a href="#balabit.logstore.codec.timestamp">balabit.logstore.codec.timestamp</a></li><li><a href="#balabit.logstore.codec.chunk">balabit.logstore.codec.chunk</a></li><li><a href="#balabit.logstore.codec.chunk.serialization">balabit.logstore.codec.chunk.serialization</a></li><li><a href="#balabit.logstore.codec.chunk.sweet">balabit.logstore.codec.chunk.sweet</a></li><li><a href="#balabit.logstore.utils">balabit.logstore.utils</a></li><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li><li><a href="#balabit.logstore.cli.search-predicates">balabit.logstore.cli.search-predicates</a></li><li><a href="#balabit.logstore.visualisation.gource">balabit.logstore.visualisation.gource</a></li><li><a href="#balabit.logstore.java">balabit.logstore.java</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore" name="balabit.logstore"><h1 class="project-name">balabit.logstore</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>syslog-ng PE LogStore reader</h2>
 
 <p>The balabit.logstore project is a library written in <a href="http://clojure.org/">Clojure</a>,
 that tries to provide a convenient API to read <a href="http://www.balabit.com/network-security/syslog-ng/central-syslog-server/overview">syslog-ng PE</a>
@@ -3054,9 +3054,9 @@ easily).</li>
 <li>Clojure has a very good REPL, which allows us, and the
 potential users of this library, to quickly inspect certain
 aspects of a LogStore file, right from the REPL.</li>
-<li>Being a JVM language, it's reasonably easy to provide a Java
-API aswell, on top of the Clojure library, making it readily
-usable for Clojure and Java developers alike.</li>
+<li>Being a JVM language, it's reasonably easy to provide a
+<a href="#balabit.logstore.java">Java API</a> aswell, on top of the Clojure library,
+making it readily usable for Clojure and Java developers alike.</li>
 </ul>
 
 <h1>How?</h1>
@@ -3067,6 +3067,10 @@ test suite in the source tree.</p>
 <p>But the general idea is to use
 <code>(:require [balabit.logstore.sweet :as logstore])</code> or something
 similar, and use the convenience functions provided therein.</p>
+
+<p>To run the Java examples, use <code>lein javac</code> to compile them, and
+to launch them:
+ <code>lein run -m LGSCat resources/logstores/serialized.store</code></p>
 
 <h1>Limitations</h1>
 
@@ -3092,8 +3096,6 @@ will probably barf and throw exceptions when encountering one.</li>
 part itself is not parsed yet.</li>
 <li>File and chunk hashes are extracted as binary data only, they are
 never checked, nor properly parsed.</li>
-<li>There is no Java API yet. In the future, we want to make the
-library easily accessible from Java aswell.</li>
 </ul>
 </td><td class="codes"></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.sweet" name="balabit.logstore.sweet"><h1 class="project-name">balabit.logstore.sweet</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Entry point of the LogStore reader API</h2>
@@ -3916,11 +3918,19 @@ both serve as an example, and also as very simple tools.</p>
     (when (:help params)
       (println banner)
       (System/exit 0))
-    (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Display messages matching a predicate. The predicate can be any
+    (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))</pre></td></tr><tr><td class="docs"><p>Returns a function that takes one argument, and runs all predicates
+  specified to this function, until it finds one that is false, or
+  reaches the end of the list.</p>
+
+<p>  Returns trueish when all predicates matched, falsy otherwise.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn with-all-predicates
+  [preds]
+  (fn [msg]
+    (not (some nil? (map #((eval (read-string %)) msg) preds)))))</pre></td></tr><tr><td class="docs"><p>Display messages matching a predicate. The predicate can be any
   clojure code that is valid as a filter predicate.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn search
   [&amp; args]
-  (let [[params [fn search-pred _] banner]
+  (let [[params [fn &amp; search-preds] banner]
         (cli args
              [&quot;-t&quot; &quot;--template&quot; &quot;Use a {{mustache}} template for output&quot;]
              [&quot;-h&quot; &quot;--help&quot; &quot;Show help&quot;
@@ -3930,7 +3940,7 @@ both serve as an example, and also as very simple tools.</p>
       (System/exit 0))
     (in-ns 'balabit.logstore.cli)
     (dorun (map (partial print-message (:template params))
-                (filter (eval (read-string search-pred))
+                (filter (with-all-predicates search-preds)
                         (logstore/messages (logstore/from-file fn)))))))</pre></td></tr><tr><td class="docs"><p>Display the last N messages of a LogStore, optionally with a
   template. N is handled the same way as tail(1) handles it.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn tail
@@ -4032,5 +4042,132 @@ lgstool search log.store '(re-match #"[aA]*[zZ]")'
   [pattern] (let [p (if (= (type pattern) java.util.regex.Pattern)
                       pattern
                       (re-pattern pattern))]
-              (fn [msg] (re-find p (:MESSAGE msg)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+              (fn [msg] (re-find p (:MESSAGE msg)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.visualisation.gource" name="balabit.logstore.visualisation.gource"><h1 class="project-name">balabit.logstore.visualisation.gource</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Visualizing the parsing process</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.visualisation.gource
+  (:require [clojure.string :as s]
+            [conch.sh :refer [with-programs]])
+  (:use [robert.hooke]
+        [balabit.blobbity]
+        [balabit.logstore.sweet]))</pre></td></tr><tr><td class="docs"><p>To visualise the parsing process, we'll be tracking three things
+with an atom: the overall history, which is simply a list of
+arrays, where each array contains the current <em>path</em>, the buffer,
+the type <code>decode-frame</code> dispatched on, and an overall position
+(more on that later).</p>
+
+<p>From these, we can draw a nice animation, if we imagine that as the
+<code>decode-frame</code> calls call onto each other, we reach more and more
+nodes of a directory tree: the dispatch types taken so far is the
+path.</p>
+
+<p>The amount of bytes each <code>decode-frame</code> call processes will be used
+as the time between this, and the next event.</p>
+
+<p>In the end, passing this to gource produces a fairly neat animation.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>The tracker atom, this is updated by the <code>track-frame</code> function.</p>
+</td><td class="codes"><pre class="brush: clojure">(def tracker (atom {:history '()
+                    :tree '()
+                    :overall-position 0}))</pre></td></tr><tr><td class="docs"><p>Reset the tracker atom to its initial, empty state.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn reset-tracker!
+  []
+  (reset! tracker
+          {:history '()
+           :tree '()
+           :overall-position 0}))</pre></td></tr><tr><td class="docs"><p>From a tree, form a UNIX-like path, by joining it together.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- tree-&gt;path
+  [tree]
+  (s/join &quot;/&quot; (reverse (map #(apply str (rest (str %))) tree))))</pre></td></tr><tr><td class="docs"><p>Hook function that explores data before and after calling
+  <code>decode-frame</code>, and updates the tracking atom with new information.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn track-frame
+  [f buffer type &amp; args]
+  (swap! tracker assoc-in [:tree] (cons type (:tree @tracker)))
+  (let [start-position (.position buffer)
+        result (apply f buffer type args)
+        pos-diff (- (.position buffer) start-position)]
+    (swap! tracker update-in [:overall-position] + pos-diff)
+    (swap! tracker update-in [:history]
+           conj [(tree-&gt;path (:tree @tracker))
+                 buffer type
+                 (+ (:overall-position @tracker) pos-diff)])
+    (swap! tracker update-in [:tree] rest)
+    result))</pre></td></tr><tr><td class="docs"><p>From an entry in the trackers history, produce a formatted line
+  that Gource understands.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn- history-line-&gt;gource-line
+  [[path buffer type pos color]]
+  (str (int (/ pos 10)) &quot;|&quot; type &quot;|&quot; &quot;M&quot; &quot;|&quot; path &quot;\n&quot;))</pre></td></tr><tr><td class="docs"><p>Convert an entire history to a format understood by Gource.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn history-&gt;gource
+  [history]
+  (apply str (map history-line-&gt;gource-line history)))</pre></td></tr><tr><td class="docs"><p>Analyse a LogStore file, and create the source of a Gource
+  animation based on it.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn logstore-&gt;gource
+  [lgs]
+  (reset-tracker!)
+  (remove-hook #'decode-frame #'track-frame)
+  (add-hook #'decode-frame #'track-frame)
+  (dorun (messages (from-file lgs)))
+  (remove-hook #'decode-frame #'track-frame)
+  (history-&gt;gource (reverse (:history @tracker))))</pre></td></tr><tr><td class="docs"><p>Create &amp; display the animation for a LogStore file.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn with-gource
+  [lgs]
+  (with-programs [gource]
+    (gource &quot;-&quot; &quot;--log-format&quot; &quot;custom&quot; &quot;-e&quot; &quot;0.5&quot; &quot;--stop-at-end&quot;
+            &quot;--highlight-users&quot; &quot;--highlight-dirs&quot; &quot;--colour-images&quot;
+            {:in (logstore-&gt;gource lgs)})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.java" name="balabit.logstore.java"><h1 class="project-name">balabit.logstore.java</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>The Java API</h2>
+</td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.java
+  ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :copyright &quot;Copyright (C) 2012 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
+    :license {:name &quot;Creative Commons Attribution-ShareAlike 3.0&quot;
+              :url &quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;}}
+  (:import (java.nio ByteBuffer))
+  (:use [balabit.logstore.sweet]
+        [balabit.logstore.codec])
+  (:gen-class :methods [#^{:static true} [fromFile [String] Object]
+                        #^{:static true} [messages [Object] Object]
+                        #^{:static true} [fromBuffer [java.nio.ByteBuffer] Object]
+                        #^{:static true} [keyword [String] clojure.lang.Keyword]]
+              :name BalaBit.LogStore))</pre></td></tr><tr><td class="docs"><p>The Java API is very, very simple, it only consists of four
+methods, that expose the parser to Java. Since all it does is
+return a lazily build structure, that can already be accessed from
+Java as-is, without much further help.</p>
+
+<p>One will, however, need to import <code>clojure.lang.LazySeq</code> and
+<code>clojure.lang.Keyword</code> along with <code>BalaBit.LogStore</code> when dealing
+with LogStore files from Java. The former two are needed to explore
+the parsed data structure.</p>
+
+<p>As an example, this is how a simple LogStore displayer would look:</p>
+
+<pre><code>import BalaBit.LogStore;
+import clojure.lang.LazySeq;
+import clojure.lang.Keyword;
+import java.util.Map;
+
+public class LGSCat {
+  public static void main(String[] args) {
+    Keyword k = BalaBit.LogStore.keyword ("MESSAGE");
+    Object lgs = BalaBit.LogStore.fromFile (args[0]);
+    LazySeq s = (LazySeq) BalaBit.LogStore.messages (lgs);
+
+    for (Object m : s.toArray()) {
+      Map msg = (Map) m;
+
+      System.out.print(msg.get[k]);
+    }
+  }
+}
+</code></pre>
+
+<p>More examples can be found within the <a href="https://github.com/algernon/balabit.logstore/tree/master/src/java/">source tree</a>.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Java wrapper around balabit.logstore.sweet/from-file.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -fromFile
+  [#^String fn]
+  (from-file fn))</pre></td></tr><tr><td class="docs"><p>Java wrapper around balabit.logstore.sweet/messages.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -messages
+  [logstore]
+  (messages logstore))</pre></td></tr><tr><td class="docs"><p>Java wrapper around balabit.logstore.codec/decode-logstore.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -fromBuffer
+  [#^ByteBuffer buff]
+  (decode-logstore buff))</pre></td></tr><tr><td class="docs"><p>Java wrapper around Clojure's keyword function.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn -keyword
+  [#^String s]
+  (keyword s))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
