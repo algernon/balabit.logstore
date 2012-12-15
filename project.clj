@@ -18,19 +18,24 @@
                  [robert/hooke "1.3.0"]
                  [me.raynes/conch "0.4.0"]]
   :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
+  :source-paths ["src/clj"]
+  :java-source-paths ["src/java"]
+  :aot [balabit.logstore.java]
+  :prep-tasks ["compile"]
   :aliases {"with-all-profiles" ["with-profile" "dev"],
             "lgstool" ["run" "--"]
             "build-docs" ["with-profile" "dev" "marg"
-                          "src/balabit/logstore.clj"
-                          "src/balabit/logstore/sweet.clj"
-                          "src/balabit/logstore/codec.clj"
-                          "src/balabit/logstore/codec/common.clj"
-                          "src/balabit/logstore/codec/timestamp.clj"
-                          "src/balabit/logstore/codec/chunk.clj"
-                          "src/balabit/logstore/codec/chunk/serialization.clj"
-                          "src/balabit/logstore/codec/chunk/sweet.clj"
-                          "src/balabit/logstore/utils.clj"
-                          "src/balabit/logstore/cli.clj"
-                          "src/balabit/logstore/cli/search_predicates.clj"
-                          "src/balabit/logstore/visualisation/gource.clj"]}
+                          "src/clj/balabit/logstore.clj"
+                          "src/clj/balabit/logstore/sweet.clj"
+                          "src/clj/balabit/logstore/codec.clj"
+                          "src/clj/balabit/logstore/codec/common.clj"
+                          "src/clj/balabit/logstore/codec/timestamp.clj"
+                          "src/clj/balabit/logstore/codec/chunk.clj"
+                          "src/clj/balabit/logstore/codec/chunk/serialization.clj"
+                          "src/clj/balabit/logstore/codec/chunk/sweet.clj"
+                          "src/clj/balabit/logstore/utils.clj"
+                          "src/clj/balabit/logstore/cli.clj"
+                          "src/clj/balabit/logstore/cli/search_predicates.clj"
+                          "src/clj/balabit/logstore/visualisation/gource.clj"
+                          "src/clj/balabit/logstore/java.clj"]}
   :main balabit.logstore.cli)
