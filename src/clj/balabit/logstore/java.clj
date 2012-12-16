@@ -10,9 +10,8 @@
   (:use [balabit.logstore.sweet]
         [balabit.logstore.codec])
   (:gen-class :methods [#^{:static true} [fromFile [String] Object]
-                        #^{:static true} [messages [Object] Object]
-                        #^{:static true} [fromBuffer [java.nio.ByteBuffer] Object]
-                        #^{:static true} [keyword [String] clojure.lang.Keyword]]
+                        #^{:static true} [messages [Object] clojure.lang.LazySeq]
+                        #^{:static true} [fromBuffer [java.nio.ByteBuffer] Object]]
               :name BalaBit.LogStore))
 
 ;; The Java API is very, very simple, it only consists of four
@@ -34,9 +33,9 @@
 ;;
 ;;     public class LGSCat {
 ;;       public static void main(String[] args) {
-;;         Keyword k = BalaBit.LogStore.keyword ("MESSAGE");
+;;         Keyword k = Keyword.intern ("MESSAGE");
 ;;         Object lgs = BalaBit.LogStore.fromFile (args[0]);
-;;         LazySeq s = (LazySeq) BalaBit.LogStore.messages (lgs);
+;;         LazySeq s = BalaBit.LogStore.messages (lgs);
 ;;
 ;;         for (Object m : s) {
 ;;           Map msg = (Map) m;
@@ -66,8 +65,3 @@
   [#^ByteBuffer buff]
   (decode-logstore buff))
 
-(defn -keyword
-  "Java wrapper around Clojure's keyword function."
-  [#^String s]
-
-  (keyword s))

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class LGSCat {
     public static void main(String[] args) {
-        Keyword k = BalaBit.LogStore.keyword("MESSAGE");
+        Keyword k = Keyword.intern("MESSAGE");
 
         if (args.length < 1) {
             System.out.println("Usage: LGSCat files...");
@@ -14,7 +14,7 @@ public class LGSCat {
 
         for (String fn : args) {
             Object o = BalaBit.LogStore.fromFile (fn);
-            LazySeq s = (LazySeq) BalaBit.LogStore.messages (o);
+            LazySeq s = BalaBit.LogStore.messages (o);
 
             for (Object m : s) {
                 Map msg = (Map) m;
