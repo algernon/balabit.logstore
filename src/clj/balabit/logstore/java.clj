@@ -38,7 +38,7 @@
 ;;         Object lgs = BalaBit.LogStore.fromFile (args[0]);
 ;;         LazySeq s = (LazySeq) BalaBit.LogStore.messages (lgs);
 ;;
-;;         for (Object m : s.toArray()) {
+;;         for (Object m : s) {
 ;;           Map msg = (Map) m;
 ;;
 ;;           System.out.print(msg.get[k]);
