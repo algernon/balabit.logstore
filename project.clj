@@ -1,4 +1,4 @@
-(defproject com.balabit/logstore "0.1.0"
+(defproject com.balabit/logstore "0.1.1-SNAPSHOT"
   :description "syslog-ng PE logstore reader"
   :url "http://algernon.github.com/balabit.logstore"
   :min-lein-version "2.0.0"
