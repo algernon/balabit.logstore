@@ -54,10 +54,17 @@
   [& args] (fn [msg] (= (get-in msg (butlast args)) (last args))))
 
 (defn re-match
-  "Matches messages where the message parts matches the given regular
-  expression"
+  "Matches messages where the a specified (or the message itself, if
+  none) part matches the given regular expression"
 
-  [pattern] (let [p (if (= (type pattern) java.util.regex.Pattern)
-                      pattern
-                      (re-pattern pattern))]
-              (fn [msg] (re-find p (:MESSAGE msg)))))
+  ([field pattern] (let [p (if (= (type pattern) java.util.regex.Pattern)
+                             pattern
+                             (re-pattern pattern))]
+                     (fn [msg] (re-find p (field msg)))))
+
+  ([pattern] (re-match :MESSAGE pattern)))
+
+;; While re-match is quite clear, it is also fairly long. Since we
+;; can't have =~ due to ~ being a special form of unquote, use ?= as
+;; an alias for re-match.
+(def ?= re-match)
