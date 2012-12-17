@@ -38,20 +38,24 @@
   ([sev] (severity = sev))
   ([cmp sev] (fn [msg]
                (let [sev-map (zipmap (reverse severity-map) (range))]
-                 (cmp (get sev-map (-> msg :meta :severity))
-                      (get sev-map sev))))))
+                 (when (cmp (get sev-map (-> msg :meta :severity))
+                            (get sev-map sev))
+                   true)))))
 
 (defn facility
   "Match only those messages that were sent using the specified
   facility."
 
-  [fac] (fn [msg] (= fac (-> msg :meta :facility))))
+  [fac] (fn [msg] (when (= fac (-> msg :meta :facility))
+                    true)))
 
 (defn ===
   "Matches messages where the last argument can be found by following
   the path laid out by the rest."
 
-  [& args] (fn [msg] (= (get-in msg (butlast args)) (last args))))
+  [& args] (fn [msg]
+             (when (= (get-in msg (butlast args)) (last args))
+               true)))
 
 (defn re-match
   "Matches messages where the a specified (or the message itself, if
