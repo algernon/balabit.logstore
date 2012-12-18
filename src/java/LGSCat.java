@@ -1,25 +1,22 @@
-import BalaBit.LogStore;
 import clojure.lang.LazySeq;
-import clojure.lang.Keyword;
-import java.util.Map;
+import BalaBit.LogStore;
+import BalaBit.LogStoreMap;
 
 public class LGSCat {
     public static void main(String[] args) {
-        Keyword k = Keyword.intern("MESSAGE");
-
         if (args.length < 1) {
             System.out.println("Usage: LGSCat files...");
             System.exit (1);
         }
 
         for (String fn : args) {
-            Object o = BalaBit.LogStore.fromFile (fn);
-            LazySeq s = BalaBit.LogStore.messages (o);
+            LogStore lgs = new BalaBit.LogStore (fn);
+            LazySeq s = lgs.messages ();
 
             for (Object m : s) {
-                Map msg = (Map) m;
+                LogStoreMap msg = new LogStoreMap (m);
 
-                System.out.println (msg.get (k));
+                System.out.println (msg.get ("MESSAGE"));
             }
         }
     }
