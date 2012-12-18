@@ -85,10 +85,10 @@
   [lgs]
 
   (reset-tracker!)
-  (remove-hook #'decode-frame #'track-frame)
-  (add-hook #'decode-frame #'track-frame)
-  (dorun (messages (from-file lgs)))
-  (remove-hook #'decode-frame #'track-frame)
+
+  (with-scope
+    (add-hook #'decode-frame #'track-frame)
+    (dorun (messages (from-file lgs))))
   (history->gource (reverse (:history @tracker))))
 
 (defn with-gource
