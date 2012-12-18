@@ -10,7 +10,8 @@
   (:use [clojure.tools.cli :only [cli]]
         [clostache.parser]
         [clojure.pprint]
-        [balabit.logstore.cli.search-predicates]))
+        [balabit.logstore.cli.search-predicates]
+        [balabit.logstore.visualisation.gource]))
 
 ;; The command-line interface provides a few handy functions to
 ;; inspect LogStores with, without having to write Clojure code. They
@@ -155,6 +156,23 @@
 
     (pprint (logstore/from-file fn))))
 
+(defn gource
+  "Display a Gource-based visualisation of the LogStore parsing process."
+
+  [& args]
+
+  (let [[params [fn out-file _] banner] (cli args
+                                              ["-h" "--help" "Show help"
+                                               :default false :flag true])]
+
+    (when (:help params)
+      (println banner)
+      (System/exit 0))
+
+    (if out-file
+      (spit out-file (logstore->gource fn))
+      (with-gource fn))))
+
 (defn help
   "Display a help overview."
 
@@ -166,6 +184,7 @@
   (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " search  [-t|--template=TEMPLATE] <search-term>")
+  (println " gource")
   (println " random")
   (println " inspect"))
 
