@@ -7,7 +7,7 @@
 ;; [1]: http://clojure.org/
 ;; [2]: http://www.balabit.com/network-security/syslog-ng/central-syslog-server/overview
 ;; [3]: http://www.balabit.com/TBD
-;; 
+;;
 ;; # Why?
 ;;
 ;; The reason behind the implementation is to have an independent,

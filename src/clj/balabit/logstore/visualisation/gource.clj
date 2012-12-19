@@ -1,6 +1,6 @@
 (ns balabit.logstore.visualisation.gource
   "## Visualizing the parsing process"
-  
+
   (:require [clojure.string :as s]
             [conch.sh :refer [with-programs]])
   (:use [robert.hooke]
@@ -67,9 +67,9 @@
 (defn- history-line->gource-line
   "From an entry in the trackers history, produce a formatted line
   that Gource understands."
-  
+
   [[path buffer type pos color]]
-  
+
   (str (int (/ pos 10)) "|" type "|" "M" "|" path "\n"))
 
 (defn history->gource

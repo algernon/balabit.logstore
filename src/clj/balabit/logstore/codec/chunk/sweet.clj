@@ -1,6 +1,6 @@
 (ns balabit.logstore.codec.chunk.sweet
   "### Little helpers for dealing with chunk flags"
-  
+
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"

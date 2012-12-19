@@ -5,7 +5,7 @@
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
-  
+
   (:import (java.nio ByteBuffer))
   (:use [balabit.blobbity]
         [balabit.logstore.utils]

@@ -1,6 +1,6 @@
 (ns balabit.logstore.utils
   "## Utility functions"
-  
+
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
@@ -17,7 +17,7 @@
   same index from the map, and adds it to the accumulator.
 
   Returns either the accumulator (either extended or unmodified)."
-  
+
   [acc bitmap x n]
 
   (if (bit-test x n)
@@ -38,7 +38,7 @@
 
 (defn flag-set?
   "Checks whether the given flag is set in the flagset."
-  
+
   [this flag]
   (or (some #(= flag %) (:flags this)) false))
 

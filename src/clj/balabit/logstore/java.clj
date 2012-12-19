@@ -65,7 +65,7 @@
 (defn lsm-init
   "Constructor for a LogStoreMap object, takes a clojure map as input,
   and creates a wrapper around it."
-  
+
   [o]
 
   [[Object] o])
@@ -98,28 +98,28 @@
 
 (defn lsm-containsValue
   "Returns true when the supplied value is contained within the LogStoreMap."
-  
+
   [this value]
 
   (.containsValue (.state this) value))
 
 (defn lsm-equals
   "Returns true when the LogStoreMap is equal to the supplied object."
-  
+
   [this o]
 
   (.equals (.state this) o))
 
 (defn lsm-hashCode
   "Returns the hashCode of the embedded map."
-  
+
   [this]
 
   (.hashCode (.state this)))
 
 (defn lsm-isEmpty
   "Returns true if the LogStoreMap is empty."
-  
+
   [this]
 
   (.isEmpty (.state this)))
@@ -134,7 +134,7 @@
 
 (defn lsm-size
   "Returns the size of the internal map."
-  
+
   [this]
 
   (.size (.state this)))

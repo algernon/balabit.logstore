@@ -1,6 +1,6 @@
 (ns balabit.logstore.cli.search-predicates
   "## Search predicates for the CLI"
-  
+
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"

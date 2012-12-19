@@ -1,11 +1,11 @@
 (ns balabit.logstore.cli
   "## Command-line interface"
-  
+
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
     :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
-  
+
   (:require [balabit.logstore.sweet :as logstore])
   (:use [clojure.tools.cli :only [cli]]
         [clostache.parser]
@@ -24,7 +24,7 @@
 
 (defn print-message
   "Print a message, either as-is, or using a {{mustache}} template."
-  
+
   [template message]
 
   (if template
@@ -88,7 +88,7 @@
              ["-t" "--template" "Use a {{mustache}} template for output"]
              ["-h" "--help" "Show help"
               :default false :flag true])]
-    
+
     (when (:help params)
       (println banner)
       (System/exit 0))
@@ -191,7 +191,7 @@
 (defn -main
   "Main entry point when running with leiningen, dispatches to any of
   the above functions."
-  
+
   [cmd & args]
 
   (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
