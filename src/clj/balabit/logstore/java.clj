@@ -19,14 +19,12 @@
 ;;
 ;;     import BalaBit.LogStore;
 ;;     import BalaBit.LogStoreMap;
-;;     import clojure.lang.LazySeq;
 ;;
 ;;     public class LGSCat {
 ;;       public static void main(String[] args) {
 ;;         LogStore lgs = new BalaBit.LogStore (args[0]);
-;;         LazySeq s = lgs.messages ();
 ;;
-;;         for (Object m : s) {
+;;         for (Object m : lgs.messages ()) {
 ;;           LogStoreMap msg = new LogStoreMap (m);
 ;;
 ;;           System.out.print(msg.get("MESSAGE"));
