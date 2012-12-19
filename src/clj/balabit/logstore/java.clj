@@ -53,11 +53,13 @@
 ;; This, of course, means that one will have to be aware when to use
 ;; it, it is not automatic just yet.
 ;;
-;; The class does not support Map semantics, either - yet.
+;; The class implements the `java.util.Map` interface, where keys are
+;; always strings, and values can be either strings, or other maps.
 ;;
 (gen-class :name BalaBit.LogStoreMap
            :methods [[get [String] Object]]
            :constructors {[Object] []}
+           :implements [java.util.Map]
            :init init
            :state state
            :prefix lsm-)
@@ -77,6 +79,75 @@
   [this, o]
 
   (get (.state this) (keyword o)))
+
+(defn lsm-entrySet
+  "Return all the key-value entries within the LogStoreMap, with the
+  keys converted to strings."
+
+  [this]
+
+  (let [ks (keys (.state this))
+        vs (vals (.state this))]
+    (.entrySet (zipmap (map name ks) vs))))
+
+(defn lsm-containsKey
+  "Returns true when the key (converted to keyword first) is contained
+  within the LogStoreMap."
+
+  [this key]
+
+  (.containsKey (.state this) (keyword key)))
+
+(defn lsm-containsValue
+  "Returns true when the supplied value is contained within the LogStoreMap."
+  
+  [this value]
+
+  (.containsValue (.state this) value))
+
+(defn lsm-equals
+  "Returns true when the LogStoreMap is equal to the supplied object."
+  
+  [this o]
+
+  (.equals (.state this) o))
+
+(defn lsm-hashCode
+  "Returns the hashCode of the embedded map."
+  
+  [this]
+
+  (.hashCode (.state this)))
+
+(defn lsm-isEmpty
+  "Returns true if the LogStoreMap is empty."
+  
+  [this]
+
+  (.isEmpty (.state this)))
+
+(defn lsm-keySet
+  "Returns a set with the keys from the LogStoreMap, with all keys
+  converted to strings first."
+
+  [this]
+
+  (set (map name (keys (.state this)))))
+
+(defn lsm-size
+  "Returns the size of the internal map."
+  
+  [this]
+
+  (.size (.state this)))
+
+(defn lsm-values
+  "Returns the values within the LogStoreMap."
+
+  [this]
+
+  (.values (.state this)))
+
 
 ;; ## LogStore
 ;;
