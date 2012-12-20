@@ -7,9 +7,11 @@
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
   (:import (java.nio ByteBuffer)
-           (java.util Map))
+           (java.util Map)
+           (BalaBit.LogStore LGSFormatException))
   (:use [balabit.logstore.sweet]
-        [balabit.logstore.codec]))
+        [balabit.logstore.codec]
+        [slingshot.slingshot :only [try+]]))
 
 ;; The Java API is very, very simple: it exposes only two classes:
 ;; `LogStoreMap` and `LogStore`, each of which have only a couple of
@@ -167,9 +169,14 @@
 
   [o]
 
-  (if (= (type o) String)
-    [[(from-file o)]]
-    [[(decode-logstore o)]]))
+  (try+
+   (if (= (type o) String)
+     [[(from-file o)]]
+     [[(decode-logstore o)]])
+
+   (catch [:type :logstore/format-error] {:keys [message source assertion]}
+     (throw (LGSFormatException. (str message "; source=" source
+                                      "; assertion=" assertion))))))
 
 (defn lgs-messages
   "Return all the messages present in the LogStore object."

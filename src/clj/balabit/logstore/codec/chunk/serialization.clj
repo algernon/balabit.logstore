@@ -8,6 +8,8 @@
   (:import (java.nio ByteBuffer))
   (:use [balabit.blobbity]
         [balabit.logstore.utils]
+        [balabit.logstore.exceptions]
+        [balabit.logstore.codec.verify]
         [balabit.logstore.codec.common]))
 
 ;; ### Decoding messages

@@ -14,13 +14,15 @@
                  [joda-time/joda-time "2.0"]
                  [org.clojure/tools.cli "0.2.2"]
                  [com.balabit/balabit.blobbity "0.1.0"]
+                 [slingshot "0.10.3"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [robert/hooke "1.3.0"]
                  [me.raynes/conch "0.4.0"]]
   :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/java"]
-  :aot [balabit.logstore.java]
+  :aot [balabit.logstore.java
+        balabit.logstore.exceptions]
   :prep-tasks ["compile"]
   :aliases {"with-all-profiles" ["with-profile" "dev"],
             "lgstool" ["run" "--"]
@@ -28,12 +30,14 @@
                           "src/clj/balabit/logstore.clj"
                           "src/clj/balabit/logstore/sweet.clj"
                           "src/clj/balabit/logstore/codec.clj"
+                          "src/clj/balabit/logstore/codec/verify.clj"
                           "src/clj/balabit/logstore/codec/common.clj"
                           "src/clj/balabit/logstore/codec/timestamp.clj"
                           "src/clj/balabit/logstore/codec/chunk.clj"
                           "src/clj/balabit/logstore/codec/chunk/serialization.clj"
                           "src/clj/balabit/logstore/codec/chunk/sweet.clj"
                           "src/clj/balabit/logstore/utils.clj"
+                          "src/clj/balabit/logstore/exceptions.clj"
                           "src/clj/balabit/logstore/cli.clj"
                           "src/clj/balabit/logstore/cli/search_predicates.clj"
                           "src/clj/balabit/logstore/visualisation/gource.clj"
