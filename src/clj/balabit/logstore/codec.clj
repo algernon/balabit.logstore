@@ -9,6 +9,8 @@
   (:import (java.nio ByteBuffer))
   (:use [balabit.blobbity]
         [balabit.logstore.utils]
+        [balabit.logstore.exceptions]
+        [balabit.logstore.codec.verify]
         [balabit.logstore.codec.common]
         [balabit.logstore.codec.chunk]
         [balabit.logstore.codec.timestamp]))
@@ -61,7 +63,24 @@
                                                           :crypt [:prefixed :string :uint32]]],
                                           :file-mac [:prefixed :slice :uint32],
                                           :der [:prefixed :slice :uint32]]]])
+   (verify-frame :logstore/file.header)
    (dissoc :magic :length :flags :last)))
+
+;; To be able to return meaningful exceptions on error, the header
+;; needs to be verified. This means that the file magic needs to be
+;; correct, and no flags are to be set.
+(defmethod verify-frame :logstore/file.header
+  [file-header type]
+
+  (-> file-header
+      (assert-format {:source type
+                      :message "Invalid magic"}
+                     (or (= (:magic file-header) "LST4")
+                         (= (:magic file-header) "LST3")))
+
+      (assert-format {:source type
+                      :message "Invalid flags"}
+                     (zero? (:flags file-header)))))
 
 ;; ### Anatomy of a LogStore record
 ;;

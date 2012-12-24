@@ -10,6 +10,8 @@
            (java.io ByteArrayOutputStream FileInputStream InputStream OutputStream))
   (:use [balabit.blobbity]
         [balabit.logstore.utils]
+        [balabit.logstore.exceptions]
+        [balabit.logstore.codec.verify]
         [balabit.logstore.codec.chunk.serialization])
   (:require [balabit.logstore.codec.chunk.sweet :as chunk]))
 

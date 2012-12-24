@@ -7,6 +7,8 @@
 
   (:import (java.nio ByteBuffer))
   (:use [balabit.blobbity]
+        [balabit.logstore.exceptions]
+        [balabit.logstore.codec.verify]
         [balabit.logstore.utils]))
 
 ;; ### The common record header
@@ -44,4 +46,28 @@
                  (partial resolve-flags [:compressed
                                          :encrypted
                                          :broken
-                                         :serialized]))))
+                                         :serialized]))
+
+      (verify-frame :logstore/record.common-header)))
+
+;; There are only a few things we can verify about the header common
+;; to all record types: that the type makes sense, and that the flags
+;; are only set for `:chunk` records, and `:broken` is never set.
+(defmethod verify-frame :logstore/record.common-header
+  [common-rec-header type]
+
+  (-> common-rec-header
+      (assert-format {:source type
+                      :message "Invalid record header"}
+                     (some #{(:type common-rec-header)}
+                           [:chunk :timestamp]))
+
+      (assert-format {:source type
+                      :message "Broken record"}
+                     (nil? (some #{:broken} (:flags common-rec-header))))
+
+      (assert-format {:source type
+                      :message "Flags set for non-chunk record"}
+
+                     (or (= (:type common-rec-header) :chunk)
+                         (empty? (:flags common-rec-header))))))

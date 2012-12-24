@@ -6,7 +6,9 @@
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
   (:import (java.nio ByteBuffer))
-  (:use [balabit.blobbity]))
+  (:use [balabit.blobbity]
+        [balabit.logstore.exceptions]
+        [balabit.logstore.codec.verify]))
 
 ;; ### Timestamp records
 ;;
