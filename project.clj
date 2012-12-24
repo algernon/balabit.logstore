@@ -18,13 +18,14 @@
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [robert/hooke "1.3.0"]
                  [me.raynes/conch "0.4.0"]]
-  :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}}
+  :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/java"]
   :aot [balabit.logstore.java
         balabit.logstore.exceptions]
   :prep-tasks ["compile"]
-  :aliases {"with-all-profiles" ["with-profile" "dev"],
+  :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.5"],
             "lgstool" ["run" "--"]
             "build-docs" ["with-profile" "dev" "marg"
                           "src/clj/balabit/logstore.clj"
