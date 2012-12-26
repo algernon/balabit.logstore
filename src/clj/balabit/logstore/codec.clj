@@ -13,7 +13,8 @@
         [balabit.logstore.codec.verify]
         [balabit.logstore.codec.common]
         [balabit.logstore.codec.chunk]
-        [balabit.logstore.codec.timestamp]))
+        [balabit.logstore.codec.timestamp]
+        [balabit.logstore.codec.xfrm-info]))
 
 ;; On the top level, a LogStore file consists of a file header,
 ;; followed by a number of records (where records can be of varying

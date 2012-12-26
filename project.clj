@@ -34,6 +34,7 @@
                           "src/clj/balabit/logstore/codec/verify.clj"
                           "src/clj/balabit/logstore/codec/common.clj"
                           "src/clj/balabit/logstore/codec/timestamp.clj"
+                          "src/clj/balabit/logstore/codec/xfrm_info.clj"
                           "src/clj/balabit/logstore/codec/chunk.clj"
                           "src/clj/balabit/logstore/codec/chunk/serialization.clj"
                           "src/clj/balabit/logstore/codec/chunk/sweet.clj"

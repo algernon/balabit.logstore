@@ -62,8 +62,8 @@
 ;; library, there is a small set of unimplemented features, that
 ;; sooner or later, will find its sway into the library.
 ;;
-;; * Encrypted logstores are not supported at all yet: the library
-;;   will probably barf and throw exceptions when encountering one.
+;; * Encrypted logstores are only partially supported: extracted, but
+;;   no transparent decryption happens.
 ;; * Timestamps are extracted only as a binary blob, the timestamp
 ;;   part itself is not parsed yet.
 ;; * File and chunk hashes are extracted as binary data only, they are

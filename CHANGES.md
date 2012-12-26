@@ -34,6 +34,15 @@ The library now does some data verification during parsing, and throws
 more useful exceptions when a parsing error happens. Though this is
 still a work in progress, it already is useful.
 
+### XFRM info records are now partially supported
+
+The third type of records - xfrm info ones - are now partially
+supported: the library recognises them, and extracts the encrypted
+master key as-is. It does not do anything more than that, though.
+
+Nevertheless, this allows the library to fully parse even an encrypted
+LogStore, without throwing exceptions.
+
 ## Bugfixes
 
 - Some of the CLI search predicates weren't handling the non-matching
