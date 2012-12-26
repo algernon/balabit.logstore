@@ -176,7 +176,7 @@
 (defn help
   "Display a help overview."
 
-  [& args]
+  [& _]
 
   (println "Usage: lgstool <command> [options] <filename>\n")
   (println "Available commands:")
