@@ -39,6 +39,9 @@ still a work in progress, it already is useful.
 - Some of the CLI search predicates weren't handling the non-matching
   cases correctly, this has been corrected.
 
+- Timestamp records are now parsed properly, instead of only working
+  by accident.
+
 # balabit.logstore 0.1.0 (2012-12-15)
 
 ## Breaking changes

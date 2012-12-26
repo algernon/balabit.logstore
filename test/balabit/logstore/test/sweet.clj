@@ -93,7 +93,7 @@
           (is (= (count records)) 2)
           (is (= (:type (first records)) :chunk))
           (is (= (:flags (first records)) [:compressed :serialized :hash]))
-        
+
           (is (= (:type (last records)) :timestamp))))
 
       (testing "messages"
@@ -114,4 +114,9 @@
                 :severity :notice
                 :facility :user}))
         (is (= (-> (logstore/messages store) first :meta :socket :family) :inet4))
-        (is (= (-> (logstore/messages store) first :meta :socket :port) 26345))))))
+        (is (= (-> (logstore/messages store) first :meta :socket :port) 26345)))
+
+      (testing "timestamp"
+        (let [records (:records meta-data)]
+          (is (= (:chunk-id (last records) 0)))
+          (is (= (.limit (:timestamp (last records))) 2492)))))))

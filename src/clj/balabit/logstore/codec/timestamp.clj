@@ -15,12 +15,17 @@
 ;; Timestamp records are used to apply cryptographically secure
 ;; timestamps to previous records within a LogStore.
 ;;
-;; Right now, the library does not process these further than
-;; extracting them as binary data.
+;; Each timestamp is against a given chunk, and the chunk id the
+;; timestamp is for is stored as a 32-bit integer at the beginning of
+;; the timestamp.
+;;
+;; Right now, the library does not process these records further than
+;; extracting the chunk-id, and the timestamp itself as binary data.
 ;;
 (defmethod decode-frame :logstore/record.timestamp
   [#^ByteBuffer buffer _ header]
 
-  (let [timestamp (decode-frame buffer :prefixed :slice :uint32)]
-    (decode-frame buffer :skip (.capacity timestamp))
-    (assoc header :timestamp timestamp)))
+  (let [timestamp (decode-blob buffer [:chunk-id :uint32
+                                       :timestamp [:prefixed :slice :uint32]])]
+    (decode-frame buffer :skip (- 4096 (.limit (:timestamp timestamp)) 14))
+    (merge header timestamp)))
