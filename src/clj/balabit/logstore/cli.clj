@@ -75,7 +75,7 @@
   [preds]
 
   (fn [msg]
-    (not (some nil? (map #((eval (read-string %)) msg) preds)))))
+    (not-any? nil? (map #((eval (read-string %)) msg) preds))))
 
 (defn search
   "Display messages matching a predicate. The predicate can be any
