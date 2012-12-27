@@ -6,7 +6,7 @@
 (defn- with-pruned-records
   [store]
 
-  (assoc store :records (map #(dissoc % :messages :macs) (:records store))))
+  (assoc store :records (map #(dissoc % :messages) (:records store))))
 
 (deftest uncompressed-unserialized-unencrypted-store
   (testing "Uncompressed, unserialized, unencrypted logstore;"
@@ -18,8 +18,15 @@
                                      :start-time (DateTime. "2012-01-13T17:09:55.630+01:00"),
                                      :chunk-id 0,
                                      :msg-limits {:first-id 1, :last-id 1810},
+                                     :macs {:chunk-hmac "a0501e2279d6232be208420ca62dd0fcdab69d56"
+                                            :file-mac "c49ef740fd3a31c61b6a8ebb0d158cf1f924b8a5"}
                                      :type :chunk
                                      :flags [:hash]})})))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (last) :macs :file-mac))))
+      
       (testing "message availability"
         (is (= (count (logstore/messages store)) 1810))))))
 
@@ -33,8 +40,14 @@
                                      :start-time (DateTime. "2012-01-13T13:43:37.812+01:00")
                                      :chunk-id 0
                                      :msg-limits {:first-id 1, :last-id 4}
+                                     :macs {:chunk-hmac "466a2d486513ceb282341be100b8f0f90a39800b"
+                                            :file-mac "cf49d66468040421b043774c1fe0875d0589c9fb"}
                                      :type :chunk
                                      :flags [:compressed :hash]})})))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (last) :macs :file-mac))))
 
       (testing "messages"
         (is (= (logstore/messages store)
@@ -54,7 +67,11 @@
       (testing "messages"
         (is (= (count (logstore/messages store)) 34212))
         (is (= (last (logstore/messages store))
-               {:MESSAGE "Jan 11 11:03:39 localhost prg00000[1234]: seq: 0000034211, thread: 0000, runid: 1326276209, stamp: 2012-01-11T11:03:39 PADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADD\n"}))))))
+               {:MESSAGE "Jan 11 11:03:39 localhost prg00000[1234]: seq: 0000034211, thread: 0000, runid: 1326276209, stamp: 2012-01-11T11:03:39 PADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADDPADD\n"})))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (last) :macs :file-mac)))))))
 
 (deftest serialized-uncompressed-unencrypted-store
   (testing "Uncompressed, serialized, unencrypted store;"
@@ -81,7 +98,11 @@
                  {:tags [:s_tcp :.source.s_net]
                   :severity :notice
                   :facility :user
-                  :rcptid 0N})))))))
+                  :rcptid 0N}))))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (last) :macs :file-mac)))))))
 
 (deftest timestamped-compressed-serialized-unencrypted-store
   (testing "Timestamped, compressed, serialized, unencrypted store;"
@@ -119,4 +140,8 @@
       (testing "timestamp"
         (let [records (:records meta-data)]
           (is (= (:chunk-id (last records) 0)))
-          (is (= (.limit (:timestamp (last records))) 2492)))))))
+          (is (= (.limit (:timestamp (last records))) 2492))))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (first) :macs :file-mac)))))))

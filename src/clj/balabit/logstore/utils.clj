@@ -94,6 +94,16 @@
     (.get addr buffer 0 (.limit addr))
     (InetAddress/getByAddress buffer)))
 
+(defn array->hex
+  "Convert a byte array to its hexadecimal representation, and return
+  that as a string."
+
+  [data-bytes]
+
+  (apply str (map 
+              #(.substring  (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1) 
+              data-bytes)))
+
 ;; List of known syslog facilities.
 (def facility-map
   [:kern

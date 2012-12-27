@@ -45,9 +45,7 @@
 ;; The rest of the file header is about encryption and hashing: we
 ;; have two strings describing the crypto hash and encrypt methods
 ;; (both strings are prefixed by a 32-bit length). Following these, we
-;; have the MAC of the file, and a DER. These are not processed by the
-;; library at this point, but they're part of the LogStore map,
-;; extracted from the buffer as-is.
+;; have the MAC of the file, and a DER.
 ;;
 (defmethod decode-frame :logstore/file.header
   [#^ByteBuffer buffer _]
@@ -62,7 +60,7 @@
                         :skip 108,
                         :crypto [:struct [:algo [:struct [:hash [:prefixed :string :uint32],
                                                           :crypt [:prefixed :string :uint32]]],
-                                          :file-mac [:prefixed :slice :uint32],
+                                          :file-mac :logstore/common.mac,
                                           :der [:prefixed :slice :uint32]]]])
    (verify-frame :logstore/file.header)
    (dissoc :magic :length :flags :last)))

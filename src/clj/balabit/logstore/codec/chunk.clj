@@ -11,6 +11,7 @@
   (:use [balabit.blobbity]
         [balabit.logstore.utils]
         [balabit.logstore.exceptions]
+        [balabit.logstore.codec.common]
         [balabit.logstore.codec.verify]
         [balabit.logstore.codec.chunk.serialization])
   (:require [balabit.logstore.codec.chunk.sweet :as chunk]))
@@ -86,16 +87,13 @@
 ;; followed by two checksums: one for the whole file so far, and
 ;; another for this chunk only. Both are prefixed by a 32-bit length.
 ;;
-;; The library does not do anything with these checksums, merely
-;; extracts them as-is.
-;;
 (defmethod decode-frame :logstore/record.chunk-tail
   [#^ByteBuffer buffer _]
 
   (->
    (decode-blob buffer [:flags :uint32,
-                        :macs [:struct [:file-mac [:prefixed :slice :uint32],
-                                        :chunk-hmac [:prefixed :slice :uint32]]]])
+                        :macs [:struct [:file-mac :logstore/common.mac
+                                        :chunk-hmac :logstore/common.mac]]])
 
    (update-in [:flags] (partial resolve-flags [:hmac :hash]))))
 

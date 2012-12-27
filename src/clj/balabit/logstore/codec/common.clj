@@ -71,3 +71,19 @@
 
                      (or (= (:type common-rec-header) :chunk)
                          (empty? (:flags common-rec-header))))))
+
+;; ### Other generic things
+;;
+;; LogStore files contain checksums in various places (the file
+;; header, and chunk record tails), which follow a generic format: a
+;; 32-bit length, and then the checksum bytes.
+;;
+;; For the sake of human readability, these are converted to
+;; hex-encoded strings.
+(defmethod decode-frame :logstore/common.mac
+  [#^ByteBuffer buffer _]
+
+  (let [mac (decode-frame buffer :prefixed :slice :uint32)
+        buffer (byte-array (.limit mac))]
+    (.get mac buffer)
+    (array->hex buffer)))

@@ -28,6 +28,12 @@ matching on different fields than `:MESSAGE`, and an alias for the
 makes the new syntax look like this: `lgstool search messages.store
 '(?= :SOURCE #".*net.*")'`.
 
+### File and chunk checksums are parsed and converted to string
+
+The various checksums within LogStore files (the file MAC and chunk
+HMACs in particular) are now converted to a hexadecimal string
+representation, instead of being returned as-is as byte buffers.
+
 ### Beginnings of data verification
 
 The library now does some data verification during parsing, and throws
