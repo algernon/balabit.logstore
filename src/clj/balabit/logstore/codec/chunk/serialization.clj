@@ -39,9 +39,9 @@
 ;;
 ;; It starts with a [:header][chunk/sr-msghdr], followed by a
 ;; [:socket-address][chunk/sr-sockaddr], two
-;; [timestamps][chunk/sr-timestamp] (`:stamp` and `:recv-stamp`, which
-;; are the timestamps of the message itself, and the timestamp of its
-;; receipt, respectively).
+;; [timestamps][chunk/sr-timestamp] (`:TIMESTAMP` and
+;; `:RECV_TIMESTAMP`, which are the timestamps of the message itself,
+;; and the timestamp of its receipt, respectively).
 ;;
 ;; After the timestamps, we have the [:tags][chunk/sr-tags], followed
 ;; by the [name-value pairs][chunk/nvtable].
@@ -55,9 +55,9 @@
 ;; and `:flags` are removed.
 ;;
 ;; The returned map therefore contains a combination of data extracted
-;; from the header (including the `:priority` and `:facility` of the
-;; message), timestamps, `:tags` assembled inside a `:meta` map, along
-;; with the deserialized name-value pairs.
+;; from the header (including the `:SEVERITY` and `:FACILITY` of the
+;; message), timestamps, `:TAGS` merged with the deserialized
+;; name-value pairs.
 ;;
 ;; [chunk/sr-msghdr]: #chunk/sr-msghdr
 ;; [chunk/sr-sockaddr]: #chunk/sr-sockaddr
