@@ -60,7 +60,7 @@
       (assert-format {:source type
                       :message "Invalid record header"}
                      (some #{(:type common-rec-header)}
-                           [:chunk :timestamp]))
+                           [:chunk :timestamp :xfrm-info]))
 
       (assert-format {:source type
                       :message "Broken record"}
