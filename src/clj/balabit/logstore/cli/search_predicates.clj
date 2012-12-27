@@ -6,6 +6,7 @@
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
+  (:import (org.joda.time DateTime))
   (:use [balabit.logstore.utils]))
 
 ;; All of the functions here are syntatic sugar, to be used with the
@@ -72,3 +73,39 @@
 ;; can't have =~ due to ~ being a special form of unquote, use ?= as
 ;; an alias for re-match.
 (def ?= re-match)
+
+;; ### Date-related predicates
+
+(defn date
+  "Matches messages where a specified field (or :TIMESTAMP) has a
+  given relationship (:before, :on or :after) with the specified
+  date (which must be a string)."
+
+  ([rel field date-spec]
+     (let [p-date (DateTime/parse date-spec)]
+       (fn [msg]
+         (when (= (.compareTo (field msg) p-date) (rel {:before -1, :on 0, :after 1}))
+           true))))
+
+  ([rel date-spec] (date rel :TIMESTAMP date-spec)))
+
+(defn before
+  "Matches messages that have a timestamp prior to the given date."
+
+  [& args]
+
+  (apply date :before args))
+
+(defn on
+  "Matches messages that have the exact timestamp that was given."
+
+  [& args]
+
+  (apply date :on args))
+
+(defn after
+  "Matches messages that have a timestamp past the given date."
+
+  [& args]
+
+  (apply date :after args))

@@ -34,6 +34,14 @@ matching on different fields than `:MESSAGE`, and an alias for the
 makes the new syntax look like this: `lgstool search messages.store
 '(?= :SOURCE #".*net.*")'`.
 
+### Support date-based searching in the CLI search tool
+
+The CLI search tool (`logstore search`) gained the ability to filter
+messages based on their timestamps (if any). It can match messages
+either before, exactly on, or after a given timestamp.
+
+Usage: `lgstool search messages.store '(after "2012-12-27")'`
+
 ### File and chunk checksums are parsed and converted to string
 
 The various checksums within LogStore files (the file MAC and chunk
