@@ -25,3 +25,8 @@
 ;; of a parsing error.
 (gen-class :name BalaBit.LogStore.LGSFormatException
            :extends java.lang.Exception)
+
+;; The LGSChecksumException exception shall be thrown from Java, in
+;; case of a checksum mismatch.
+(gen-class :name BalaBit.LogStore.LGSChecksumException
+           :extends java.lang.Exception)

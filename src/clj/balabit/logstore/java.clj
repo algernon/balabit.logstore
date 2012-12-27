@@ -8,7 +8,8 @@
 
   (:import (java.nio ByteBuffer)
            (java.util Map)
-           (BalaBit.LogStore LGSFormatException))
+           (BalaBit.LogStore LGSFormatException)
+           (BalaBit.LogStore LGSChecksumException))
   (:use [balabit.logstore.sweet]
         [balabit.logstore.codec]
         [slingshot.slingshot :only [try+]]))
@@ -176,7 +177,15 @@
 
    (catch [:type :logstore/format-error] {:keys [message source assertion]}
      (throw (LGSFormatException. (str message "; source=" source
-                                      "; assertion=" assertion))))))
+                                      "; assertion=" assertion))))
+
+
+   (catch [:type :logstore/checksum-mismatch] {:keys [message source assertion
+                                                      chunk-hmac expected-hmac]}
+     (throw (LGSChecksumException. (str message "; source=" source
+                                        "; assertion=" assertion
+                                        "; chunk-hmac=" chunk-hmac
+                                        "; expected-hmac=" expected-hmac))))))
 
 (defn lgs-messages
   "Return all the messages present in the LogStore object."

@@ -13,8 +13,10 @@
         [balabit.logstore.exceptions]
         [balabit.logstore.codec.common]
         [balabit.logstore.codec.verify]
-        [balabit.logstore.codec.chunk.serialization])
-  (:require [balabit.logstore.codec.chunk.sweet :as chunk]))
+        [balabit.logstore.codec.chunk.serialization]
+        [slingshot.slingshot :only [throw+]])
+  (:require [balabit.logstore.codec.chunk.sweet :as chunk]
+            [balabit.logstore.crypto :as crypto]))
 
 ;; ### Chunks, the bread and butter of a LogStore
 ;;
@@ -37,14 +39,36 @@
   [#^ByteBuffer buffer _ header]
 
   (let [chunk-head (merge header (decode-frame buffer :logstore/record.chunk-head))
-        messages (decode-frame buffer :logstore/record.chunk-messages chunk-head)
-        chunk-tail (decode-frame buffer :logstore/record.chunk-tail)]
+        body (decode-frame buffer :logstore/record.chunk-body chunk-head)
+        chunk-tail (decode-frame buffer :logstore/record.chunk-tail)
+        messages (-> body
+                     (verify-frame :logstore/record.chunk chunk-tail)
+                     (decode-frame :logstore/record.chunk-messages chunk-head))]
     (->
      chunk-head
 
      (assoc :messages messages)
      (merge chunk-tail)
      (update-in [:flags] (partial apply conj (:flags chunk-head))))))
+
+;; To make sure our LogStore is intact, chunk HMACs are verified by
+;; computing the digest of the uncompressed body, and comparing it
+;; against the expected HMAC.
+;;
+;; If they match, the original buffer is returned, otherwise an
+;; exception is raised.
+(defmethod verify-frame :logstore/record.chunk
+  [chunk-data _ tail]
+
+  (let [chunk-hmac (array->hex (crypto/digest :sha1 (.position chunk-data 0)))
+        expected-hmac (-> tail :macs :chunk-hmac)]
+    (when-not (= chunk-hmac expected-hmac)
+      (throw+ {:type :logstore/checksum-mismatch
+               :assertion '(= chunk-hmac expected-hmac)
+               :message "Actual chunk hmac does not match the expected one"
+               :chunk-hmac chunk-hmac
+               :expected-hmac expected-hmac})))
+  (.position chunk-data 0))
 
 ;; ### <a name="lgs/chunk-head">The chunk header</a>
 ;;
@@ -129,23 +153,22 @@
     (decode-blob-array data :chunk/message.serialized)
     (decode-blob-array data :chunk/message.unserialized)))
 
-(defn chunk-decode
-  "Given the chunk header, the data-size and the data itself, decode
-  it. This is simply an composition of `chunk-data-decompress` and
-  `chunk-data-deserialize`."
-
-  [header data-size data]
-
-  (-> data
-      (chunk-data-decompress data-size header)
-      (chunk-data-deserialize header)))
-
 ;; Armed with these helper functions, we can now decode the messages
 ;; in a chunk! We know its size: it is the offset of the tail, minus
 ;; the size of the full header.
 ;;
-;; What we do here, is we extract the messages part of the input
-;; buffer, and run it through `chunk-decode`.
+;; We can now transparently decompress the chunk body! We need to do
+;; this separately from deserialization, because the digest is
+;; computed against the uncompressed, but serialized body.
+;;
+(defmethod decode-frame :logstore/record.chunk-body
+  [#^ByteBuffer buffer _ header]
+
+  (let [size (- (-> header :offsets :tail) 54)]
+    (chunk-data-decompress (decode-frame buffer :slice size)
+                           size header)))
+
+;; With the decompressed data available, we can deserialize it too.
 ;;
 ;; To understand how deserialization works, please see
 ;; [balabit.logstore.codec.chunk.serialization][serialization]!
@@ -155,5 +178,4 @@
 (defmethod decode-frame :logstore/record.chunk-messages
   [#^ByteBuffer buffer _ header]
 
-  (let [size (- (-> header :offsets :tail) 54)]
-    (chunk-decode header size (decode-frame buffer :slice size))))
+  (chunk-data-deserialize buffer header))

@@ -78,7 +78,7 @@
 
         facility (quot (:priority hdr) 8)
         severity (rem (:priority hdr) 8)]
-    (.position buffer (.limit buffer))
+
     (let [meta-data (-> hdr
                         (update-in [:socket] (partial merge sockaddr))
                         (update-in [:socket :family] (partial get {2 :inet4, 10 :inet6}))

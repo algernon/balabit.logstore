@@ -39,6 +39,7 @@
                           "src/clj/balabit/logstore/codec/chunk/serialization.clj"
                           "src/clj/balabit/logstore/codec/chunk/sweet.clj"
                           "src/clj/balabit/logstore/utils.clj"
+                          "src/clj/balabit/logstore/crypto.clj"
                           "src/clj/balabit/logstore/exceptions.clj"
                           "src/clj/balabit/logstore/cli.clj"
                           "src/clj/balabit/logstore/cli/search_predicates.clj"
