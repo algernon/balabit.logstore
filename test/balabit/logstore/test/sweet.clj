@@ -29,7 +29,7 @@
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)
                (-> store :records (last) :macs :file-mac))))
-      
+
       (testing "message availability"
         (is (= (count (logstore/messages store)) 1810))))))
 
@@ -147,6 +147,21 @@
         (let [records (:records meta-data)]
           (is (= (:chunk-id (last records) 0)))
           (is (= (.limit (:timestamp (last records))) 2492))))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (first) :macs :file-mac)))))))
+
+(deftest sha256-store
+  (testing "LogStore with custom (SHA256) digest algorithm"
+    (let [store (logstore/from-file "resources/logstores/sha256.store")
+          meta-data (dissoc store :records)]
+
+      (testing "meta-data"
+        (is (= meta-data
+               {:crypto {:file-mac
+                         "7e1493fc90f4bfe0337fa6c19668d7e4b51d358ea92052f74a1f73cf6926f8ed",
+                         :algo {:crypt "AES-256-CBC", :hash "SHA256"}}})))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)

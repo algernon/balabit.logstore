@@ -9,6 +9,20 @@
   (:import (java.nio ByteBuffer)
            (java.security MessageDigest)))
 
+(defn- find-algo
+  "Translate a given algorithm from OpenSSL/LogStore nomenclature to
+  java.security.MessageDigest scheme.
+
+  Takes a keyword, returns a string."
+
+  [algo]
+
+  (let [a (name algo)]
+    (if (and (.startsWith a "SHA")
+             (not (.startsWith a "SHA-")))
+      (str "SHA-" (subs a 3))
+      a)))
+
 (defn digest
   "Return the message digest of a ByteBuffer-worth of data, using the
   specified digest algorithm."
@@ -17,4 +31,4 @@
 
   (let [buffer (byte-array (.limit data))]
     (.get data buffer)
-    (.digest (MessageDigest/getInstance (name algo)) buffer )))
+    (.digest (MessageDigest/getInstance (find-algo algo)) buffer )))
