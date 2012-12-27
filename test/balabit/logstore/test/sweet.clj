@@ -11,7 +11,7 @@
 (deftest uncompressed-unserialized-unencrypted-store
   (testing "Uncompressed, unserialized, unencrypted logstore;"
     (let [store (logstore/from-file "resources/logstores/abc.uncompressed.store")
-          meta-data (with-pruned-records (dissoc store :crypto))]
+          meta-data (with-pruned-records store)]
       (testing "meta-data"
         (is (= meta-data {:records (list
                                     {:end-time (DateTime. "2012-01-13T17:10:03.531+01:00"),
@@ -21,7 +21,10 @@
                                      :macs {:chunk-hmac "a0501e2279d6232be208420ca62dd0fcdab69d56"
                                             :file-mac "c49ef740fd3a31c61b6a8ebb0d158cf1f924b8a5"}
                                      :type :chunk
-                                     :flags [:hash]})})))
+                                     :flags [:hash]})
+                          :crypto {:file-mac "c49ef740fd3a31c61b6a8ebb0d158cf1f924b8a5"
+                                   :algo {:crypt "AES-128-CBC"
+                                          :hash "SHA1"}}})))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)
@@ -33,7 +36,7 @@
 (deftest short-compressed-unserialized-unencrypted-store
   (testing "Compressed, unserialized, unencrypted logstore, with hand-made data;"
     (let [store (logstore/from-file "resources/logstores/short.compressed.store")
-          meta-data (with-pruned-records (dissoc store :crypto))]
+          meta-data (with-pruned-records store)]
       (testing "meta-data"
         (is (= meta-data {:records (list
                                     {:end-time (DateTime. "2012-01-13T13:43:58.987+01:00")
@@ -43,7 +46,10 @@
                                      :macs {:chunk-hmac "466a2d486513ceb282341be100b8f0f90a39800b"
                                             :file-mac "cf49d66468040421b043774c1fe0875d0589c9fb"}
                                      :type :chunk
-                                     :flags [:compressed :hash]})})))
+                                     :flags [:compressed :hash]})
+                          :crypto {:file-mac "cf49d66468040421b043774c1fe0875d0589c9fb"
+                                   :algo {:crypt "AES-128-CBC"
+                                          :hash "SHA1"}}})))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)
@@ -59,7 +65,7 @@
 (deftest long-compressed-unserialized-unencrypted-store
   (testing "Compressed, unserialized, unencrypted logstore, with multiple chunks;"
     (let [store (logstore/from-file "resources/logstores/loggen.compressed.store")
-          meta-data (with-pruned-records (dissoc store :crypto))]
+          meta-data (with-pruned-records store)]
 
       (testing "meta-data"
         (is (= (count (:records store)) 9)))
@@ -76,7 +82,7 @@
 (deftest serialized-uncompressed-unencrypted-store
   (testing "Uncompressed, serialized, unencrypted store;"
     (let [store (logstore/from-file "resources/logstores/serialized.store")
-          meta-data (with-pruned-records (dissoc store :crypto))]
+          meta-data (with-pruned-records store)]
 
       (testing "meta-data"
         (let [records (:records meta-data)]
@@ -107,7 +113,7 @@
 (deftest timestamped-compressed-serialized-unencrypted-store
   (testing "Timestamped, compressed, serialized, unencrypted store;"
     (let [store (logstore/from-file "resources/logstores/timestamped.store")
-          meta-data (with-pruned-records (dissoc store :crypto))]
+          meta-data (with-pruned-records store)]
 
       (testing "meta-data"
         (let [records (:records meta-data)]
