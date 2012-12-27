@@ -23,7 +23,7 @@
 ;; extracting the chunk-id, and the timestamp itself as binary data.
 ;;
 (defmethod decode-frame :logstore/record.timestamp
-  [#^ByteBuffer buffer _ header]
+  [#^ByteBuffer buffer _ header & _]
 
   (let [timestamp (decode-blob buffer [:chunk-id :uint32
                                        :timestamp [:prefixed :slice :uint32]])]

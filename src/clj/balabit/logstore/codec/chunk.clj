@@ -36,13 +36,13 @@
 ;; [lgs/chunk-messages]: #lgs/chunk-messages
 ;;
 (defmethod decode-frame :logstore/record.chunk
-  [#^ByteBuffer buffer _ header]
+  [#^ByteBuffer buffer _ header file-header]
 
   (let [chunk-head (merge header (decode-frame buffer :logstore/record.chunk-head))
         body (decode-frame buffer :logstore/record.chunk-body chunk-head)
         chunk-tail (decode-frame buffer :logstore/record.chunk-tail)
         messages (-> body
-                     (verify-frame :logstore/record.chunk chunk-tail)
+                     (verify-frame :logstore/record.chunk file-header chunk-tail)
                      (decode-frame :logstore/record.chunk-messages chunk-head))]
     (->
      chunk-head
@@ -58,9 +58,10 @@
 ;; If they match, the original buffer is returned, otherwise an
 ;; exception is raised.
 (defmethod verify-frame :logstore/record.chunk
-  [chunk-data _ tail]
+  [chunk-data _ file-header tail]
 
-  (let [chunk-hmac (array->hex (crypto/digest :sha1 (.position chunk-data 0)))
+  (let [algo (-> file-header :crypto :algo :hash)
+        chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
         expected-hmac (-> tail :macs :chunk-hmac)]
     (when-not (= chunk-hmac expected-hmac)
       (throw+ {:type :logstore/checksum-mismatch

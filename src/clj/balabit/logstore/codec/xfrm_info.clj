@@ -21,7 +21,7 @@
 ;; [fhdr]: #balabit.logstore.codec
 ;;
 (defmethod decode-frame :logstore/record.xfrm-info
-  [#^ByteBuffer buffer _ header]
+  [#^ByteBuffer buffer _ header & _]
 
   (let [xfrm-info (decode-frame buffer :prefixed :slice :uint32)]
     (assoc header :xfrm-info xfrm-info)))
