@@ -28,7 +28,7 @@
 
   [tag]
 
-  (fn [msg] (some #{tag} (-> msg :meta :tags))))
+  (fn [msg] (some #{tag} (-> msg :TAGS))))
 
 (defn severity
   "Match only those messages that have the given severity, or -
@@ -38,7 +38,7 @@
   ([sev] (severity = sev))
   ([cmp sev] (fn [msg]
                (let [sev-map (zipmap (reverse severity-map) (range))]
-                 (when (cmp (get sev-map (-> msg :meta :severity))
+                 (when (cmp (get sev-map (-> msg :SEVERITY))
                             (get sev-map sev))
                    true)))))
 
@@ -46,7 +46,7 @@
   "Match only those messages that were sent using the specified
   facility."
 
-  [fac] (fn [msg] (when (= fac (-> msg :meta :facility))
+  [fac] (fn [msg] (when (= fac (-> msg :FACILITY))
                     true)))
 
 (defn ===

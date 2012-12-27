@@ -70,9 +70,9 @@
 
   (let [hdr (decode-frame buffer :chunk.serialized/message-header)
         sockaddr (decode-frame buffer :chunk.serialized/sockaddr
-                               (-> hdr :socket :family))
-        stamps (decode-blob buffer [:stamp :chunk.serialized/timestamp
-                                    :recv-stamp :chunk.serialized/timestamp])
+                               (-> hdr :SOCKET :family))
+        stamps (decode-blob buffer [:TIMESTAMP :chunk.serialized/timestamp
+                                    :RECV_TIMESTAMP :chunk.serialized/timestamp])
         tags (decode-frame buffer :chunk.serialized/tags)
         nvt (decode-frame buffer :chunk.serialized/nvtable)
 
@@ -80,17 +80,17 @@
         severity (rem (:priority hdr) 8)]
 
     (let [meta-data (-> hdr
-                        (update-in [:socket] (partial merge sockaddr))
-                        (update-in [:socket :family] (partial get {2 :inet4, 10 :inet6}))
-                        (update-in [:socket :address] resolve-address)
+                        (update-in [:SOCKET] (partial merge sockaddr))
+                        (update-in [:SOCKET :family] (partial get {2 :inet4, 10 :inet6}))
+                        (update-in [:SOCKET :address] resolve-address)
                         (merge stamps)
-                        (update-in [:stamp] resolve-timestamp)
-                        (update-in [:recv-stamp] resolve-timestamp)
+                        (update-in [:TIMESTAMP] resolve-timestamp)
+                        (update-in [:RECV_TIMESTAMP] resolve-timestamp)
                         (dissoc :length :version :priority :flags)
-                        (assoc :facility (facility-map facility)
-                               :severity (severity-map severity)
-                               :tags tags))]
-      (assoc nvt :meta meta-data))))
+                        (assoc :FACILITY (facility-map facility)
+                               :SEVERITY (severity-map severity)
+                               :TAGS tags))]
+      (merge meta-data nvt))))
 
 ;; #### <a name="chunk/sr-msghdr">The message header</a>
 ;;
@@ -119,9 +119,9 @@
                                     :version :byte])
         v22-fields [:flags :uint32
                     :priority :uint16
-                    :socket [:struct [:family :uint16]]]]
+                    :SOCKET [:struct [:family :uint16]]]]
     (if (= (:version header) 23)
-      (merge header (decode-blob buffer (concat [:rcptid :uint64] v22-fields)))
+      (merge header (decode-blob buffer (concat [:RCPTID :uint64] v22-fields)))
       (merge header (decode-blob buffer v22-fields)))))
 
 ;; #### <a name="chunk/sr-timestamp">Timestamps</a>

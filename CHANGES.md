@@ -18,6 +18,12 @@ information.
  [1]: http://algernon.github.com/balabit.logstore/#balabit.logstore.java
  [2]: https://github.com/algernon/balabit.logstore/blob/master/src/java/LGSCat.java
 
+### Message representation changed
+
+The `:meta` property of serialized messages is no more, those values
+are merged directly into the message map now, under similar (but
+uppercased) names.
+ 
 ## Significant changes
 
 ### Improved regexp matching in the CLI search tool

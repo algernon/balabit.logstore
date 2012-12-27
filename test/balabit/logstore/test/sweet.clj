@@ -92,19 +92,16 @@
 
       (testing "messages"
         (let [message (first (logstore/messages store))]
-          (is (= (dissoc message :meta)
+          (is (= (dissoc message :TIMESTAMP :RECV_TIMESTAMP :SOCKET)
                  {:MESSAGE "This is a test message."
                   :HOST "localhost"
                   :HOST_FROM "localhost"
                   :SOURCE "s_net"
-                  :random-thingy "this"}))
-
-          (is (= (dissoc (:meta message)
-                         :stamp :recv-stamp :socket)
-                 {:tags [:s_tcp :.source.s_net]
-                  :severity :notice
-                  :facility :user
-                  :rcptid 0N}))))
+                  :FACILITY :user
+                  :SEVERITY :notice
+                  :RCPTID 0N
+                  :TAGS [:s_tcp :.source.s_net]
+                  :random-thingy "this"}))))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)
@@ -124,7 +121,7 @@
           (is (= (:type (last records)) :timestamp))))
 
       (testing "messages"
-        (is (= (dissoc (first (logstore/messages store)) :meta)
+        (is (= (dissoc (first (logstore/messages store)) :TIMESTAMP :RECV_TIMESTAMP :SOCKET)
                {:HOST "10.20.0.26"
                 :HOST_FROM "10.20.0.26"
                 :LEGACY_MSGHDR "human[1]: "
@@ -133,15 +130,13 @@
                 :PID "1"
                 :SOURCE "s_s_cmpstamp"
                 :.SDATA.timeQuality.isSynced "0"
-                :.classifier.class "unknown"}))
+                :.classifier.class "unknown"
+                :TAGS [:.source.s_s_cmpstamp]
+                :SEVERITY :notice
+                :FACILITY :user}))
 
-        (is (= (dissoc (:meta (first (logstore/messages store)))
-                       :stamp :recv-stamp :socket)
-               {:tags [:.source.s_s_cmpstamp]
-                :severity :notice
-                :facility :user}))
-        (is (= (-> (logstore/messages store) first :meta :socket :family) :inet4))
-        (is (= (-> (logstore/messages store) first :meta :socket :port) 26345)))
+        (is (= (-> (logstore/messages store) first :SOCKET :family) :inet4))
+        (is (= (-> (logstore/messages store) first :SOCKET :port) 26345)))
 
       (testing "timestamp"
         (let [records (:records meta-data)]
