@@ -63,7 +63,9 @@
                                           :file-mac :logstore/common.mac,
                                           :der [:prefixed :slice :uint32]]]])
    (verify-frame :logstore/file.header)
-   (update-in [:crypto] #(when (zero? (.limit (:der %))) (dissoc % :der)))
+   (update-in [:crypto] #(if (zero? (.limit (:der %)))
+                           (dissoc % :der)
+                           %))
    (dissoc :magic :length :flags :last)))
 
 ;; To be able to return meaningful exceptions on error, the header
