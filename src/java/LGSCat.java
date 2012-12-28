@@ -21,8 +21,7 @@ public class LGSCat {
                 for (Object o: msg.entrySet()) {
                     Map.Entry<String, Object> e = (Map.Entry) o;
 
-                    if (e.getKey () == "MESSAGE" ||
-                        e.getKey () == "meta")
+                    if (e.getKey () == "MESSAGE")
                         continue;
 
                     System.out.println ("\t=> " + e.getKey() + ": " + e.getValue());
