@@ -129,8 +129,8 @@
                 :PROGRAM "human"
                 :PID "1"
                 :SOURCE "s_s_cmpstamp"
-                :.SDATA.timeQuality.isSynced "0"
-                :.classifier.class "unknown"
+                :_ {:SDATA {:timeQuality {:isSynced "0"}}
+                    :classifier {:class "unknown"}}
                 :TAGS [:.source.s_s_cmpstamp]
                 :SEVERITY :notice
                 :FACILITY :user}))
@@ -157,6 +157,11 @@
                {:crypto {:file-mac
                          "7e1493fc90f4bfe0337fa6c19668d7e4b51d358ea92052f74a1f73cf6926f8ed",
                          :algo {:crypt "AES-256-CBC", :hash "SHA256"}}})))
+
+      (testing "key name expansion"
+        (is (= (:_ (first (logstore/messages store)))
+               {:SDATA {:timeQuality {:tzKnown "0"
+                                      :isSynced "0"}}})))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)

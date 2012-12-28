@@ -23,6 +23,17 @@ information.
 The `:meta` property of serialized messages is no more, those values
 are merged directly into the message map now, under similar (but
 uppercased) names.
+
+### Key names in serialized messages are expanded
+
+syslog-ng (and therefore LogStore too) uses dot-notation to store
+hierarchical data structures in a flat representation. The library now
+expands the dot notation into proper structure, by reversing the dot
+notation. If any part of the hierarchy would be an empty string, it is
+replaced with an underscore.
+
+Therefore, `:.SDATA.timeQuality.isSynced` becomes `:_ {:SDATA
+{:timeQuality {:isSynced "..."}}}`.
  
 ## Significant changes
 

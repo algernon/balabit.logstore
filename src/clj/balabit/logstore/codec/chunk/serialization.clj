@@ -10,7 +10,8 @@
         [balabit.logstore.utils]
         [balabit.logstore.exceptions]
         [balabit.logstore.codec.verify]
-        [balabit.logstore.codec.common]))
+        [balabit.logstore.codec.common])
+  (:require [clojure.string :as s]))
 
 ;; ### Decoding messages
 ;;
@@ -327,8 +328,25 @@
   [#^ByteBuffer buffer _ offsets]
 
   (let [real-offsets (map #(bit-shift-left (bit-and % 0xffff) 2) offsets)]
-    (mapcat #(decode-frame buffer :nvpair/dynamic %)
-            real-offsets)))
+    (apply (partial deep-merge-with merge)
+           (map (partial apply hash-map)
+                (mapcat #(decode-frame buffer :nvpair/dynamic %)
+                        real-offsets)))))
+
+;; Unlike in the static case, dynamic name-value pairs can have key
+;; names which need deserializing too: it needs to be split up on
+;; dots, and any empty parts are to be replaced with an underscore, so
+;; that `.foo.bar` ends up as `{:_ {:foo {:bar "..."}}}`.
+;;
+;; To do this, a helper function is used.
+
+(defn- expand-name
+  "Split a key name on dots, and replace empty parts with an
+  underscore. Returns a list of components."
+
+  [n]
+
+  (map (fn [p] (if (empty? p) :_ (keyword p))) (s/split n #"\.")))
 
 ;; A dynamic property has a name, so all the caller needs to supply is
 ;; the offset to read the entry from. Similar to the case of static
@@ -336,13 +354,15 @@
 ;; fine, as every function that reads from the nvpair buffer does seek
 ;; to the appropriate place anyway.
 ;;
-;; Returns a map of a single key-value pair.
+;; Returns a map of a single name-value pair, where the key is the
+;; exploded name, arbitrarily deep.
+;;
 (defmethod decode-frame :nvpair/dynamic
   [#^ByteBuffer buffer _ offset]
 
   (.position buffer (- (.limit buffer) offset))
   (let [v (decode-frame buffer :nvtable/nventry)]
-    {(keyword (:name v)) (:value v)}))
+    (assoc-in {} (expand-name (:name v)) (:value v))))
 
 ;; <a name="nventry">Name-value entry pairs</a>
 ;;
