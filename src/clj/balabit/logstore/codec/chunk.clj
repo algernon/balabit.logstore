@@ -166,11 +166,9 @@
   "Given a chunk data, decrypt it. This is non-functional for the time
   being."
 
-  [data header file-header]
+  [data header _]
 
-  (if (chunk/encrypted? header)
-    nil ; Not supported yet
-    data))
+  (when-not (chunk/encrypted? header) data))
 
 ;; Armed with these helper functions, we can now decode the messages
 ;; in a chunk! We know its size: it is the offset of the tail, minus
