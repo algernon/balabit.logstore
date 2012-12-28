@@ -166,3 +166,33 @@
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)
                (-> store :records (first) :macs :file-mac)))))))
+
+(deftest encrypted-store
+  (testing "Encrypted LogStore"
+    (let [store (logstore/from-file "resources/logstores/encrypted.store")
+          meta-data (update-in (dissoc store :records) [:crypto] #(dissoc % :der))]
+
+      (testing "meta-data"
+        (is (= meta-data
+               {:crypto {:file-mac "ad11480f3193f21019bc40643f799cc3e7b1b3144092f666d2db4e7bd6aa16c5"
+                         :algo {:crypt "AES-256-CBC"
+                                :hash "SHA256"}} })))
+
+      (testing "xfrm-info"
+        (is (= :xfrm-info
+               (-> store :records (first) :type))))
+
+      (testing "chunk data"
+        (let [chunk (-> store :records (last) (dissoc :end-time
+                                                      :start-time))]
+
+          (is (= chunk {:chunk-id 0
+                        :msg-limits {:last-id 3, :first-id 1}
+                        :type :chunk
+                        :flags [:compressed :encrypted :serialized :hmac]
+                        :macs {:chunk-hmac "35caf23fc3144331333d1da0730b86e0b861b2adb47a6cbab5c5b182cf88d2cb"
+                               :file-mac "ad11480f3193f21019bc40643f799cc3e7b1b3144092f666d2db4e7bd6aa16c5"}}))))
+
+      (testing "checksums"
+        (is (= (-> store :crypto :file-mac)
+               (-> store :records (last) :macs :file-mac)))))))

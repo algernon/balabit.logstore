@@ -19,3 +19,9 @@
   [chunk]
 
   (flag-set? chunk :serialized))
+
+(defn encrypted?
+  "Given a chunk, chek if the :encrypted flag is set."
+  [chunk]
+
+  (flag-set? chunk :encrypted))

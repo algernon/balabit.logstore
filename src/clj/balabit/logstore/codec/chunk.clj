@@ -39,15 +39,19 @@
   [#^ByteBuffer buffer _ header file-header]
 
   (let [chunk-head (merge header (decode-frame buffer :logstore/record.chunk-head))
-        body (decode-frame buffer :logstore/record.chunk-body chunk-head)
+        body (decode-frame buffer :logstore/record.chunk-body chunk-head file-header)
         chunk-tail (decode-frame buffer :logstore/record.chunk-tail)
         messages (-> body
                      (verify-frame :logstore/record.chunk file-header chunk-tail)
-                     (decode-frame :logstore/record.chunk-messages chunk-head))]
+                     (decode-frame :logstore/record.chunk-messages chunk-head))
+        maybe-assoc (fn [coll key data]
+                      (if (empty? data)
+                        coll
+                        (assoc coll key data)))]
     (->
      chunk-head
 
-     (assoc :messages messages)
+     (maybe-assoc :messages messages)
      (merge chunk-tail)
      (update-in [:flags] (partial apply conj (:flags chunk-head))))))
 
@@ -60,16 +64,17 @@
 (defmethod verify-frame :logstore/record.chunk
   [chunk-data _ file-header tail]
 
-  (let [algo (-> file-header :crypto :algo :hash)
-        chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
-        expected-hmac (-> tail :macs :chunk-hmac)]
-    (when-not (= chunk-hmac expected-hmac)
-      (throw+ {:type :logstore/checksum-mismatch
-               :assertion '(= chunk-hmac expected-hmac)
-               :message "Actual chunk hmac does not match the expected one"
-               :chunk-hmac chunk-hmac
-               :expected-hmac expected-hmac})))
-  (.position chunk-data 0))
+  (when chunk-data
+    (let [algo (-> file-header :crypto :algo :hash)
+          chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
+          expected-hmac (-> tail :macs :chunk-hmac)]
+      (when-not (= chunk-hmac expected-hmac)
+        (throw+ {:type :logstore/checksum-mismatch
+                 :assertion '(= chunk-hmac expected-hmac)
+                 :message "Actual chunk hmac does not match the expected one"
+                 :chunk-hmac chunk-hmac
+                 :expected-hmac expected-hmac})))
+    (.position chunk-data 0)))
 
 ;; ### <a name="lgs/chunk-head">The chunk header</a>
 ;;
@@ -137,7 +142,8 @@
 
   [data data-size header]
 
-  (if (chunk/compressed? header)
+  (if (and data
+           (chunk/compressed? header))
     (let [buffer (ByteArrayOutputStream.)]
       (stream-copy (InflaterInputStream. (->InputStream data)
                                          (Inflater.) data-size) buffer)
@@ -150,9 +156,21 @@
 
   [data header]
 
-  (if (chunk/serialized? header)
-    (decode-blob-array data :chunk/message.serialized)
-    (decode-blob-array data :chunk/message.unserialized)))
+  (if data
+    (if (chunk/serialized? header)
+      (decode-blob-array data :chunk/message.serialized)
+      (decode-blob-array data :chunk/message.unserialized))
+    '()))
+
+(defn chunk-data-decrypt
+  "Given a chunk data, decrypt it. This is non-functional for the time
+  being."
+
+  [data header file-header]
+
+  (if (chunk/encrypted? header)
+    nil ; Not supported yet
+    data))
 
 ;; Armed with these helper functions, we can now decode the messages
 ;; in a chunk! We know its size: it is the offset of the tail, minus
@@ -163,11 +181,12 @@
 ;; computed against the uncompressed, but serialized body.
 ;;
 (defmethod decode-frame :logstore/record.chunk-body
-  [#^ByteBuffer buffer _ header]
+  [#^ByteBuffer buffer _ header file-header]
 
   (let [size (- (-> header :offsets :tail) 54)]
-    (chunk-data-decompress (decode-frame buffer :slice size)
-                           size header)))
+    (-> (decode-frame buffer :slice size)
+        (chunk-data-decrypt header file-header)
+        (chunk-data-decompress size header))))
 
 ;; With the decompressed data available, we can deserialize it too.
 ;;
