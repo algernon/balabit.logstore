@@ -1,7 +1,7 @@
 (ns balabit.logstore.codec.timestamp
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -23,9 +23,9 @@
 ;; extracting the chunk-id, and the timestamp itself as binary data.
 ;;
 (defmethod decode-frame :logstore/record.timestamp
-  [#^ByteBuffer buffer _ header & _]
+  [#^ByteBuffer buffer _ & {:keys [record-header]}]
 
   (let [timestamp (decode-blob buffer [:chunk-id :uint32
                                        :timestamp [:prefixed :slice :uint32]])]
     (decode-frame buffer :skip (- 4096 (.limit (:timestamp timestamp)) 14))
-    (merge header timestamp)))
+    (merge record-header timestamp)))

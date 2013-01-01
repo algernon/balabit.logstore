@@ -1,7 +1,7 @@
 (ns balabit.logstore.codec.xfrm-info
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -21,7 +21,7 @@
 ;; [fhdr]: #balabit.logstore.codec
 ;;
 (defmethod decode-frame :logstore/record.xfrm-info
-  [#^ByteBuffer buffer _ header & _]
+  [#^ByteBuffer buffer _ & {:keys [record-header]}]
 
   (let [xfrm-info (decode-frame buffer :prefixed :slice :uint32)]
-    (assoc header :xfrm-info xfrm-info)))
+    (assoc record-header :xfrm-info xfrm-info)))
