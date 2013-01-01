@@ -1,7 +1,7 @@
 (ns balabit.logstore.codec.chunk.serialization
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -71,7 +71,7 @@
 
   (let [hdr (decode-frame buffer :chunk.serialized/message-header)
         sockaddr (decode-frame buffer :chunk.serialized/sockaddr
-                               (-> hdr :SOCKET :family))
+                               :socket-family (-> hdr :SOCKET :family))
         stamps (decode-blob buffer [:TIMESTAMP :chunk.serialized/timestamp
                                     :RECV_TIMESTAMP :chunk.serialized/timestamp])
         tags (decode-frame buffer :chunk.serialized/tags)
@@ -146,15 +146,15 @@
 ;; address, if it is IPv6 (10), it uses 128. If the family is zero, or
 ;; any other unknown value, it returns nil.
 (defmethod decode-frame :chunk.serialized/sockaddr
-  [#^ByteBuffer buffer _ family]
+  [#^ByteBuffer buffer _ & {:keys [socket-family]}]
 
   (cond
-   (= family 2) (decode-blob buffer [:address [:slice 4]
-                                     :port :uint16])
+   (= socket-family 2) (decode-blob buffer [:address [:slice 4]
+                                            :port :uint16])
 
-   (= family 10) (decode-blob buffer [:address [:slice 16]
-                                      :port :uint16])
-   (zero? family) nil))
+   (= socket-family 10) (decode-blob buffer [:address [:slice 16]
+                                             :port :uint16])
+   (zero? socket-family) nil))
 
 ;; #### <a name="chunk/sr-tags">Tags</a>
 ;;
@@ -202,19 +202,22 @@
   [#^ByteBuffer buffer _]
 
   (let [nvt-header (decode-frame buffer :nvtable/header)
-        sdata (decode-frame buffer :nvtable/sdata (:num-sdata nvt-header))
+        sdata (decode-frame buffer :nvtable/sdata
+                            :num-sdata (:num-sdata nvt-header))
         payload-header (decode-frame buffer :nvtable/payload.header)
         static-offsets (decode-frame buffer :nvtable/payload.offsets.static
-                                     (:num-static-entries payload-header))
+                                     :num-static (:num-static-entries payload-header))
         dynamic-offsets (decode-frame buffer :nvtable/payload.offsets.dynamic
-                                      (:num-dyn-entries payload-header))
+                                      :num-dynamic (:num-dyn-entries payload-header))
 
         pairs (.order
                (decode-frame buffer :slice (bit-shift-left (:used payload-header) 2))
                java.nio.ByteOrder/LITTLE_ENDIAN)
 
-        static-pairs (decode-frame pairs :nvtable/payload.pairs.static static-offsets)
-        dyn-pairs (decode-frame pairs :nvtable/payload.pairs.dynamic dynamic-offsets)]
+        static-pairs (decode-frame pairs :nvtable/payload.pairs.static
+                                   :offsets static-offsets)
+        dyn-pairs (decode-frame pairs :nvtable/payload.pairs.dynamic
+                                :offsets dynamic-offsets)]
     (merge static-pairs dyn-pairs)))
 
 ;; <a name="nvt/header">The name-value table header</a>
@@ -236,7 +239,7 @@
 ;; Structured data offsets are stored as a list of 16-bit integers,
 ;; where each integer is an offset into the main table data.
 (defmethod decode-frame :nvtable/sdata
-  [#^ByteBuffer buffer _ num-sdata]
+  [#^ByteBuffer buffer _ & {:keys [num-sdata]}]
 
   ; FIXME: Need to resolve these too!
   (doall (take num-sdata (decode-blob-array buffer :uint16))))
@@ -273,7 +276,7 @@
 ;; Static properties have their offsets stored as 16-bit integers,
 ;; where each offset needs to be shifted left two bits.
 (defmethod decode-frame :nvtable/payload.offsets.static
-  [#^ByteBuffer buffer _ num-static]
+  [#^ByteBuffer buffer _ & {:keys [num-static]}]
 
   (doall (map #(bit-shift-left % 2)
               (take num-static (decode-blob-array buffer :uint16)))))
@@ -282,10 +285,12 @@
 ;; property, and zipmapping the results to the predefined
 ;; keys. Returns a map of key-value pairs.
 (defmethod decode-frame :nvtable/payload.pairs.static
-  [#^ByteBuffer buffer _ offsets]
+  [#^ByteBuffer buffer _ & {:keys [offsets]}]
 
   (into {} (mapcat (fn [[key offset]]
-         (decode-frame buffer :nvpair/static key offset))
+                     (decode-frame buffer :nvpair/static
+                                   :key key
+                                   :offset offset))
                    (zipmap [:HOST :HOST_FROM :MESSAGE :PROGRAM
                             :PID :MSGID :SOURCE :LEGACY_MSGHDR] offsets))))
 
@@ -301,7 +306,7 @@
 ;; The result will be a map of a single key-value pair, where the key
 ;; is caller-supplied.
 (defmethod decode-frame :nvpair/static
-  [#^ByteBuffer buffer _ key offset]
+  [#^ByteBuffer buffer _ & {:keys [key offset]}]
 
   (.position buffer (- (.limit buffer) offset))
   (when-not (zero? offset)
@@ -317,7 +322,7 @@
 ;; where the first 16 bits are the ID, the other 16 bits are the
 ;; offset. This function does not split them up, however.
 (defmethod decode-frame :nvtable/payload.offsets.dynamic
-  [#^ByteBuffer buffer _ num-dynamic]
+  [#^ByteBuffer buffer _ & {:keys [num-dynamic]}]
 
   (doall (take num-dynamic (decode-blob-array buffer :uint32))))
 
@@ -325,12 +330,13 @@
 ;; the offsets, and decoding the elements one by one. Returns a map of
 ;; key-value pairs.
 (defmethod decode-frame :nvtable/payload.pairs.dynamic
-  [#^ByteBuffer buffer _ offsets]
+  [#^ByteBuffer buffer _ & {:keys [offsets]}]
 
   (let [real-offsets (map #(bit-shift-left (bit-and % 0xffff) 2) offsets)]
     (apply (partial deep-merge-with merge)
            (map (partial apply hash-map)
-                (mapcat #(decode-frame buffer :nvpair/dynamic %)
+                (mapcat #(decode-frame buffer :nvpair/dynamic
+                                       :offset %)
                         real-offsets)))))
 
 ;; Unlike in the static case, dynamic name-value pairs can have key
@@ -358,7 +364,7 @@
 ;; exploded name, arbitrarily deep.
 ;;
 (defmethod decode-frame :nvpair/dynamic
-  [#^ByteBuffer buffer _ offset]
+  [#^ByteBuffer buffer _ & {:keys [offset]}]
 
   (.position buffer (- (.limit buffer) offset))
   (let [v (decode-frame buffer :nvtable/nventry)]
@@ -379,8 +385,10 @@
 
   (let [common-header (decode-frame buffer :nventry/common-header)]
     (if (bit-test (:indirect common-header) 1)
-      (decode-frame buffer :nventry/indirect common-header)
-      (decode-frame buffer :nventry/direct common-header))))
+      (decode-frame buffer :nventry/indirect
+                    :common-header common-header)
+      (decode-frame buffer :nventry/direct
+                    :common-header common-header))))
 
 ;; The header common to both direct and indirect entries consists of a
 ;; 8-bit flag, whose first bit signals whether the entry is indirect
@@ -402,7 +410,7 @@
 ;;
 ;; The function returns a map of a single key-value pair.
 (defmethod decode-frame :nventry/direct
-  [#^ByteBuffer buffer _ common-header]
+  [#^ByteBuffer buffer _ & {:keys [common-header]}]
 
   (let [header (assoc common-header
                  :value-len (decode-frame buffer :uint16))]
@@ -418,7 +426,7 @@
 ;; Based on this information, the decoding function can find the
 ;; referenced direct property, read and return it.
 (defmethod decode-frame :nventry/indirect
-  [#^ByteBuffer buffer _ common-header]
+  [#^ByteBuffer buffer _ & {:keys [common-header]}]
 
   (let [header (merge common-header
                       (decode-blob buffer [:handle :uint16
@@ -427,7 +435,8 @@
                                            :type :ubyte]))]
     (.position buffer (- (.limit buffer)
                          (bit-shift-left (:offset header) 2)))
-    (decode-frame buffer :nventry/direct common-header)))
+    (decode-frame buffer :nventry/direct
+                  :common-header common-header)))
 
 ;; On the lowest level, a name-value pair is a NULL-terminated string,
 ;; followed by a value. The caller must supply the length of both.

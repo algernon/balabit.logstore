@@ -2,7 +2,7 @@
   "## High level LogStore codec definitions"
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -119,7 +119,7 @@
 ;;
 ;; Any other type of tag will cause an exception.
 (defmethod decode-frame :logstore/record
-  [#^ByteBuffer buffer _ file-header]
+  [#^ByteBuffer buffer _ & {:keys [file-header]}]
 
   (let [record-header (decode-frame buffer :logstore/record.common-header)
         maybe-dissoc (fn [coll field]
@@ -129,7 +129,8 @@
     (-> record-header
         (merge (decode-frame buffer (keyword (str "logstore/record."
                                                   (name (:type record-header))))
-                             record-header file-header))
+                             :record-header record-header
+                             :file-header file-header))
         (dissoc :offsets :size)
         (maybe-dissoc :flags))))
 
@@ -145,4 +146,5 @@
 
   (let [file-header (decode-frame buffer :logstore/file.header)]
     (assoc file-header
-        :records (decode-blob-array buffer :logstore/record file-header))))
+      :records (decode-blob-array buffer :logstore/record
+                                  :file-header file-header))))

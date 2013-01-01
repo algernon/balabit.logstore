@@ -1,7 +1,7 @@
 (ns balabit.logstore.codec.chunk
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -36,24 +36,30 @@
 ;; [lgs/chunk-messages]: #lgs/chunk-messages
 ;;
 (defmethod decode-frame :logstore/record.chunk
-  [#^ByteBuffer buffer _ header file-header]
+  [#^ByteBuffer buffer _ & {:keys [record-header file-header]}]
 
-  (let [chunk-head (merge header (decode-frame buffer :logstore/record.chunk-head))
-        body (decode-frame buffer :logstore/record.chunk-body chunk-head file-header)
+  (let [chunk-header (merge record-header
+                            (decode-frame buffer :logstore/record.chunk-head))
+        body (decode-frame buffer :logstore/record.chunk-body
+                           :chunk-header chunk-header
+                           :file-header file-header)
         chunk-tail (decode-frame buffer :logstore/record.chunk-tail)
         messages (-> body
-                     (verify-frame :logstore/record.chunk file-header chunk-tail)
-                     (decode-frame :logstore/record.chunk-messages chunk-head))
+                     (verify-frame :logstore/record.chunk
+                                   :file-header file-header
+                                   :chunk-tail chunk-tail)
+                     (decode-frame :logstore/record.chunk-messages
+                                   :chunk-header chunk-header))
         maybe-assoc (fn [coll key data]
                       (if (empty? data)
                         coll
                         (assoc coll key data)))]
     (->
-     chunk-head
+     chunk-header
 
      (maybe-assoc :messages messages)
      (merge chunk-tail)
-     (update-in [:flags] (partial apply conj (:flags chunk-head))))))
+     (update-in [:flags] (partial apply conj (:flags chunk-header))))))
 
 ;; To make sure our LogStore is intact, chunk HMACs are verified by
 ;; computing the digest of the uncompressed body, and comparing it
@@ -62,12 +68,12 @@
 ;; If they match, the original buffer is returned, otherwise an
 ;; exception is raised.
 (defmethod verify-frame :logstore/record.chunk
-  [chunk-data _ file-header tail]
+  [chunk-data _ & {:keys [file-header chunk-tail]}]
 
   (when chunk-data
     (let [algo (-> file-header :crypto :algo :hash)
           chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
-          expected-hmac (-> tail :macs :chunk-hmac)]
+          expected-hmac (-> chunk-tail :macs :chunk-hmac)]
       (when-not (= chunk-hmac expected-hmac)
         (throw+ {:type :logstore/checksum-mismatch
                  :assertion '(= chunk-hmac expected-hmac)
@@ -179,12 +185,12 @@
 ;; computed against the uncompressed, but serialized body.
 ;;
 (defmethod decode-frame :logstore/record.chunk-body
-  [#^ByteBuffer buffer _ header file-header]
+  [#^ByteBuffer buffer _ & {:keys [chunk-header file-header]}]
 
-  (let [size (- (-> header :offsets :tail) 54)]
+  (let [size (- (-> chunk-header :offsets :tail) 54)]
     (-> (decode-frame buffer :slice size)
-        (chunk-data-decrypt header file-header)
-        (chunk-data-decompress size header))))
+        (chunk-data-decrypt chunk-header file-header)
+        (chunk-data-decompress size chunk-header))))
 
 ;; With the decompressed data available, we can deserialize it too.
 ;;
@@ -194,6 +200,6 @@
 ;; [serialization]: #balabit.logstore.codec.chunk.serialization
 ;;
 (defmethod decode-frame :logstore/record.chunk-messages
-  [#^ByteBuffer buffer _ header]
+  [#^ByteBuffer buffer _ & {:keys [chunk-header]}]
 
-  (chunk-data-deserialize buffer header))
+  (chunk-data-deserialize buffer chunk-header))
