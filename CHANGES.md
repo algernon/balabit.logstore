@@ -1,4 +1,4 @@
-# balabit.logstore 0.1.1-SNAPSHOT (git master)
+# balabit.logstore 0.1.1 (2013-01-01)
 
 ## Breaking changes
 
