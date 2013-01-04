@@ -1,11 +1,29 @@
 # balabit.logstore
 
+[![Build Status](https://secure.travis-ci.org/algernon/balabit.logstore.png?branch=master)](http://travis-ci.org/algernon/balabit.logstore)
+
 Independent implementation of a syslog-ng PE LogStore reader.
+
+### Installation
+
+balabit.logstore is available on Clojars. Add this dependency to your
+Leiningen `project.clj`:
+
+```clojure
+[com.balabit/logstore "0.1.2-SNAPSHOT"]
+```
+
+To use the command-line tools, `com.balabit/logstore.cli` will be
+needed too:
+
+```clojure
+[com.balabit/logstore.cli "0.1.2-SNAPSHOT"]
+```
+
+### Usage
 
 See the [documentation](http://algernon.github.com/balabit.logstore/)
 for more information.
-
-[![Build Status](https://secure.travis-ci.org/algernon/balabit.logstore.png?branch=master)](http://travis-ci.org/algernon/balabit.logstore)
 
 ## License
 
