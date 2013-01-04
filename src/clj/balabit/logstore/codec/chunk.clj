@@ -14,6 +14,7 @@
         [balabit.logstore.codec.common]
         [balabit.logstore.codec.verify]
         [balabit.logstore.codec.chunk.serialization]
+        [clojure.algo.monads]
         [slingshot.slingshot :only [throw+]])
   (:require [balabit.logstore.codec.chunk.sweet :as chunk]
             [balabit.logstore.crypto :as crypto]))
@@ -44,12 +45,15 @@
                            :chunk-header chunk-header
                            :file-header file-header)
         chunk-tail (decode-frame buffer :logstore/record.chunk-tail)
-        messages (-> body
-                     (verify-frame :logstore/record.chunk
-                                   :file-header file-header
-                                   :chunk-tail chunk-tail)
-                     (decode-frame :logstore/record.chunk-messages
-                                   :chunk-header chunk-header))
+        messages (domonad maybe-m
+                          [body body
+                           verified-body (verify-frame body
+                                                       :logstore/record.chunk
+                                                       :file-header file-header
+                                                       :chunk-tail chunk-tail)]
+                          (decode-frame verified-body
+                                        :logstore/record.chunk-messages
+                                        :chunk-header chunk-header))
         maybe-assoc (fn [coll key data]
                       (if (empty? data)
                         coll
@@ -70,17 +74,16 @@
 (defmethod verify-frame :logstore/record.chunk
   [chunk-data _ & {:keys [file-header chunk-tail]}]
 
-  (when chunk-data
-    (let [algo (-> file-header :crypto :algo :hash)
-          chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
-          expected-hmac (-> chunk-tail :macs :chunk-hmac)]
-      (when-not (= chunk-hmac expected-hmac)
-        (throw+ {:type :logstore/checksum-mismatch
-                 :assertion '(= chunk-hmac expected-hmac)
-                 :message "Actual chunk hmac does not match the expected one"
-                 :chunk-hmac chunk-hmac
-                 :expected-hmac expected-hmac})))
-    (.position chunk-data 0)))
+  (let [algo (-> file-header :crypto :algo :hash)
+        chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))
+        expected-hmac (-> chunk-tail :macs :chunk-hmac)]
+    (when-not (= chunk-hmac expected-hmac)
+      (throw+ {:type :logstore/checksum-mismatch
+               :assertion '(= chunk-hmac expected-hmac)
+               :message "Actual chunk hmac does not match the expected one"
+               :chunk-hmac chunk-hmac
+               :expected-hmac expected-hmac})))
+  (.position chunk-data 0))
 
 ;; ### <a name="lgs/chunk-head">The chunk header</a>
 ;;
@@ -148,8 +151,7 @@
 
   [data data-size header]
 
-  (if (and data
-           (chunk/compressed? header))
+  (if (chunk/compressed? header)
     (let [buffer (ByteArrayOutputStream.)]
       (stream-copy (InflaterInputStream. (->InputStream data)
                                          (Inflater.) data-size) buffer)
@@ -162,11 +164,9 @@
 
   [data header]
 
-  (if data
-    (if (chunk/serialized? header)
-      (decode-blob-array data :chunk/message.serialized)
-      (decode-blob-array data :chunk/message.unserialized))
-    '()))
+  (if (chunk/serialized? header)
+    (decode-blob-array data :chunk/message.serialized)
+    (decode-blob-array data :chunk/message.unserialized)))
 
 (defn chunk-data-decrypt
   "Given a chunk data, decrypt it. This is non-functional for the time
@@ -188,9 +188,11 @@
   [#^ByteBuffer buffer _ & {:keys [chunk-header file-header]}]
 
   (let [size (- (-> chunk-header :offsets :tail) 54)]
-    (-> (decode-frame buffer :slice size)
-        (chunk-data-decrypt chunk-header file-header)
-        (chunk-data-decompress size chunk-header))))
+    (domonad maybe-m [body (decode-frame buffer :slice size)
+                      decrypted-body (chunk-data-decrypt body
+                                                         chunk-header
+                                                         file-header)]
+             (chunk-data-decompress decrypted-body size chunk-header))))
 
 ;; With the decompressed data available, we can deserialize it too.
 ;;

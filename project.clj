@@ -13,6 +13,7 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [joda-time/joda-time "2.0"]
                  [org.clojure/tools.cli "0.2.2"]
+                 [org.clojure/algo.monads "0.1.0"]
                  [com.balabit/balabit.blobbity "0.1.0"]
                  [slingshot "0.10.3"]
                  [de.ubercode.clostache/clostache "1.3.1"]
