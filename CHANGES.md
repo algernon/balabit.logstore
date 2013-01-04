@@ -1,6 +1,13 @@
 # balabit.logstore 0.1.2-SNAPSHOT (git master)
 
-No changes yet.
+## Miscellaneous changes
+
+### Split the library and the CLI apart
+
+The library and the CLI part of balabit.logstore has been split, to
+reduce the number of dependencies the library pulls in. The library
+itself retains the `com.balabit/logstore` name, while the CLI will be
+available as `com.balabit/logstore.cli`.
 
 # balabit.logstore 0.1.1 (2013-01-01)
 

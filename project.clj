@@ -1,5 +1,5 @@
-(defproject com.balabit/logstore "0.1.2-SNAPSHOT"
-  :description "syslog-ng PE logstore reader"
+(defproject com.balabit/logstore.bundle "0.1.2-SNAPSHOT"
+  :description "syslog-ng PE logstore reader & CLI"
   :url "http://algernon.github.com/balabit.logstore"
   :min-lein-version "2.0.0"
   :mailing-list {:name "Syslog-ng users' and developers' mailing list"
@@ -11,40 +11,32 @@
             :url "http://creativecommons.org/licenses/by-sa/3.0/"
             :distribution :repo}
   :scm {:url "git@github.com:algernon/balabit.logstore.git"}
-  :dependencies [[org.clojure/clojure "1.4.0"]
-                 [joda-time/joda-time "2.0"]
-                 [org.clojure/tools.cli "0.2.2"]
-                 [org.clojure/algo.monads "0.1.0"]
-                 [com.balabit/balabit.blobbity "0.1.0"]
-                 [slingshot "0.10.3"]
-                 [de.ubercode.clostache/clostache "1.3.1"]
-                 [robert/hooke "1.3.0"]
-                 [me.raynes/conch "0.4.0"]]
-  :profiles {:dev {:plugins [[lein-marginalia "0.7.1"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
-  :source-paths ["src/clj"]
-  :java-source-paths ["src/java"]
-  :aot [balabit.logstore.java
-        balabit.logstore.exceptions]
-  :prep-tasks ["compile"]
-  :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.5"],
-            "lgstool" ["run" "--"]
+  :plugins [[lein-sub "0.2.4"]
+            [lein-marginalia "0.7.1"]]
+  :profiles {:logstore {:sub ["logstore"]}
+             :lgstool {:sub ["lgstool"]}}
+  :aliases {"clean" ["with-profile" "logstore,lgstool" "sub" "clean"]
+            "install" ["with-profile" "logstore,lgstool" "sub" "install"]
+            "deploy" ["with-profile" "logstore,lgstool" "sub" "deploy"]
+            "test" ["with-profile" "logstore,lgstool" "sub" "test"]
+            "with-all-profiles" ["with-profile" "logstore,lgstool" "sub" "with-profile" "dev:dev,1.5"]
+            "lgstool" ["with-profile" "lgstool" "sub" "lgstool"]
+
             "build-docs" ["with-profile" "dev" "marg"
-                          "src/clj/balabit/logstore.clj"
-                          "src/clj/balabit/logstore/sweet.clj"
-                          "src/clj/balabit/logstore/codec.clj"
-                          "src/clj/balabit/logstore/codec/verify.clj"
-                          "src/clj/balabit/logstore/codec/common.clj"
-                          "src/clj/balabit/logstore/codec/timestamp.clj"
-                          "src/clj/balabit/logstore/codec/xfrm_info.clj"
-                          "src/clj/balabit/logstore/codec/chunk.clj"
-                          "src/clj/balabit/logstore/codec/chunk/serialization.clj"
-                          "src/clj/balabit/logstore/codec/chunk/sweet.clj"
-                          "src/clj/balabit/logstore/utils.clj"
-                          "src/clj/balabit/logstore/crypto.clj"
-                          "src/clj/balabit/logstore/exceptions.clj"
-                          "src/clj/balabit/logstore/cli.clj"
-                          "src/clj/balabit/logstore/cli/search_predicates.clj"
-                          "src/clj/balabit/logstore/visualisation/gource.clj"
-                          "src/clj/balabit/logstore/java.clj"]}
-  :main balabit.logstore.cli)
+                          "logstore/src/clj/balabit/logstore.clj"
+                          "logstore/src/clj/balabit/logstore/sweet.clj"
+                          "logstore/src/clj/balabit/logstore/codec.clj"
+                          "logstore/src/clj/balabit/logstore/codec/verify.clj"
+                          "logstore/src/clj/balabit/logstore/codec/common.clj"
+                          "logstore/src/clj/balabit/logstore/codec/timestamp.clj"
+                          "logstore/src/clj/balabit/logstore/codec/xfrm_info.clj"
+                          "logstore/src/clj/balabit/logstore/codec/chunk.clj"
+                          "logstore/src/clj/balabit/logstore/codec/chunk/serialization.clj"
+                          "logstore/src/clj/balabit/logstore/codec/chunk/sweet.clj"
+                          "logstore/src/clj/balabit/logstore/utils.clj"
+                          "logstore/src/clj/balabit/logstore/crypto.clj"
+                          "logstore/src/clj/balabit/logstore/exceptions.clj"
+                          "logstore/src/clj/balabit/logstore/java.clj"
+                          "lgstool/src/clj/balabit/logstore/cli.clj"
+                          "lgstool/src/clj/balabit/logstore/cli/search_predicates.clj"
+                          "lgstool/src/clj/balabit/logstore/visualisation/gource.clj"]})

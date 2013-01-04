@@ -184,16 +184,18 @@
   (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " search  [-t|--template=TEMPLATE] <search-term>")
+  (println " random  [-t|--template=TEMPLATE]")
   (println " gource")
-  (println " random")
   (println " inspect"))
 
 (defn -main
   "Main entry point when running with leiningen, dispatches to any of
   the above functions."
 
-  [cmd & args]
+  ([cmd & args]
 
-  (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
-    (apply cmd args)
-    (help)))
+     (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
+       (apply cmd args)
+       (help)))
+
+  ([] (-main "help")))
