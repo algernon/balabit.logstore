@@ -184,8 +184,8 @@
   (println " tail    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " head    [-t|--template=TEMPLATE] [-n|--lines=N]")
   (println " search  [-t|--template=TEMPLATE] <search-term>")
+  (println " random  [-t|--template=TEMPLATE]")
   (println " gource")
-  (println " random")
   (println " inspect"))
 
 (defn -main
