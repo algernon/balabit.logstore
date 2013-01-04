@@ -10,6 +10,7 @@
   :license {:name "Creative Commons Attribution-ShareAlike 3.0"
             :url "http://creativecommons.org/licenses/by-sa/3.0/"
             :distribution :repo}
+  :scm {:url "git@github.com:algernon/balabit.logstore.git"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [joda-time/joda-time "2.0"]
                  [org.clojure/tools.cli "0.2.2"]
