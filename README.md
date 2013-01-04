@@ -27,6 +27,6 @@ for more information.
 
 ## License
 
-Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>
+Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>
 
 [![CC-BY-SA](http://i.creativecommons.org/l/by-sa/3.0/80x15.png)](http://creativecommons.org/licenses/by-sa/3.0/)
