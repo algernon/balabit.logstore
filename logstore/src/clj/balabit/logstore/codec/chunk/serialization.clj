@@ -211,7 +211,7 @@
                                       :num-dynamic (:num-dyn-entries payload-header))
 
         pairs (.order
-               (decode-frame buffer :slice (bit-shift-left (:used payload-header) 2))
+               #^ByteBuffer (decode-frame buffer :slice (bit-shift-left (:used payload-header) 2))
                java.nio.ByteOrder/LITTLE_ENDIAN)
 
         static-pairs (decode-frame pairs :nvtable/payload.pairs.static

@@ -1,6 +1,7 @@
 (ns balabit.logstore.test.sweet
   (:use [clojure.test])
-  (:import (org.joda.time DateTime DateTimeZone))
+  (:import (org.joda.time DateTime DateTimeZone)
+           (java.nio ByteBuffer))
   (:require [balabit.logstore.sweet :as logstore]))
 
 (defn- with-pruned-records
@@ -141,7 +142,7 @@
       (testing "timestamp"
         (let [records (:records meta-data)]
           (is (= (:chunk-id (last records) 0)))
-          (is (= (.limit (:timestamp (last records))) 2492))))
+          (is (= (.limit #^ByteBuffer (:timestamp (last records))) 2492))))
 
       (testing "checksums"
         (is (= (-> store :crypto :file-mac)

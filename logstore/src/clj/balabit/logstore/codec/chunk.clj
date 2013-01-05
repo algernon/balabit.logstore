@@ -72,7 +72,7 @@
 ;; If they match, the original buffer is returned, otherwise an
 ;; exception is raised.
 (defmethod verify-frame :logstore/record.chunk
-  [chunk-data _ & {:keys [file-header chunk-tail]}]
+  [#^ByteBuffer chunk-data _ & {:keys [file-header chunk-tail]}]
 
   (let [algo (-> file-header :crypto :algo :hash)
         chunk-hmac (array->hex (crypto/digest algo (.position chunk-data 0)))

@@ -6,7 +6,7 @@
 (deftest help
   (testing "the 'help' command"
     (let [help-output (with-out-str (cli/help))]
-      (is (.. help-output (startsWith "Usage: lgstool <command> [options] <filename>"))))))
+      (is (.. #^String help-output (startsWith "Usage: lgstool <command> [options] <filename>"))))))
 
 (deftest cat
   (testing "the 'cat' command"
