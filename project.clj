@@ -18,8 +18,10 @@
   :aliases {"clean" ["with-profile" "logstore,lgstool" "sub" "clean"]
             "install" ["with-profile" "logstore,lgstool" "sub" "install"]
             "deploy" ["with-profile" "logstore,lgstool" "sub" "deploy"]
+            "push" ["with-profile" "logstore,lgstool" "sub" "push"]
             "test" ["with-profile" "logstore,lgstool" "sub" "test"]
             "with-all-profiles" ["with-profile" "logstore,lgstool" "sub" "with-profile" "dev:dev,1.5"]
+
             "lgstool" ["with-profile" "lgstool" "sub" "lgstool"]
 
             "build-docs" ["with-profile" "dev" "marg"
