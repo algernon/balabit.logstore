@@ -1,7 +1,7 @@
 (ns balabit.logstore.codec.common
 
   ^{:author "Gergely Nagy <algernon@balabit.hu>"
-    :copyright "Copyright (C) 2012 Gergely Nagy <algernon@balabit.hu>"
+    :copyright "Copyright (C) 2012-2013 Gergely Nagy <algernon@balabit.hu>"
     :license {:name "Creative Commons Attribution-ShareAlike 3.0"
               :url "http://creativecommons.org/licenses/by-sa/3.0/"}}
 
@@ -83,7 +83,4 @@
 (defmethod decode-frame :logstore/common.mac
   [#^ByteBuffer buffer _]
 
-  (let [mac (decode-frame buffer :prefixed :slice :uint32)
-        buffer (byte-array (.limit mac))]
-    (.get mac buffer)
-    (array->hex buffer)))
+  (array->hex (decode-frame buffer :prefixed :array :uint32)))
