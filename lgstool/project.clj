@@ -14,7 +14,6 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.balabit/logstore "0.1.2-SNAPSHOT"]
                  [org.clojure/tools.cli "0.2.2"]
-                 [com.balabit/balabit.blobbity "0.1.0"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [robert/hooke "1.3.0"]
                  [me.raynes/conch "0.4.0"]]
