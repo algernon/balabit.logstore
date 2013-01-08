@@ -45,7 +45,7 @@
 ;; to launch them:
 ;;  `lein run -m LGSCat resources/logstores/serialized.store`
 ;;
-;; [4]: #balabit.logstore.cli
+;; [4]: http://algernon.github.com/balabit.logstore/cli.html
 ;;
 ;; # Limitations
 ;;

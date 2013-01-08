@@ -10,4 +10,4 @@ target/
 /checkouts
 .lein-deps-sum
 .lein-plugins
-/docs/
+docs/
