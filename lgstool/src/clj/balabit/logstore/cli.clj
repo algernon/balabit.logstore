@@ -22,14 +22,16 @@
 ;;     lein lgstool command <filename> [args]
 ;;
 
-(defn- print-message
-  "Print a message, either as-is, or using a {{mustache}} template."
+(defn print-message
+  "Print a message, either as-is, or using a {{mustache}} template, or
+  with pretty-printing enabled."
 
   [template message]
 
-  (if template
-    (println (render template message))
-    (prn message)))
+  (case template
+    nil (prn message)
+    :pretty (pprint message)
+    (println (render template message))))
 
 (defn- parse-cli-args
   "Parse command-line arguments for a given command. Takes a command
@@ -55,23 +57,23 @@
   "Display all messages from a LogStore file, optionally with a
   template."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn _] (parse-cli-args "cat" args
                                       ["-t" "--template" "Use a {{mustache}} template for output"])]
-    (dorun (map (partial print-message (:template params))
-                (logstore/messages (logstore/from-file fn))))))
+    (map (partial printer (:template params))
+         (logstore/messages (logstore/from-file fn)))))
 
 (defn lgstool-random
   "Display a random message from a LogStore file, optionally with a
   template."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn _] (parse-cli-args "random" args
                                     ["-t" "--template" "Use a {{mustacher}} template for output"])]
 
-    (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
+    (printer (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
 
 (defn- with-all-predicates
   "Returns a function that takes one argument, and runs all predicates
@@ -89,22 +91,22 @@
   "Display messages matching a predicate. The predicate can be any
   clojure code that is valid as a filter predicate."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn search-preds] (parse-cli-args "search" args
                                                  ["-t" "--template" "Use a {{mustache}} template for output"])]
 
     (in-ns 'balabit.logstore.cli)
 
-    (dorun (map (partial print-message (:template params))
-                (filter (with-all-predicates search-preds)
-                        (logstore/messages (logstore/from-file fn)))))))
+    (map (partial printer (:template params))
+         (filter (with-all-predicates search-preds)
+                 (logstore/messages (logstore/from-file fn))))))
 
 (defn lgstool-tail
   "Display the last N messages of a LogStore, optionally with a
   template. N is handled the same way as tail(1) handles it."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn _] (parse-cli-args "tail" args
                                       ["-t" "--template" "Use a {{mustache}} template for output"]
@@ -112,16 +114,16 @@
                                        :default "10"])]
 
     (if (.startsWith (:lines params) "+")
-      (dorun (map (partial print-message (:template params))
-                  (drop (read-string (:lines params)) (logstore/messages (logstore/from-file fn)))))
-      (dorun (map (partial print-message (:template params))
-                  (take-last (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))
+      (map (partial printer (:template params))
+           (drop (read-string (:lines params)) (logstore/messages (logstore/from-file fn))))
+      (map (partial printer (:template params))
+           (take-last (Integer. (:lines params)) (logstore/messages (logstore/from-file fn)))))))
 
 (defn lgstool-head
   "Display the first N messages of a LogStore, optionally with a
   template. N is handled the same way as head(1) handles it."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn _] (parse-cli-args "head" args
                                       ["-t" "--template" "Use a {{mustache}} template for output"]
@@ -129,24 +131,24 @@
                                        :default "10"])]
 
     (if (.startsWith (:lines params) "-")
-      (dorun (map (partial print-message (:template params))
-                  (drop-last (- (read-string (:lines params))) (logstore/messages (logstore/from-file fn)))))
-      (dorun (map (partial print-message (:template params))
-                  (take (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))
+      (map (partial printer (:template params))
+           (drop-last (- (read-string (:lines params))) (logstore/messages (logstore/from-file fn))))
+      (map (partial printer (:template params))
+           (take (Integer. (:lines params)) (logstore/messages (logstore/from-file fn)))))))
 
 (defn lgstool-inspect
   "Inspect a LogStore file, dumping its decoded contents back out as-is."
 
-  [& args]
+  [printer & args]
 
   (let [[params fn _] (parse-cli-args "inspect" args)]
 
-    (pprint (logstore/from-file fn))))
+    (printer :pretty (logstore/from-file fn))))
 
 (defn lgstool-gource
   "Display a Gource-based visualisation of the LogStore parsing process."
 
-  [& args]
+  [_ & args]
 
   (let [[params fn [out-file _]] (parse-cli-args "gource" args)]
 
@@ -176,7 +178,7 @@
   ([cmd & args]
 
      (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol (str "lgstool-" cmd)))]
-       (apply cmd args)
+       (dorun (apply (partial cmd print-message) args))
        (lgstool-help)))
 
   ([] (-main "help")))
