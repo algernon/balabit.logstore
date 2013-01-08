@@ -236,12 +236,16 @@
 
 ;; <a name="nvt/sdata">Structured data</a>
 ;;
-;; Structured data offsets are stored as a list of 16-bit integers,
-;; where each integer is an offset into the main table data.
+;; Structured data handles are stored as a list of 16-bit integers,
+;; where each one is a handle of an entry within the name-value table.
+;;
+;; The primary reason behind the handles being stored too is to be
+;; able to preserve order when re-assembling the SDATA part. However,
+;; doing that is not a goal of this library, so we'll just read the
+;; handles and ignore them, as ordering is none of our concern.
 (defmethod decode-frame :nvtable/sdata
   [#^ByteBuffer buffer _ & {:keys [num-sdata]}]
 
-  ; FIXME: Need to resolve these too!
   (doall (take num-sdata (decode-blob-array buffer :uint16))))
 
 ;; <a name="nvt/payload-header">The payload header</a>
