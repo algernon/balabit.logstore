@@ -31,22 +31,36 @@
     (println (render template message))
     (prn message)))
 
+(defn parse-cli-args
+  "Parse command-line arguments for a given command. Takes a command
+  name, the argument vector to parse, and an argument-spec, and either
+  prints the help (and exists), or returns a vector of parsed
+  parameters, the file name passed in, and any other optional
+  arguments remaining."
+
+  [cmd args & arg-spec]
+
+  (let [[params [fn & opt-args] banner] (apply (partial cli args)
+                                               (remove nil? (cons ["-h" "--help" "Show help"
+                                                                   :default false :flag true] arg-spec)))]
+
+    (when (:help params)
+      (println "lgstool" cmd "\n")
+      (println banner)
+      (System/exit 0))
+
+    [params fn opt-args]))
+
 (defn cat
   "Display all messages from a LogStore file, optionally with a
   template."
 
   [& args]
 
-  (let [[params [fn _] banner] (cli args
-                                    ["-t" "--template" "Use a {{mustache}} template for output"]
-                                    ["-h" "--help" "Show help"
-                                     :default false :flag true])]
-
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
-
-    (dorun (map (partial print-message (:template params)) (logstore/messages (logstore/from-file fn))))))
+  (let [[params fn _] (parse-cli-args "cat" args
+                                      ["-t" "--template" "Use a {{mustache}} template for output"])]
+    (dorun (map (partial print-message (:template params))
+                (logstore/messages (logstore/from-file fn))))))
 
 (defn random
   "Display a random message from a LogStore file, optionally with a
@@ -54,14 +68,8 @@
 
   [& args]
 
-  (let [[params [fn _] banner] (cli args
-                                    ["-t" "--template" "Use a {{mustacher}} template for output"]
-                                    ["-h" "--help" "Show help"
-                                     :default false :flag true])]
-
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn _] (parse-cli-args "random" args
+                                    ["-t" "--template" "Use a {{mustacher}} template for output"])]
 
     (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
 
@@ -83,15 +91,8 @@
 
   [& args]
 
-  (let [[params [fn & search-preds] banner]
-        (cli args
-             ["-t" "--template" "Use a {{mustache}} template for output"]
-             ["-h" "--help" "Show help"
-              :default false :flag true])]
-
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn search-preds] (parse-cli-args "search" args
+                                                 ["-t" "--template" "Use a {{mustache}} template for output"])]
 
     (in-ns 'balabit.logstore.cli)
 
@@ -105,15 +106,11 @@
 
   [& args]
 
-  (let [[params [fn _] banner] (cli args
-                                    ["-t" "--template" "Use a {{mustache}} template for output"]
-                                    ["-n" "--lines" "Output only the last K lines"
-                                     :default "10"]
-                                    ["-h" "--help" "Show help"
-                                     :default false :flag true])]
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn _] (parse-cli-args "tail" args
+                                      ["-t" "--template" "Use a {{mustache}} template for output"]
+                                      ["-n" "--lines" "Output only the last K lines"
+                                       :default "10"])]
+
     (if (.startsWith (:lines params) "+")
       (dorun (map (partial print-message (:template params))
                   (drop (read-string (:lines params)) (logstore/messages (logstore/from-file fn)))))
@@ -126,15 +123,11 @@
 
   [& args]
 
-  (let [[params [fn _] banner] (cli args
-                                    ["-t" "--template" "Use a {{mustache}} template for output"]
-                                    ["-n" "--lines" "Output only the first K lines"
-                                     :default "10"]
-                                    ["-h" "--help" "Show help"
-                                     :default false :flag true])]
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn _] (parse-cli-args "head" args
+                                      ["-t" "--template" "Use a {{mustache}} template for output"]
+                                      ["-n" "--lines" "Output only the first K lines"
+                                       :default "10"])]
+
     (if (.startsWith (:lines params) "-")
       (dorun (map (partial print-message (:template params))
                   (drop-last (- (read-string (:lines params))) (logstore/messages (logstore/from-file fn)))))
@@ -146,13 +139,7 @@
 
   [& args]
 
-  (let [[params [fn _] banner] (cli args
-                                ["-h" "--help" "Show help"
-                                 :default false :flag true])]
-
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn _] (parse-cli-args "inspect" args)]
 
     (pprint (logstore/from-file fn))))
 
@@ -161,13 +148,7 @@
 
   [& args]
 
-  (let [[params [fn out-file _] banner] (cli args
-                                              ["-h" "--help" "Show help"
-                                               :default false :flag true])]
-
-    (when (:help params)
-      (println banner)
-      (System/exit 0))
+  (let [[params fn [out-file _]] (parse-cli-args "gource" args)]
 
     (if out-file
       (spit out-file (logstore->gource fn))
