@@ -22,7 +22,7 @@
 ;;     lein lgstool command <filename> [args]
 ;;
 
-(defn print-message
+(defn- print-message
   "Print a message, either as-is, or using a {{mustache}} template."
 
   [template message]
@@ -31,7 +31,7 @@
     (println (render template message))
     (prn message)))
 
-(defn parse-cli-args
+(defn- parse-cli-args
   "Parse command-line arguments for a given command. Takes a command
   name, the argument vector to parse, and an argument-spec, and either
   prints the help (and exists), or returns a vector of parsed
@@ -51,7 +51,7 @@
 
     [params fn opt-args]))
 
-(defn cat
+(defn lgstool-cat
   "Display all messages from a LogStore file, optionally with a
   template."
 
@@ -62,7 +62,7 @@
     (dorun (map (partial print-message (:template params))
                 (logstore/messages (logstore/from-file fn))))))
 
-(defn random
+(defn lgstool-random
   "Display a random message from a LogStore file, optionally with a
   template."
 
@@ -73,7 +73,7 @@
 
     (print-message (:template params) (rand-nth (logstore/messages (logstore/from-file fn))))))
 
-(defn with-all-predicates
+(defn- with-all-predicates
   "Returns a function that takes one argument, and runs all predicates
   specified to this function, until it finds one that is false, or
   reaches the end of the list.
@@ -85,7 +85,7 @@
   (fn [msg]
     (not-any? nil? (map #((eval (read-string %)) msg) preds))))
 
-(defn search
+(defn lgstool-search
   "Display messages matching a predicate. The predicate can be any
   clojure code that is valid as a filter predicate."
 
@@ -100,7 +100,7 @@
                 (filter (with-all-predicates search-preds)
                         (logstore/messages (logstore/from-file fn)))))))
 
-(defn tail
+(defn lgstool-tail
   "Display the last N messages of a LogStore, optionally with a
   template. N is handled the same way as tail(1) handles it."
 
@@ -117,7 +117,7 @@
       (dorun (map (partial print-message (:template params))
                   (take-last (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))
 
-(defn head
+(defn lgstool-head
   "Display the first N messages of a LogStore, optionally with a
   template. N is handled the same way as head(1) handles it."
 
@@ -134,7 +134,7 @@
       (dorun (map (partial print-message (:template params))
                   (take (Integer. (:lines params)) (logstore/messages (logstore/from-file fn))))))))
 
-(defn inspect
+(defn lgstool-inspect
   "Inspect a LogStore file, dumping its decoded contents back out as-is."
 
   [& args]
@@ -143,7 +143,7 @@
 
     (pprint (logstore/from-file fn))))
 
-(defn gource
+(defn lgstool-gource
   "Display a Gource-based visualisation of the LogStore parsing process."
 
   [& args]
@@ -154,7 +154,7 @@
       (spit out-file (logstore->gource fn))
       (with-gource fn))))
 
-(defn help
+(defn lgstool-help
   "Display a help overview."
 
   [& _]
@@ -175,8 +175,8 @@
 
   ([cmd & args]
 
-     (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol cmd))]
+     (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol (str "lgstool-" cmd)))]
        (apply cmd args)
-       (help)))
+       (lgstool-help)))
 
   ([] (-main "help")))
