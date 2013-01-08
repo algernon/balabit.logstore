@@ -101,6 +101,13 @@
           m (logstore/from-file lgs-fn)]
       (is (some #{o} (logstore/messages m))))))
 
+(deftest inspect
+  (testing "the 'inspect' command"
+    (let [lgs-fn "../logstore/resources/logstores/sha256.store"
+          inspected (cli/lgstool-inspect message-identity lgs-fn)
+          parsed (logstore/from-file lgs-fn)]
+      (is (= inspected parsed)))))
+
 (deftest main
   (testing "the '-main' function"
     (is (= (with-out-str (cli/lgstool-help))
