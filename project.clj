@@ -18,6 +18,7 @@
             "install" ["with-profile" "logstore,lgstool" "sub" "install"]
             "deploy" ["with-profile" "logstore,lgstool" "sub" "deploy"]
             "push" ["with-profile" "logstore,lgstool" "sub" "push"]
+            "compile" ["with-profile" "logstore,lgstool" "sub" "compile"]
             "test" ["with-profile" "logstore,lgstool" "sub" "test"]
             "with-all-profiles" ["with-profile" "logstore,lgstool" "sub" "with-profile" "dev:dev,1.5"]
 
