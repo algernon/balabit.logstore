@@ -27,5 +27,5 @@
 
   (let [timestamp (decode-blob buffer [:chunk-id :uint32
                                        :timestamp [:prefixed :slice :uint32]])]
-    (decode-frame buffer :skip (- 4096 (.limit (:timestamp timestamp)) 14))
+    (decode-frame buffer :skip (- 4096 (.limit #^ByteBuffer (:timestamp timestamp)) 14))
     (merge record-header timestamp)))

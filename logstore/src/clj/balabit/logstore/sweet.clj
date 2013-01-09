@@ -22,7 +22,7 @@
   "Load a LogStore file, by mapping into memory and parsing it. Takes
   a filename, and returns a map of the LogStore."
 
-  [fn]
+  [#^String fn]
 
   (let [channel (.getChannel (FileInputStream. fn))]
     (decode-logstore (.map channel

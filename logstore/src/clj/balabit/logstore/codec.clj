@@ -63,7 +63,7 @@
                                           :file-mac :logstore/common.mac,
                                           :der [:prefixed :slice :uint32]]]])
    (verify-frame :logstore/file.header)
-   (update-in [:crypto] #(if (zero? (.limit (:der %)))
+   (update-in [:crypto] #(if (zero? (.limit #^ByteBuffer (:der %)))
                            (dissoc % :der)
                            %))
    (dissoc :magic :length :flags :last)))

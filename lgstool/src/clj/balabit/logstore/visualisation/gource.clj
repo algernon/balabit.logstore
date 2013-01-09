@@ -3,6 +3,7 @@
 
   (:require [clojure.string :as s]
             [conch.sh :refer [with-programs]])
+  (import (java.nio ByteBuffer))
   (:use [robert.hooke]
         [balabit.blobbity]
         [balabit.logstore.sweet]))
@@ -50,7 +51,7 @@
   "Hook function that explores data before and after calling
   `decode-frame`, and updates the tracking atom with new information."
 
-  [f buffer type & args]
+  [f #^ByteBuffer buffer type & args]
 
   (swap! tracker assoc-in [:tree] (cons type (:tree @tracker)))
   (let [start-position (.position buffer)
