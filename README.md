@@ -10,14 +10,14 @@ balabit.logstore is available on Clojars. Add this dependency to your
 Leiningen `project.clj`:
 
 ```clojure
-[com.balabit/logstore "0.1.2-SNAPSHOT"]
+[com.balabit/logstore "0.1.2"]
 ```
 
 To use the command-line tools, `com.balabit/logstore.cli` will be
 needed too:
 
 ```clojure
-[com.balabit/logstore.cli "0.1.2-SNAPSHOT"]
+[com.balabit/logstore.cli "0.1.2"]
 ```
 
 ### Usage
