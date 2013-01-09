@@ -1,4 +1,8 @@
-# balabit.logstore 0.1.2-SNAPSHOT (2013-01-09)
+# balabit.logstore 0.1.3-SNAPSHOT (git master)
+
+No changes yet.
+
+# balabit.logstore 0.1.2 (2013-01-09)
 
 ## Miscellaneous changes
 

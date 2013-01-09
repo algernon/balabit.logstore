@@ -1,4 +1,4 @@
-(defproject com.balabit/logstore.cli "0.1.2"
+(defproject com.balabit/logstore.cli "0.1.3-SNAPSHOT"
   :description "syslog-ng PE logstore reader CLI"
   :url "http://algernon.github.com/balabit.logstore"
   :min-lein-version "2.0.0"
@@ -12,7 +12,7 @@
             :distribution :repo}
   :scm {:url "git@github.com:algernon/balabit.logstore.git"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [com.balabit/logstore "0.1.2"]
+                 [com.balabit/logstore "0.1.3-SNAPSHOT"]
                  [org.clojure/tools.cli "0.2.2"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [robert/hooke "1.3.0"]
