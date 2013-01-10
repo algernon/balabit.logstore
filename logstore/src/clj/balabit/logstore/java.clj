@@ -77,7 +77,7 @@
   "Get an entry from the LogStoreMap object, by converting the key to
   keyword first, and looking it up in the wrapped map."
 
-  [this, o]
+  [#^BalaBit.LogStoreMap this o]
 
   (get (.state this) (keyword o)))
 
@@ -85,7 +85,7 @@
   "Return all the key-value entries within the LogStoreMap, with the
   keys converted to strings."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (let [ks (keys (.state this))
         vs (vals (.state this))]
@@ -95,35 +95,35 @@
   "Returns true when the key (converted to keyword first) is contained
   within the LogStoreMap."
 
-  [this key]
+  [#^BalaBit.LogStoreMap this key]
 
   (.containsKey (.state this) (keyword key)))
 
 (defn lsm-containsValue
   "Returns true when the supplied value is contained within the LogStoreMap."
 
-  [this value]
+  [#^BalaBit.LogStoreMap this value]
 
   (.containsValue (.state this) value))
 
 (defn lsm-equals
   "Returns true when the LogStoreMap is equal to the supplied object."
 
-  [this o]
+  [#^BalaBit.LogStoreMap this o]
 
   (.equals (.state this) o))
 
 (defn lsm-hashCode
   "Returns the hashCode of the embedded map."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (.hashCode (.state this)))
 
 (defn lsm-isEmpty
   "Returns true if the LogStoreMap is empty."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (.isEmpty (.state this)))
 
@@ -131,21 +131,21 @@
   "Returns a set with the keys from the LogStoreMap, with all keys
   converted to strings first."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (set (map name (keys (.state this)))))
 
 (defn lsm-size
   "Returns the size of the internal map."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (.size (.state this)))
 
 (defn lsm-values
   "Returns the values within the LogStoreMap."
 
-  [this]
+  [#^BalaBit.LogStoreMap this]
 
   (.values (.state this)))
 
