@@ -89,7 +89,7 @@
 
   (let [ks (keys (.state this))
         vs (vals (.state this))]
-    (.entrySet (zipmap (map name ks) vs))))
+    (.entrySet #^Map (zipmap (map name ks) vs))))
 
 (defn lsm-containsKey
   "Returns true when the key (converted to keyword first) is contained
@@ -97,35 +97,35 @@
 
   [#^BalaBit.LogStoreMap this key]
 
-  (.containsKey (.state this) (keyword key)))
+  (.containsKey #^Map (.state this) (keyword key)))
 
 (defn lsm-containsValue
   "Returns true when the supplied value is contained within the LogStoreMap."
 
   [#^BalaBit.LogStoreMap this value]
 
-  (.containsValue (.state this) value))
+  (.containsValue #^Map (.state this) value))
 
 (defn lsm-equals
   "Returns true when the LogStoreMap is equal to the supplied object."
 
   [#^BalaBit.LogStoreMap this o]
 
-  (.equals (.state this) o))
+  (.equals #^Map (.state this) o))
 
 (defn lsm-hashCode
   "Returns the hashCode of the embedded map."
 
   [#^BalaBit.LogStoreMap this]
 
-  (.hashCode (.state this)))
+  (.hashCode #^Map (.state this)))
 
 (defn lsm-isEmpty
   "Returns true if the LogStoreMap is empty."
 
   [#^BalaBit.LogStoreMap this]
 
-  (.isEmpty (.state this)))
+  (.isEmpty #^Map (.state this)))
 
 (defn lsm-keySet
   "Returns a set with the keys from the LogStoreMap, with all keys
@@ -140,14 +140,14 @@
 
   [#^BalaBit.LogStoreMap this]
 
-  (.size (.state this)))
+  (.size #^Map (.state this)))
 
 (defn lsm-values
   "Returns the values within the LogStoreMap."
 
   [#^BalaBit.LogStoreMap this]
 
-  (.values (.state this)))
+  (.values #^Map (.state this)))
 
 
 ;; ## LogStore
@@ -190,6 +190,6 @@
 (defn lgs-messages
   "Return all the messages present in the LogStore object."
 
-  [this]
+  [#^BalaBit.LogStore this]
 
   (messages (.state this)))
