@@ -10,4 +10,5 @@ target/
 /checkouts
 .lein-deps-sum
 .lein-plugins
-docs/
+/logstore/docs/
+/lgstool/docs/
