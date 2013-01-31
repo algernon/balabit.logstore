@@ -6,7 +6,7 @@
 ;;
 ;; [1]: http://clojure.org/
 ;; [2]: http://www.balabit.com/network-security/syslog-ng/central-syslog-server/overview
-;; [3]: https://github.com/algernon/balabit.logstore/blob/f/format-spec/docs/LogStore.spec.md#the-logstore-file-format-specification
+;; [3]: https://github.com/algernon/balabit.logstore/blob/master/docs/LogStore.spec.md#the-logstore-file-format-specification
 ;;
 ;; # Why?
 ;;
