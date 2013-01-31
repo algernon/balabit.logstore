@@ -66,8 +66,7 @@
 ;;   no transparent decryption happens.
 ;; * Timestamps are extracted only as a binary blob, the timestamp
 ;;   part itself is not parsed yet.
-;; * File and chunk hashes are extracted as binary data only, they are
-;;   never checked, nor properly parsed.
+;; * File hashes are extracted, but they aren't getting verified.
 ;;
 
 (ns balabit.logstore)
