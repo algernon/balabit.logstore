@@ -113,9 +113,12 @@
 ;;   some meta-data about them.
 ;; * [`:timestamp`][lgs/timestamp]: A timestamp for a number of previous
 ;;   chunks.
+;; * [`:xfrm-info`][lgs/xfrm-info]: Info record storing an encrypted
+;;   master key.
 ;;
 ;; [lgs/chunk]: #balabit.logstore.codec.chunk
 ;; [lgs/timestamp]: #balabit.logstore.codec.timestamp
+;; [lgs/xfrm-info]: #balabit.logstore.codec.xfrm-info
 ;;
 ;; Any other type of tag will cause an exception.
 (defmethod decode-frame :logstore/record
