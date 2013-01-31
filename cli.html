@@ -3028,8 +3028,8 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>com.balabit/logstore.cli -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore.cli</h1><h2 class="project-version">0.1.2</h2><br /><p>syslog-ng PE logstore reader CLI</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.balabit/logstore</td><td class="dotted"><hr /></td><td class="dep-version">0.1.2</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr><tr><td class="dep-name">robert/hooke</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">me.raynes/conch</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li><li><a href="#balabit.logstore.cli.search-predicates">balabit.logstore.cli.search-predicates</a></li><li><a href="#balabit.logstore.visualisation.gource">balabit.logstore.visualisation.gource</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.cli" name="balabit.logstore.cli"><h1 class="project-name">balabit.logstore.cli</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Command-line interface</h2>
+</script><title>com.balabit/logstore.cli -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.balabit/logstore.cli</h1><h2 class="project-version">0.1.3-SNAPSHOT</h2><br /><p>syslog-ng PE logstore reader CLI</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">com.balabit/logstore</td><td class="dotted"><hr /></td><td class="dep-version">0.1.3-SNAPSHOT</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.2.2</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.3.1</td></tr><tr><td class="dep-name">robert/hooke</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">me.raynes/conch</td><td class="dotted"><hr /></td><td class="dep-version">0.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#balabit.logstore.cli">balabit.logstore.cli</a></li><li><a href="#balabit.logstore.cli.search-predicates">balabit.logstore.cli.search-predicates</a></li><li><a href="#balabit.logstore.visualisation.gource">balabit.logstore.visualisation.gource</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#balabit.logstore.cli" name="balabit.logstore.cli"><h1 class="project-name">balabit.logstore.cli</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>Command-line interface</h2>
 </td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.cli
   ^{:author &quot;Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
     :copyright &quot;Copyright (C) 2012-2013 Gergely Nagy &lt;algernon@balabit.hu&gt;&quot;
@@ -3225,6 +3225,7 @@ an alias for re-match.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns balabit.logstore.visualisation.gource
   (:require [clojure.string :as s]
             [conch.sh :refer [with-programs]])
+  (import (java.nio ByteBuffer))
   (:use [robert.hooke]
         [balabit.blobbity]
         [balabit.logstore.sweet]))</pre></td></tr><tr><td class="docs"><p>To visualise the parsing process, we'll be tracking three things
@@ -3257,7 +3258,7 @@ as the time between this, and the next event.</p>
   (s/join &quot;/&quot; (reverse (map #(apply str (rest (str %))) tree))))</pre></td></tr><tr><td class="docs"><p>Hook function that explores data before and after calling
   <code>decode-frame</code>, and updates the tracking atom with new information.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn track-frame
-  [f buffer type &amp; args]
+  [f #^ByteBuffer buffer type &amp; args]
   (swap! tracker assoc-in [:tree] (cons type (:tree @tracker)))
   (let [start-position (.position buffer)
         result (apply f buffer type args)
