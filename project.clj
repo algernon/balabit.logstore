@@ -14,13 +14,18 @@
   :plugins [[lein-sub "0.2.4"]]
   :profiles {:logstore {:sub ["logstore"]}
              :lgstool {:sub ["lgstool"]}}
-  :aliases {"clean" ["with-profile" "logstore,lgstool" "sub" "clean"]
-            "install" ["with-profile" "logstore,lgstool" "sub" "install"]
-            "deploy" ["with-profile" "logstore,lgstool" "sub" "deploy"]
-            "push" ["with-profile" "logstore,lgstool" "sub" "push"]
-            "compile" ["with-profile" "logstore,lgstool" "sub" "compile"]
-            "test" ["with-profile" "logstore,lgstool" "sub" "test"]
-            "with-all-profiles" ["with-profile" "logstore,lgstool" "sub" "with-profile" "dev:dev,1.5"]
+  :eval-in-leiningen true
+  :hooks [leiningen.auto-sub]
+  :auto-sub {"logstore.bundle" {:clean :all
+                                :install :sub-only
+                                :test :sub-only
+                                :compile :sub-only
+                                :deploy :sub-only
+                                :push :sub-only
 
-            "lgstool" ["with-profile" "lgstool" "sub" "lgstool"]
-            "docs" ["with-profile" "logstore,lgstool" "sub" "docs"]})
+                                :docs :sub-only}
+             :sub ["logstore" "lgstool"]}
+  :aliases {"with-all-profiles" ["with-profile" "logstore,lgstool" "sub"
+                                 "with-profile" "dev:dev,1.5"]
+
+            "lgstool" ["with-profile" "lgstool" "sub" "lgstool"]})
