@@ -14,22 +14,15 @@
   "Run a given task in submodules only, but only if the project has
   settings in :auto-sub."
 
-  [task f project args]
+  [f [task project args]]
 
   (when (contains? (:auto-sub project) (:name project))
     (apply sub/sub (with-subs project) task args)))
 
-(defn- apply-this-task
-  "Run a given task as-is."
-
-  [task f project args]
-
-  (f task project args))
-
 (def ^:private mode-map
-  {:all [apply-sub-tasks apply-this-task]
-        :sub-only [apply-sub-tasks]
-        :self-only [apply-this-task]})
+  {:all [apply-sub-tasks apply]
+   :sub-only [apply-sub-tasks]
+   :self-only [apply]})
 
 (defn- maybe-sub
   "Run a given task either in sub-projects, or as-is, or both,
@@ -39,7 +32,7 @@
 
   (let [settings (get-in project [:auto-sub (:name project)] nil)
         todo (get mode-map (get settings (keyword task) :self-only))]
-    (doall (map #(% task f project args) todo))))
+    (doall (map #(% f [task project args]) todo))))
 
 (defn activate
   "Activate the task hooks."
