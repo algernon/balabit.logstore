@@ -16,8 +16,7 @@
 
   [f [task project args]]
 
-  (when (contains? (:auto-sub project) (:name project))
-    (apply sub/sub (with-subs project) task args)))
+  (apply sub/sub project task args))
 
 (def ^:private mode-map
   {:all [apply-sub-tasks apply]
@@ -32,7 +31,7 @@
 
   (let [settings (get-in project [:auto-sub (:name project)] nil)
         todo (get mode-map (get settings (keyword task) :self-only))]
-    (doall (map #(% f [task project args]) todo))))
+    (doall (map #(% f [task (with-subs project) args]) todo))))
 
 (defn activate
   "Activate the task hooks."
