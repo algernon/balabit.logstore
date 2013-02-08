@@ -12,7 +12,7 @@
             :distribution :repo}
   :scm {:url "git@github.com:algernon/balabit.logstore.git"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [com.balabit/logstore "0.1.3-SNAPSHOT"]
+                 [com.balabit/logstore "0.2.0-SNAPSHOT"]
                  [org.clojure/tools.cli "0.2.2"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [robert/hooke "1.3.0"]
