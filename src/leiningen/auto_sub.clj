@@ -14,7 +14,7 @@
   "Run a given task in submodules only, but only if the project has
   settings in :auto-sub."
 
-  [f [task project args]]
+  [_ [task project args]]
 
   (apply sub/sub project task args))
 
