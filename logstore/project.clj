@@ -14,7 +14,7 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [joda-time/joda-time "2.0"]
                  [org.clojure/algo.monads "0.1.0"]
-                 [com.balabit/balabit.blobbity "0.1.1"]
+                 [com.balabit/balabit.blobbity "0.1.2-SNAPSHOT"]
                  [slingshot "0.10.3"]]
   :plugins [[lein-marginalia "0.7.1"]]
   :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
