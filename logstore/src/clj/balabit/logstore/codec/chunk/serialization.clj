@@ -157,20 +157,23 @@
    (zero? socket-family) nil))
 
 ;; #### <a name="chunk/sr-tags">Tags</a>
-;;
-;; Tags are stored as a list of 32-bit length prefixed strings. An
-;; empty string of zero length marks the end of the tag list.
-;;
-;; Tags are converted into keywords.
-;;
+
+;; A tag is a 32-bit length prefixed string, that, if non-empty, is
+;; converted to a keyword.
+(defmethod decode-frame :chunk.serialized/tag
+  [#^ByteBuffer buffer _]
+
+  (let [tag-str (decode-frame buffer :prefixed :string :uint32)]
+    (when-not (empty? tag-str)
+      (keyword tag-str))))
+
+;; The list of tags are stored one after another, an empty tag (of
+;; zero length) marks the end of the list.
 (defmethod decode-frame :chunk.serialized/tags
   [#^ByteBuffer buffer _]
 
-  (loop [tags []]
-    (let [tag (decode-frame buffer :prefixed :string :uint32)]
-      (if (empty? tag)
-        tags
-        (recur (conj tags (keyword tag)))))))
+  (vec (take-while (complement nil?)
+                   (decode-frame buffer :sequence :chunk.serialized/tag))))
 
 ;; #### <a name="chunk/nvtable">Name-value pairs</a>
 ;;
