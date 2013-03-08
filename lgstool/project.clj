@@ -19,7 +19,7 @@
                  [me.raynes/conch "0.4.0"]]
   :plugins [[lein-marginalia "0.7.1"]]
   :source-paths ["src/clj"]
-  :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
+  :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}}
   :aliases {"with-all-profiles" ["with-profile" "dev:dev,1.5"],
             "lgstool" ["run" "--"]
             "docs" ["marg"

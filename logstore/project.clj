@@ -17,7 +17,7 @@
                  [com.balabit/balabit.blobbity "0.1.2"]
                  [slingshot "0.10.3"]]
   :plugins [[lein-marginalia "0.7.1"]]
-  :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
+  :profiles {:1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}}
   :source-paths ["src/clj"]
   :java-source-paths ["src/java"]
   :aot [balabit.logstore.exceptions
