@@ -164,7 +164,7 @@
   [#^ByteBuffer buffer _]
 
   (let [tag-str (decode-frame buffer :prefixed :string :uint32)]
-    (when-not (empty? tag-str)
+    (when (seq tag-str)
       (keyword tag-str))))
 
 ;; The list of tags are stored one after another, an empty tag (of
