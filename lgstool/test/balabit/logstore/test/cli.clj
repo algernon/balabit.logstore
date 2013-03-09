@@ -233,5 +233,6 @@
     (is (= (with-out-str (cli/lgstool-help))
            (with-out-str (cli/-main))))
 
-    (is (= (with-out-str (cli/lgstool-help))
+    (is (= (str "Unknown command: no-such-command\n"
+                (with-out-str (cli/lgstool-help)))
            (with-out-str (cli/-main "no-such-command"))))))
