@@ -179,6 +179,8 @@
 
      (if-let [cmd (ns-resolve 'balabit.logstore.cli (symbol (str "lgstool-" cmd)))]
        (dorun (apply (partial cmd print-message) args))
-       (lgstool-help)))
+       (do
+         (println "Unknown command:" cmd)
+         (lgstool-help))))
 
   ([] (-main "help")))
