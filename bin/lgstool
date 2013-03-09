@@ -1,0 +1,41 @@
+#! /bin/sh
+## This is a pretty damn simple script, that will fail in a lot of
+## perfectly valid cases. It is useful for a few things, however.
+
+FWD=$(pwd)
+SELF="$(dirname $(realpath $0))/.."
+
+cd "${SELF}"/lgstool
+
+## -- Parse parameters --
+## We do this to fix up any relative paths
+
+# The first argument is always the sub-command
+if [ $# -eq 0 ]; then
+        exec lein lgstool
+fi
+
+p="$1"
+shift
+
+while [ $# -gt 0 ]; do
+        case "$1" in
+                /*|-*)
+                        # Absolute paths and options are passed on as-is
+                        p="$p $1"
+                        ;;
+                *)
+                        # Everything else, we check if it is a local file
+                        if [ -e "$FWD/$1" ]; then
+                                # if it is, prepend the former working dir
+                                p="$p $FWD/$1"
+                        else
+                                # otherwise add it to the list and move on
+                                p="$p $1"
+                        fi
+                        ;;
+        esac
+        shift
+done
+
+exec lein lgstool $p
