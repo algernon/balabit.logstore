@@ -26,6 +26,4 @@
                                 :docs :sub-only}
              :sub ["logstore" "lgstool"]}
   :aliases {"with-all-profiles" ["with-profile" "logstore,lgstool" "sub"
-                                 "with-profile" "dev:dev,1.5"]
-
-            "lgstool" ["with-profile" "lgstool" "sub" "lgstool"]})
+                                 "with-profile" "dev:dev,1.5"]})
