@@ -22,7 +22,7 @@ needed too:
 
 ### Usage
 
-See the [documentation](http://algernon.github.com/balabit.logstore/)
+See the [documentation](http://algernon.github.io/balabit.logstore/)
 for more information.
 
 ## License

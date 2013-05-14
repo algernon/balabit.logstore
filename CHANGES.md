@@ -30,7 +30,7 @@ straightforward to work with the parsed data. See the
 [documentation][1] and the [example application][2] for more
 information.
 
- [1]: http://algernon.github.com/balabit.logstore/#balabit.logstore.java
+ [1]: http://algernon.github.io/balabit.logstore/#balabit.logstore.java
  [2]: https://github.com/algernon/balabit.logstore/blob/master/src/java/LGSCat.java
 
 ### Message representation changed

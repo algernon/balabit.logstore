@@ -1,6 +1,6 @@
 (defproject com.balabit/logstore "0.2.0-SNAPSHOT"
   :description "syslog-ng PE logstore reader"
-  :url "http://algernon.github.com/balabit.logstore"
+  :url "http://algernon.github.io/balabit.logstore"
   :min-lein-version "2.0.0"
   :mailing-list {:name "Syslog-ng users' and developers' mailing list"
                  :archive "http://lists.balabit.hu/pipermail/syslog-ng"
